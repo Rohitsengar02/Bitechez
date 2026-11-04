@@ -541,3 +541,4 @@ export function outputPdf(doc: JsPDF, filename: string, mode: PdfMode) {
   };
   document.body.appendChild(iframe);
 }
+

@@ -3,12 +3,32 @@
   "version": "1.0.0",
   "type": "module",
   "private": true,
-  "main": "./dist-electron/main/index.js",
+  "main": "./dist-electron/main/index.cjs",
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build && electron-builder --dir",
     "build:win": "tsc && vite build && electron-builder --win",
     "check-types": "tsc --noEmit"
+  },
+  "build": {
+    "appId": "com.cyberlim.pos",
+    "productName": "CyberLim POS",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*"
+    ],
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    }
   },
   "dependencies": {
     "@bitechez/business-logic": "workspace:*",

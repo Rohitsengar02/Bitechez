@@ -228,12 +228,8 @@ const CSS = `
 .pos-scroll::-webkit-scrollbar-thumb{background:#ECC7D3;border-radius:9999px}
 .pos-scroll::-webkit-scrollbar-track{background:transparent}
 .pos-noscroll{scrollbar-width:none}.pos-noscroll::-webkit-scrollbar{display:none}
-@keyframes pos-fade{from{opacity:0}}.pos-fade{animation:pos-fade .2s ease both}
-@keyframes pos-pop{from{opacity:0;transform:translateY(10px) scale(.97)}}.pos-pop{animation:pos-pop .28s cubic-bezier(.22,1,.36,1) both}
-@keyframes pos-in{from{opacity:0;transform:translateX(14px)}}.pos-in{animation:pos-in .32s cubic-bezier(.22,1,.36,1) both}
-@keyframes pos-card{from{opacity:0;transform:translateY(10px)}}.pos-card{animation:pos-card .38s cubic-bezier(.22,1,.36,1) both}
-@keyframes pos-bump{35%{transform:scale(1.3)}}.pos-bump{animation:pos-bump .35s ease}
-@keyframes pos-toast{from{opacity:0;transform:translateY(-12px)}}.pos-toast{animation:pos-toast .3s cubic-bezier(.22,1,.36,1) both}
+@keyframes pos-bump{35%{transform:scale(1.2)}}.pos-bump{animation:pos-bump .25s ease}
+@keyframes pos-toast{from{opacity:0;transform:translateY(-8px)}}.pos-toast{animation:pos-toast .25s ease both}
 @media (prefers-reduced-motion:reduce){.pos-root *{animation:none!important;transition:none!important}}
 `;
 
@@ -484,14 +480,14 @@ export const PosPage: React.FC = () => {
   const cart = cartItems as CartEntry[];
 
   /* ---------- data ---------- */
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-  const [tables, setTables] = useState<RestaurantTable[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = usePersisted<Category[]>('pos.categories', []);
+  const [menuItems, setMenuItems] = usePersisted<MenuItem[]>('pos.menuItems', []);
+  const [tables, setTables] = usePersisted<RestaurantTable[]>('pos.tables', []);
+  const [loading, setLoading] = useState(() => menuItems.length === 0);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const loadPosData = useCallback(async () => {
-    setLoading(true);
+    if (!menuItems.length) setLoading(true);
     setLoadError(null);
     try {
       const [cats, items, tbls] = await Promise.all([apiService.getCategories(), apiService.getMenuItems(), apiService.getTables()]);
@@ -500,11 +496,11 @@ export const PosPage: React.FC = () => {
       setTables(tbls);
     } catch (e) {
       console.error(e);
-      setLoadError('Could not load menu. Check the local server / database.');
+      if (!menuItems.length) setLoadError('Could not load menu. Check the local server / database.');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [menuItems.length, setCategories, setMenuItems, setTables]);
   useEffect(() => {
     loadPosData();
   }, [loadPosData]);
@@ -1130,12 +1126,12 @@ export const PosPage: React.FC = () => {
               {loading ? (
                 <div className="grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(150px,1fr))]">
                   {Array.from({ length: 10 }).map((_, i) => (
-                    <div key={i} className="rounded-2xl bg-white border border-gray-100 overflow-hidden">
-                      <div className="aspect-[4/3] bg-gradient-to-r from-rose-50 via-white to-rose-50 animate-pulse" />
-                      <div className="p-3 space-y-2">
-                        <div className="h-3 w-3/4 rounded bg-gray-100 animate-pulse" />
-                        <div className="h-3 w-1/3 rounded bg-gray-100 animate-pulse" />
+                    <div key={i} className="rounded-2xl bg-white border border-gray-100 p-3 space-y-2.5">
+                      <div className="aspect-[4/3] rounded-xl bg-gray-50 flex items-center justify-center">
+                        <Loader2 className="w-5 h-5 text-gray-300 animate-spin" />
                       </div>
+                      <div className="h-3.5 w-3/4 rounded bg-gray-100" />
+                      <div className="h-3.5 w-1/3 rounded bg-gray-100" />
                     </div>
                   ))}
                 </div>

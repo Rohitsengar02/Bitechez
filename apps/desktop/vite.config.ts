@@ -16,8 +16,16 @@ export default defineConfig({
         vite: {
           build: {
             outDir: 'dist-electron/main',
+            lib: {
+              entry: 'electron/main/index.ts',
+              formats: ['cjs'],
+            },
             rollupOptions: {
               external: ['better-sqlite3'],
+              output: {
+                format: 'cjs',
+                entryFileNames: '[name].cjs',
+              },
             },
           },
         },
@@ -30,6 +38,16 @@ export default defineConfig({
         vite: {
           build: {
             outDir: 'dist-electron/preload',
+            lib: {
+              entry: 'electron/preload/index.ts',
+              formats: ['cjs'],
+            },
+            rollupOptions: {
+              output: {
+                format: 'cjs',
+                entryFileNames: '[name].cjs',
+              },
+            },
           },
         },
       },

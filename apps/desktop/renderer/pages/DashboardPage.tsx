@@ -135,19 +135,10 @@ const HIGHLIGHTS = [
    CSS (GPU-only transforms/opacity → smooth + cheap)
    ===================================================================== */
 const CSS = `
-.cl-draw{stroke-dasharray:1;stroke-dashoffset:1;animation:cl-draw 1.2s cubic-bezier(.65,0,.35,1) .2s forwards}
-@keyframes cl-draw{to{stroke-dashoffset:0}}
-.cl-fade{opacity:0;animation:cl-fade .9s ease .55s forwards}
-@keyframes cl-fade{to{opacity:1}}
-.cl-pop{transform-box:fill-box;transform-origin:center;animation:cl-pop .45s cubic-bezier(.34,1.56,.64,1) both}
-@keyframes cl-pop{from{transform:scale(0);opacity:0}}
-.cl-bar{transform-origin:bottom;animation:cl-grow-y .75s cubic-bezier(.34,1.25,.64,1) both}
-@keyframes cl-grow-y{from{transform:scaleY(0)}}
-.cl-bar-x{transform-origin:left;animation:cl-grow-x 1s cubic-bezier(.22,1,.36,1) both}
-@keyframes cl-grow-x{from{transform:scaleX(0)}}
-.cl-donut-seg{animation:cl-donut 1.1s cubic-bezier(.22,1,.36,1) both}
-@keyframes cl-donut{from{stroke-dasharray:0 100}}
-.cl-offer-in{animation:cl-offer .5s cubic-bezier(.22,1,.36,1) both}
+.cl-pop{transform-box:fill-box;transform-origin:center}
+.cl-bar{transform-origin:bottom}
+.cl-bar-x{transform-origin:left}
+.cl-offer-in{animation:cl-offer .4s cubic-bezier(.22,1,.36,1) both}
 @keyframes cl-offer{from{transform:translateY(110%);opacity:0}}
 .cl-wave{display:inline-block;transform-origin:70% 70%;animation:cl-wave 2.8s ease-in-out infinite}
 @keyframes cl-wave{0%,60%,100%{transform:rotate(0)}10%,30%{transform:rotate(16deg)}20%{transform:rotate(-8deg)}40%{transform:rotate(-4deg)}50%{transform:rotate(10deg)}}
@@ -241,27 +232,8 @@ const Card: React.FC<{ className?: string; children: React.ReactNode }> = ({ cla
 );
 
 const CountUp = memo(
-  ({ value, prefix = '', suffix = '', delay = 0.25 }: { value: number; prefix?: string; suffix?: string; delay?: number }) => {
-    const ref = useRef<HTMLSpanElement>(null);
-    useEffect(() => {
-      const el = ref.current;
-      if (!el) return;
-      const o = { v: 0 };
-      const tw = gsap.to(o, {
-        v: value,
-        duration: 1.3,
-        delay,
-        ease: 'power2.out',
-        onUpdate: () => {
-          el.textContent = `${prefix}${Math.round(o.v).toLocaleString('en-IN')}${suffix}`;
-        },
-      });
-      return () => {
-        tw.kill();
-        el.textContent = `${prefix}${value.toLocaleString('en-IN')}${suffix}`;
-      };
-    }, [value, prefix, suffix, delay]);
-    return <span ref={ref}>{`${prefix}0${suffix}`}</span>;
+  ({ value, prefix = '', suffix = '' }: { value: number; prefix?: string; suffix?: string; delay?: number }) => {
+    return <span>{`${prefix}${value.toLocaleString('en-IN')}${suffix}`}</span>;
   }
 );
 
@@ -870,21 +842,7 @@ export const DashboardPage: React.FC<{ userName?: string }> = ({ userName = 'Roh
     return () => window.removeEventListener('keydown', onKey);
   }, [navigate]);
 
-  // Entrance choreography
-  useLayoutEffect(() => {
-    if (!rootRef.current) return;
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    const ctx = gsap.context(() => {
-      gsap.set('.cl-parallax', { scale: 1.05 });
-      gsap
-        .timeline({ defaults: { ease: 'power3.out' } })
-        .from('.cl-card', { autoAlpha: 0, y: 14, duration: 0.5, stagger: 0.035, clearProps: 'transform,opacity,visibility' })
-        .from('.cl-parallax', { autoAlpha: 0, scale: 1.14, duration: 1.1, ease: 'power2.out' }, 0)
-        .from('.banner-fade-item', { autoAlpha: 0, y: 12, duration: 0.5, stagger: 0.08, clearProps: 'transform,opacity,visibility' }, 0.15)
-        .from('.cl-hl', { autoAlpha: 0, x: -10, duration: 0.4, stagger: 0.08, clearProps: 'transform,opacity,visibility' }, 0.5);
-    }, rootRef);
-    return () => ctx.revert();
-  }, []);
+
 
   return (
     <div
