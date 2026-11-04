@@ -71,7 +71,7 @@ export const DashboardPage: React.FC = () => {
   }[salesTimeframe];
 
   return (
-    <div className="space-y-4 pb-6 max-w-[1600px] mx-auto select-none">
+    <div className="space-y-3 pb-3 w-full select-none">
       
       {/* ========================================================
           ROW 1: TOP HERO 16:9 BANNER + QUICK ACTIONS

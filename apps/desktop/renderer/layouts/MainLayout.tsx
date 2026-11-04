@@ -35,7 +35,7 @@ export const MainLayout: React.FC = () => {
   return (
     <div className="flex flex-col h-screen w-screen bg-[#FAF8F9] text-[#191923] overflow-hidden select-none">
       {/* 1. TOP DARK MAROON HEADER BAR */}
-      <header className="h-16 bg-[#600821] px-6 flex items-center justify-between shrink-0 z-30 shadow-sm">
+      <header className="h-16 bg-[#600821] px-3 sm:px-4 flex items-center justify-between shrink-0 z-30 shadow-sm">
         {/* Left: Brand Logo & Outlet Pill */}
         <div className="flex items-center gap-5">
           {/* Hexagonal Logo + Name */}
@@ -122,8 +122,8 @@ export const MainLayout: React.FC = () => {
       </header>
 
       {/* 2. SECOND HORIZONTAL NAVIGATION TABS BAR */}
-      <div className="bg-[#FAF8F9] px-6 py-2.5 shrink-0 border-b border-gray-200/60">
-        <nav className="flex items-center gap-3 overflow-x-auto scrollbar-none">
+      <div className="bg-[#FAF8F9] px-2 sm:px-3 py-2 shrink-0 border-b border-gray-200/60">
+        <nav className="flex items-center gap-2.5 overflow-x-auto scrollbar-none">
           {NAV_TABS.map((tab) => {
             const Icon = tab.icon;
             return (
@@ -131,7 +131,7 @@ export const MainLayout: React.FC = () => {
                 key={tab.path}
                 to={tab.path}
                 className={({ isActive }) =>
-                  `flex items-center gap-2 px-5 py-2 rounded-2xl text-xs font-bold transition-all whitespace-nowrap shadow-sm ${
+                  `flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-bold transition-all whitespace-nowrap shadow-sm ${
                     isActive
                       ? 'bg-[#800D32] text-white shadow-md shadow-[#800D32]/20 translate-y-[-1px]'
                       : 'bg-white text-gray-700 hover:text-[#800D32] hover:bg-white/80 border border-gray-200/70 hover:border-rose-200'
@@ -147,7 +147,7 @@ export const MainLayout: React.FC = () => {
       </div>
 
       {/* 3. MAIN DASHBOARD CONTENT AREA */}
-      <main className="flex-1 overflow-y-auto px-6 py-3.5 bg-[#FAF8F9]">
+      <main className="flex-1 overflow-y-auto px-2 sm:px-3 py-2.5 bg-[#FAF8F9]">
         <Outlet />
       </main>
     </div>
