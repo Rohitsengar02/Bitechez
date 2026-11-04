@@ -451,6 +451,10 @@ const HeroBanner = memo(({ userName }: { userName: string }) => {
             decoding="async"
             draggable={false}
             className="absolute right-0 top-0 bottom-0 h-full w-auto max-w-none object-contain object-right select-none pointer-events-none"
+            style={{
+              maskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.4) 15%, black 30%, black 100%)',
+              WebkitMaskImage: 'linear-gradient(to right, transparent 0%, rgba(0,0,0,0.4) 15%, black 30%, black 100%)',
+            }}
           />
           <div className="cl-steam hidden sm:block" style={CLOCHE_STEAM}>
             <span />
@@ -471,8 +475,8 @@ const HeroBanner = memo(({ userName }: { userName: string }) => {
             </span>
           ))}
         </div>
-        {/* Readability fade for narrow screens where text overlaps art */}
-        <div className="absolute inset-0 bg-gradient-to-r from-[#FFF5F8] via-[#FFF5F8]/80 to-transparent md:via-transparent md:from-[#FFF5F8]/40 pointer-events-none" />
+        {/* Smooth linear gradient fade from the left */}
+        <div className="absolute inset-0 bg-gradient-to-r from-[#FFF5F8] via-[#FFF5F8]/70 via-35% to-transparent pointer-events-none" />
       </div>
 
       <div className="relative z-10 h-full flex flex-col justify-between gap-3 p-5 xl:p-6 2xl:p-7 max-w-[560px] md:max-w-[62%] pointer-events-none">
