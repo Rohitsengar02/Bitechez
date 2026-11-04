@@ -24,34 +24,30 @@ export const DashboardPage: React.FC = () => {
 
   // GSAP animation refs
   const bannerRef = React.useRef<HTMLDivElement>(null);
-  const chefImgRef = React.useRef<HTMLImageElement>(null);
-  const handRef = React.useRef<HTMLSpanElement>(null);
-  const greetingRef = React.useRef<HTMLHeadingElement>(null);
-  const welcomeRef = React.useRef<HTMLParagraphElement>(null);
-  const descRef = React.useRef<HTMLParagraphElement>(null);
-  const statStripRef = React.useRef<HTMLDivElement>(null);
   const ordersValRef = React.useRef<HTMLSpanElement>(null);
   const salesValRef = React.useRef<HTMLSpanElement>(null);
   const tablesValRef = React.useRef<HTMLSpanElement>(null);
 
   React.useEffect(() => {
+    if (!bannerRef.current) return;
+
     const ctx = gsap.context(() => {
       // 1. Entrance timeline
       const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
 
       tl.fromTo(
-        [greetingRef.current, welcomeRef.current, descRef.current],
+        '.banner-fade-item',
         { opacity: 0, y: 16 },
         { opacity: 1, y: 0, duration: 0.6, stagger: 0.1 }
       )
       .fromTo(
-        statStripRef.current,
+        '.banner-stat-strip',
         { opacity: 0, y: 20, scale: 0.94 },
         { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: 'back.out(1.4)' },
         '-=0.25'
       )
       .fromTo(
-        chefImgRef.current,
+        '.banner-chef-img',
         { opacity: 0, x: 40, scale: 0.96 },
         { opacity: 1, x: 0, scale: 1, duration: 0.8, ease: 'power2.out' },
         '-=0.45'
@@ -80,7 +76,7 @@ export const DashboardPage: React.FC = () => {
       });
 
       // 3. Waving hand emoji wave
-      gsap.to(handRef.current, {
+      gsap.to('.banner-hand-wave', {
         rotation: 22,
         transformOrigin: '70% 70%',
         repeat: 5,
@@ -91,7 +87,7 @@ export const DashboardPage: React.FC = () => {
       });
 
       // 4. Smooth continuous idle floating/breathing animation for Chef mascot
-      gsap.to(chefImgRef.current, {
+      gsap.to('.banner-chef-img', {
         y: -6,
         duration: 2.4,
         repeat: -1,
@@ -105,12 +101,14 @@ export const DashboardPage: React.FC = () => {
 
   // 5. Parallax effect on mouse movement
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!bannerRef.current || !chefImgRef.current) return;
+    if (!bannerRef.current) return;
+    const chefImg = bannerRef.current.querySelector<HTMLElement>('.banner-chef-img');
+    if (!chefImg) return;
     const rect = bannerRef.current.getBoundingClientRect();
     const xRatio = (e.clientX - rect.left) / rect.width - 0.5;
     const yRatio = (e.clientY - rect.top) / rect.height - 0.5;
 
-    gsap.to(chefImgRef.current, {
+    gsap.to(chefImg, {
       x: xRatio * -24,
       y: yRatio * -16,
       rotation: xRatio * 2,
@@ -121,8 +119,10 @@ export const DashboardPage: React.FC = () => {
   };
 
   const handleMouseLeave = () => {
-    if (!chefImgRef.current) return;
-    gsap.to(chefImgRef.current, {
+    if (!bannerRef.current) return;
+    const chefImg = bannerRef.current.querySelector<HTMLElement>('.banner-chef-img');
+    if (!chefImg) return;
+    gsap.to(chefImg, {
       x: 0,
       y: 0,
       rotation: 0,
@@ -191,27 +191,26 @@ export const DashboardPage: React.FC = () => {
           className="col-span-12 xl:col-span-7 relative rounded-2xl overflow-hidden border border-gray-100 shadow-sm w-full h-full flex items-center bg-gradient-to-r from-[#FFF5F8] via-[#FCEAF1] to-[#FCE6EE] cursor-default transition-shadow hover:shadow-md"
         >
           <img
-            ref={chefImgRef}
             src={bannerBg}
             alt="CyberLim Hero Banner"
-            className="absolute right-0 top-0 h-full w-auto max-w-[68%] object-contain object-right pointer-events-none z-0 select-none will-change-transform"
+            className="banner-chef-img absolute right-0 top-0 h-full w-auto max-w-[68%] object-contain object-right pointer-events-none z-0 select-none will-change-transform"
           />
           
           <div className="relative z-10 p-6 2xl:p-8 max-w-[440px] 2xl:max-w-[480px] flex flex-col justify-between h-full pointer-events-none">
             <div>
-              <h2 ref={greetingRef} className="text-2xl 2xl:text-3xl font-black text-[#191923] tracking-tight flex items-center gap-2">
-                Good Afternoon, Rohit <span ref={handRef} className="inline-block text-2xl origin-bottom-right">👋</span>
+              <h2 className="banner-fade-item text-2xl 2xl:text-3xl font-black text-[#191923] tracking-tight flex items-center gap-2">
+                Good Afternoon, Rohit <span className="banner-hand-wave inline-block text-2xl origin-bottom-right">👋</span>
               </h2>
-              <p ref={welcomeRef} className="text-xl 2xl:text-2xl font-black text-[#800D32] mt-1 tracking-tight">
+              <p className="banner-fade-item text-xl 2xl:text-2xl font-black text-[#800D32] mt-1 tracking-tight">
                 Welcome to CyberLim POS
               </p>
-              <p ref={descRef} className="text-xs 2xl:text-sm text-gray-600 font-medium mt-1.5 leading-snug">
+              <p className="banner-fade-item text-xs 2xl:text-sm text-gray-600 font-medium mt-1.5 leading-snug">
                 Manage orders, tables, kitchen and more — all in one place.
               </p>
             </div>
 
             {/* Stat Strip */}
-            <div ref={statStripRef} className="bg-white/95 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-sm px-4.5 py-2.5 inline-flex items-center gap-4.5 self-start pointer-events-auto">
+            <div className="banner-stat-strip bg-white/95 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-sm px-4.5 py-2.5 inline-flex items-center gap-4.5 self-start pointer-events-auto">
               <div className="flex items-center gap-2.5">
                 <div className="w-7 h-7 rounded-lg bg-rose-50 text-[#800D32] flex items-center justify-center">
                   <UtensilsCrossed className="w-4 h-4" />
