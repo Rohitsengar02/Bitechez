@@ -1,5 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import gsap from 'gsap';
 import { 
   ShoppingCart, 
   FileText, 
@@ -20,6 +21,116 @@ import bannerBg from '../assets/banner_bg.jpg';
 export const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const [salesTimeframe, setSalesTimeframe] = React.useState<'Today' | '7 Days' | '30 Days'>('Today');
+
+  // GSAP animation refs
+  const bannerRef = React.useRef<HTMLDivElement>(null);
+  const chefImgRef = React.useRef<HTMLImageElement>(null);
+  const handRef = React.useRef<HTMLSpanElement>(null);
+  const greetingRef = React.useRef<HTMLHeadingElement>(null);
+  const welcomeRef = React.useRef<HTMLParagraphElement>(null);
+  const descRef = React.useRef<HTMLParagraphElement>(null);
+  const statStripRef = React.useRef<HTMLDivElement>(null);
+  const ordersValRef = React.useRef<HTMLSpanElement>(null);
+  const salesValRef = React.useRef<HTMLSpanElement>(null);
+  const tablesValRef = React.useRef<HTMLSpanElement>(null);
+
+  React.useEffect(() => {
+    const ctx = gsap.context(() => {
+      // 1. Entrance timeline
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
+
+      tl.fromTo(
+        [greetingRef.current, welcomeRef.current, descRef.current],
+        { opacity: 0, y: 16 },
+        { opacity: 1, y: 0, duration: 0.6, stagger: 0.1 }
+      )
+      .fromTo(
+        statStripRef.current,
+        { opacity: 0, y: 20, scale: 0.94 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: 'back.out(1.4)' },
+        '-=0.25'
+      )
+      .fromTo(
+        chefImgRef.current,
+        { opacity: 0, x: 40, scale: 0.96 },
+        { opacity: 1, x: 0, scale: 1, duration: 0.8, ease: 'power2.out' },
+        '-=0.45'
+      );
+
+      // 2. Count-up tween for stat numbers
+      const statsObj = { orders: 0, sales: 0, tables: 0 };
+      gsap.to(statsObj, {
+        orders: 128,
+        sales: 24850,
+        tables: 18,
+        duration: 1.3,
+        ease: 'power2.out',
+        delay: 0.3,
+        onUpdate: () => {
+          if (ordersValRef.current) {
+            ordersValRef.current.textContent = Math.round(statsObj.orders).toString();
+          }
+          if (salesValRef.current) {
+            salesValRef.current.textContent = `₹${Math.round(statsObj.sales).toLocaleString('en-IN')}`;
+          }
+          if (tablesValRef.current) {
+            tablesValRef.current.textContent = `${Math.round(statsObj.tables)} / 24`;
+          }
+        }
+      });
+
+      // 3. Waving hand emoji wave
+      gsap.to(handRef.current, {
+        rotation: 22,
+        transformOrigin: '70% 70%',
+        repeat: 5,
+        yoyo: true,
+        duration: 0.16,
+        ease: 'power1.inOut',
+        delay: 0.45,
+      });
+
+      // 4. Smooth continuous idle floating/breathing animation for Chef mascot
+      gsap.to(chefImgRef.current, {
+        y: -6,
+        duration: 2.4,
+        repeat: -1,
+        yoyo: true,
+        ease: 'sine.inOut',
+      });
+    }, bannerRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  // 5. Parallax effect on mouse movement
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!bannerRef.current || !chefImgRef.current) return;
+    const rect = bannerRef.current.getBoundingClientRect();
+    const xRatio = (e.clientX - rect.left) / rect.width - 0.5;
+    const yRatio = (e.clientY - rect.top) / rect.height - 0.5;
+
+    gsap.to(chefImgRef.current, {
+      x: xRatio * -24,
+      y: yRatio * -16,
+      rotation: xRatio * 2,
+      duration: 0.45,
+      ease: 'power1.out',
+      overwrite: 'auto',
+    });
+  };
+
+  const handleMouseLeave = () => {
+    if (!chefImgRef.current) return;
+    gsap.to(chefImgRef.current, {
+      x: 0,
+      y: 0,
+      rotation: 0,
+      duration: 0.7,
+      ease: 'power2.out',
+      overwrite: 'auto',
+    });
+  };
 
   // Dynamic Sales Trend Data depending on selected timeframe
   const salesTrendData = {
@@ -73,34 +184,40 @@ export const DashboardPage: React.FC = () => {
       <div className="grid grid-cols-12 gap-3.5 items-stretch h-[43%] min-h-[280px] max-h-[380px]">
         
         {/* Left 16:9 Hero Banner Card (~58% width) */}
-        <div className="col-span-12 xl:col-span-7 relative rounded-2xl overflow-hidden border border-gray-100 shadow-sm w-full h-full flex items-center bg-gradient-to-r from-[#FFF5F8] via-[#FCEAF1] to-[#FCE6EE]">
+        <div 
+          ref={bannerRef}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+          className="col-span-12 xl:col-span-7 relative rounded-2xl overflow-hidden border border-gray-100 shadow-sm w-full h-full flex items-center bg-gradient-to-r from-[#FFF5F8] via-[#FCEAF1] to-[#FCE6EE] cursor-default transition-shadow hover:shadow-md"
+        >
           <img
+            ref={chefImgRef}
             src={bannerBg}
             alt="CyberLim Hero Banner"
-            className="absolute right-0 top-0 h-full w-auto max-w-[68%] object-contain object-right pointer-events-none z-0"
+            className="absolute right-0 top-0 h-full w-auto max-w-[68%] object-contain object-right pointer-events-none z-0 select-none will-change-transform"
           />
           
-          <div className="relative z-10 p-6 2xl:p-8 max-w-[440px] 2xl:max-w-[480px] flex flex-col justify-between h-full">
+          <div className="relative z-10 p-6 2xl:p-8 max-w-[440px] 2xl:max-w-[480px] flex flex-col justify-between h-full pointer-events-none">
             <div>
-              <h2 className="text-2xl 2xl:text-3xl font-black text-[#191923] tracking-tight flex items-center gap-2">
-                Good Afternoon, Rohit <span className="inline-block text-2xl">👋</span>
+              <h2 ref={greetingRef} className="text-2xl 2xl:text-3xl font-black text-[#191923] tracking-tight flex items-center gap-2">
+                Good Afternoon, Rohit <span ref={handRef} className="inline-block text-2xl origin-bottom-right">👋</span>
               </h2>
-              <p className="text-xl 2xl:text-2xl font-black text-[#800D32] mt-1 tracking-tight">
+              <p ref={welcomeRef} className="text-xl 2xl:text-2xl font-black text-[#800D32] mt-1 tracking-tight">
                 Welcome to CyberLim POS
               </p>
-              <p className="text-xs 2xl:text-sm text-gray-600 font-medium mt-1.5 leading-snug">
+              <p ref={descRef} className="text-xs 2xl:text-sm text-gray-600 font-medium mt-1.5 leading-snug">
                 Manage orders, tables, kitchen and more — all in one place.
               </p>
             </div>
 
             {/* Stat Strip */}
-            <div className="bg-white/95 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-sm px-4.5 py-2.5 inline-flex items-center gap-4.5 self-start">
+            <div ref={statStripRef} className="bg-white/95 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-sm px-4.5 py-2.5 inline-flex items-center gap-4.5 self-start pointer-events-auto">
               <div className="flex items-center gap-2.5">
                 <div className="w-7 h-7 rounded-lg bg-rose-50 text-[#800D32] flex items-center justify-center">
                   <UtensilsCrossed className="w-4 h-4" />
                 </div>
                 <div>
-                  <span className="text-sm 2xl:text-base font-black text-[#191923] leading-none block">128</span>
+                  <span ref={ordersValRef} className="text-sm 2xl:text-base font-black text-[#191923] leading-none block">128</span>
                   <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-semibold block mt-0.5">Orders Today</span>
                 </div>
               </div>
@@ -112,7 +229,7 @@ export const DashboardPage: React.FC = () => {
                   ₹
                 </div>
                 <div>
-                  <span className="text-sm 2xl:text-base font-black text-[#191923] leading-none block">₹24,850</span>
+                  <span ref={salesValRef} className="text-sm 2xl:text-base font-black text-[#191923] leading-none block">₹24,850</span>
                   <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-semibold block mt-0.5">Sales Today</span>
                 </div>
               </div>
@@ -124,7 +241,7 @@ export const DashboardPage: React.FC = () => {
                   <Grid2X2 className="w-4 h-4" />
                 </div>
                 <div>
-                  <span className="text-sm 2xl:text-base font-black text-[#191923] leading-none block">18 / 24</span>
+                  <span ref={tablesValRef} className="text-sm 2xl:text-base font-black text-[#191923] leading-none block">18 / 24</span>
                   <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-semibold block mt-0.5">Tables Occupied</span>
                 </div>
               </div>
