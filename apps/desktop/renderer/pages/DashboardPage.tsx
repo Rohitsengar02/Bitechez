@@ -41,9 +41,9 @@ export const DashboardPage: React.FC = () => {
         { opacity: 1, y: 0, duration: 0.6, stagger: 0.1 }
       )
       .fromTo(
-        '.banner-stat-strip',
-        { opacity: 0, y: 20, scale: 0.94 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: 'back.out(1.4)' },
+        '.banner-stat-card',
+        { opacity: 0, y: 18, scale: 0.92 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.08, ease: 'back.out(1.4)' },
         '-=0.25'
       )
       .fromTo(
@@ -188,15 +188,16 @@ export const DashboardPage: React.FC = () => {
           ref={bannerRef}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
-          className="col-span-12 xl:col-span-7 relative rounded-2xl overflow-hidden border border-gray-100 shadow-sm w-full h-full flex items-center bg-gradient-to-r from-[#FFF5F8] via-[#FCEAF1] to-[#FCE6EE] cursor-default transition-shadow hover:shadow-md"
+          className="col-span-12 xl:col-span-7 relative rounded-2xl overflow-hidden border border-gray-100 shadow-sm w-full h-full flex items-center bg-[#FFF5F8] cursor-default transition-shadow hover:shadow-md"
         >
+          {/* Full Cover 16:9 Background Image */}
           <img
             src={bannerBg}
             alt="CyberLim Hero Banner"
-            className="banner-chef-img absolute right-0 top-0 h-full w-auto max-w-[68%] object-contain object-right pointer-events-none z-0 select-none will-change-transform"
+            className="banner-chef-img absolute inset-0 w-full h-full object-cover object-right pointer-events-none z-0 select-none will-change-transform"
           />
           
-          <div className="relative z-10 p-6 2xl:p-8 max-w-[440px] 2xl:max-w-[480px] flex flex-col justify-between h-full pointer-events-none">
+          <div className="relative z-10 p-6 2xl:p-8 max-w-[440px] 2xl:max-w-[500px] flex flex-col justify-between h-full pointer-events-none">
             <div>
               <h2 className="banner-fade-item text-2xl 2xl:text-3xl font-black text-[#191923] tracking-tight flex items-center gap-2">
                 Good Afternoon, Rohit <span className="banner-hand-wave inline-block text-2xl origin-bottom-right">👋</span>
@@ -209,39 +210,47 @@ export const DashboardPage: React.FC = () => {
               </p>
             </div>
 
-            {/* Stat Strip */}
-            <div className="banner-stat-strip bg-white/95 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-sm px-4.5 py-2.5 inline-flex items-center gap-4.5 self-start pointer-events-auto">
-              <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg bg-rose-50 text-[#800D32] flex items-center justify-center">
+            {/* Beautiful Stat Cards Row */}
+            <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 self-start pointer-events-auto">
+              {/* Card 1: Orders Today */}
+              <div className="banner-stat-card bg-white/95 hover:bg-white backdrop-blur-md rounded-xl px-3 py-2 border border-white/90 shadow-[0_2px_8px_rgba(128,13,50,0.06)] hover:shadow-md transition-all flex items-center gap-2.5 group">
+                <div className="w-8 h-8 rounded-lg bg-rose-50 text-[#800D32] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                   <UtensilsCrossed className="w-4 h-4" />
                 </div>
                 <div>
-                  <span ref={ordersValRef} className="text-sm 2xl:text-base font-black text-[#191923] leading-none block">128</span>
-                  <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-semibold block mt-0.5">Orders Today</span>
+                  <div className="flex items-center gap-1.5">
+                    <span ref={ordersValRef} className="text-sm 2xl:text-base font-black text-[#191923] leading-none">128</span>
+                    <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded leading-none">+12%</span>
+                  </div>
+                  <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-semibold block mt-1">Orders Today</span>
                 </div>
               </div>
 
-              <div className="w-px h-6 bg-gray-200" />
-
-              <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg bg-rose-50 text-[#800D32] flex items-center justify-center font-bold text-xs">
+              {/* Card 2: Sales Today */}
+              <div className="banner-stat-card bg-white/95 hover:bg-white backdrop-blur-md rounded-xl px-3 py-2 border border-white/90 shadow-[0_2px_8px_rgba(128,13,50,0.06)] hover:shadow-md transition-all flex items-center gap-2.5 group">
+                <div className="w-8 h-8 rounded-lg bg-rose-50 text-[#800D32] flex items-center justify-center font-bold text-xs shrink-0 group-hover:scale-105 transition-transform">
                   ₹
                 </div>
                 <div>
-                  <span ref={salesValRef} className="text-sm 2xl:text-base font-black text-[#191923] leading-none block">₹24,850</span>
-                  <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-semibold block mt-0.5">Sales Today</span>
+                  <div className="flex items-center gap-1.5">
+                    <span ref={salesValRef} className="text-sm 2xl:text-base font-black text-[#191923] leading-none">₹24,850</span>
+                    <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded leading-none">+8.2%</span>
+                  </div>
+                  <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-semibold block mt-1">Sales Today</span>
                 </div>
               </div>
 
-              <div className="w-px h-6 bg-gray-200" />
-
-              <div className="flex items-center gap-2.5">
-                <div className="w-7 h-7 rounded-lg bg-rose-50 text-[#800D32] flex items-center justify-center">
+              {/* Card 3: Tables Occupied */}
+              <div className="banner-stat-card bg-white/95 hover:bg-white backdrop-blur-md rounded-xl px-3 py-2 border border-white/90 shadow-[0_2px_8px_rgba(128,13,50,0.06)] hover:shadow-md transition-all flex items-center gap-2.5 group">
+                <div className="w-8 h-8 rounded-lg bg-rose-50 text-[#800D32] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                   <Grid2X2 className="w-4 h-4" />
                 </div>
                 <div>
-                  <span ref={tablesValRef} className="text-sm 2xl:text-base font-black text-[#191923] leading-none block">18 / 24</span>
-                  <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-semibold block mt-0.5">Tables Occupied</span>
+                  <div className="flex items-center gap-1.5">
+                    <span ref={tablesValRef} className="text-sm 2xl:text-base font-black text-[#191923] leading-none">18 / 24</span>
+                    <span className="text-[9px] font-bold text-[#800D32] bg-rose-50 px-1 py-0.5 rounded leading-none">75%</span>
+                  </div>
+                  <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-semibold block mt-1">Tables Occupied</span>
                 </div>
               </div>
             </div>
