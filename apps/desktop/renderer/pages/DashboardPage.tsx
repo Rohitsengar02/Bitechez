@@ -15,7 +15,9 @@ import {
   Coins,
   Package,
   ChevronDown,
-  ArrowRight
+  Wallet,
+  Sparkles,
+  CheckCircle2
 } from 'lucide-react';
 import bannerBg from '../assets/banner_bg.jpg';
 
@@ -42,9 +44,9 @@ export const DashboardPage: React.FC = () => {
         { opacity: 1, y: 0, duration: 0.6, stagger: 0.1 }
       )
       .fromTo(
-        '.banner-stat-card',
-        { opacity: 0, y: 18, scale: 0.92 },
-        { opacity: 1, y: 0, scale: 1, duration: 0.5, stagger: 0.08, ease: 'back.out(1.4)' },
+        '.banner-stat-strip',
+        { opacity: 0, y: 18, scale: 0.94 },
+        { opacity: 1, y: 0, scale: 1, duration: 0.55, ease: 'back.out(1.4)' },
         '-=0.25'
       )
       .fromTo(
@@ -177,19 +179,19 @@ export const DashboardPage: React.FC = () => {
   }[salesTimeframe];
 
   return (
-    <div className="flex-1 h-full min-h-0 flex flex-col justify-between gap-3 w-full select-none pb-0.5">
+    <div className="flex-1 flex flex-col gap-3.5 w-full select-none pb-4">
       
       {/* ========================================================
-          ROW 1: TOP HERO 16:9 BANNER + QUICK ACTIONS (BIGGER)
+          ROW 1: TOP HERO 16:9 BANNER + QUICK ACTIONS
          ======================================================== */}
-      <div className="grid grid-cols-12 gap-3.5 items-stretch h-[43%] min-h-[280px] max-h-[380px]">
+      <div className="grid grid-cols-12 gap-3.5 items-stretch min-h-[250px]">
         
         {/* Left 16:9 Hero Banner Card (~58% width) */}
         <div 
           ref={bannerRef}
           onMouseMove={handleMouseMove}
           onMouseLeave={handleMouseLeave}
-          className="col-span-12 xl:col-span-7 relative rounded-2xl overflow-hidden border border-gray-100 shadow-sm w-full h-full flex items-center bg-[#FFF5F8] cursor-default transition-shadow hover:shadow-md"
+          className="col-span-12 xl:col-span-7 relative rounded-2xl overflow-hidden border border-gray-100 shadow-sm w-full h-full min-h-[250px] flex items-center bg-[#FFF5F8] cursor-default transition-shadow hover:shadow-md"
         >
           {/* Full Cover 16:9 Background Image */}
           <img
@@ -198,7 +200,7 @@ export const DashboardPage: React.FC = () => {
             className="banner-chef-img absolute inset-0 w-full h-full object-cover object-right pointer-events-none z-0 select-none will-change-transform"
           />
           
-          <div className="relative z-10 p-6 2xl:p-8 max-w-[440px] 2xl:max-w-[500px] flex flex-col justify-between h-full pointer-events-none">
+          <div className="relative z-10 p-6 2xl:p-7 max-w-[450px] 2xl:max-w-[490px] flex flex-col justify-between h-full pointer-events-none">
             <div>
               <h2 className="banner-fade-item text-2xl 2xl:text-3xl font-black text-[#191923] tracking-tight flex items-center gap-2">
                 Good Afternoon, Rohit <span className="banner-hand-wave inline-block text-2xl origin-bottom-right">👋</span>
@@ -211,47 +213,42 @@ export const DashboardPage: React.FC = () => {
               </p>
             </div>
 
-            {/* Beautiful Stat Cards Row - Exactly Same Width (grid-cols-3) */}
-            <div className="grid grid-cols-3 gap-2.5 w-full max-w-[460px] 2xl:max-w-[500px] self-start pointer-events-auto">
-              {/* Card 1: Orders Today */}
-              <div className="banner-stat-card bg-white/95 hover:bg-white backdrop-blur-md rounded-2xl p-2.5 2xl:p-3 border border-white/90 shadow-[0_4px_14px_rgba(128,13,50,0.06)] hover:shadow-lg transition-all flex items-center gap-2.5 group cursor-pointer hover:-translate-y-0.5">
-                <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl bg-gradient-to-br from-rose-50 to-pink-100/60 text-[#800D32] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+            {/* Stat Strip - Single Pill Exact Match */}
+            <div className="banner-stat-strip bg-white/95 backdrop-blur-sm rounded-2xl border border-gray-100 shadow-sm px-4.5 py-2.5 inline-flex items-center gap-4.5 self-start pointer-events-auto mt-4">
+              {/* Segment 1: Orders Today */}
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-rose-50 text-[#800D32] flex items-center justify-center shrink-0">
                   <UtensilsCrossed className="w-4 h-4" />
                 </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-1.5 flex-nowrap">
-                    <span ref={ordersValRef} className="text-sm 2xl:text-base font-black text-[#191923] leading-none whitespace-nowrap">128</span>
-                    <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded leading-none whitespace-nowrap">+12%</span>
-                  </div>
-                  <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-semibold block mt-1 whitespace-nowrap truncate">Orders Today</span>
+                <div>
+                  <span ref={ordersValRef} className="text-sm 2xl:text-base font-black text-[#191923] leading-none block">128</span>
+                  <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-semibold block mt-0.5 whitespace-nowrap">Orders Today</span>
                 </div>
               </div>
 
-              {/* Card 2: Sales Today */}
-              <div className="banner-stat-card bg-white/95 hover:bg-white backdrop-blur-md rounded-2xl p-2.5 2xl:p-3 border border-white/90 shadow-[0_4px_14px_rgba(128,13,50,0.06)] hover:shadow-lg transition-all flex items-center gap-2.5 group cursor-pointer hover:-translate-y-0.5">
-                <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl bg-gradient-to-br from-rose-50 to-pink-100/60 text-[#800D32] flex items-center justify-center font-bold text-xs shrink-0 group-hover:scale-105 transition-transform">
+              <div className="w-px h-6 bg-gray-200" />
+
+              {/* Segment 2: Sales Today */}
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-rose-50 text-[#800D32] flex items-center justify-center font-bold text-xs shrink-0">
                   ₹
                 </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-1.5 flex-nowrap">
-                    <span ref={salesValRef} className="text-sm 2xl:text-base font-black text-[#191923] leading-none whitespace-nowrap">₹24,850</span>
-                    <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded leading-none whitespace-nowrap">+8.2%</span>
-                  </div>
-                  <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-semibold block mt-1 whitespace-nowrap truncate">Sales Today</span>
+                <div>
+                  <span ref={salesValRef} className="text-sm 2xl:text-base font-black text-[#191923] leading-none block">₹24,850</span>
+                  <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-semibold block mt-0.5 whitespace-nowrap">Sales Today</span>
                 </div>
               </div>
 
-              {/* Card 3: Tables Occupied */}
-              <div className="banner-stat-card bg-white/95 hover:bg-white backdrop-blur-md rounded-2xl p-2.5 2xl:p-3 border border-white/90 shadow-[0_4px_14px_rgba(128,13,50,0.06)] hover:shadow-lg transition-all flex items-center gap-2.5 group cursor-pointer hover:-translate-y-0.5">
-                <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl bg-gradient-to-br from-rose-50 to-pink-100/60 text-[#800D32] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <div className="w-px h-6 bg-gray-200" />
+
+              {/* Segment 3: Tables Occupied */}
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-full bg-rose-50 text-[#800D32] flex items-center justify-center shrink-0">
                   <Grid2X2 className="w-4 h-4" />
                 </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-1.5 flex-nowrap">
-                    <span ref={tablesValRef} className="text-sm 2xl:text-base font-black text-[#191923] leading-none whitespace-nowrap">18 / 24</span>
-                    <span className="text-[9px] font-bold text-[#800D32] bg-rose-50 px-1 py-0.5 rounded leading-none whitespace-nowrap">75%</span>
-                  </div>
-                  <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-semibold block mt-1 whitespace-nowrap truncate">Tables Occupied</span>
+                <div>
+                  <span ref={tablesValRef} className="text-sm 2xl:text-base font-black text-[#191923] leading-none block">18 / 24</span>
+                  <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-semibold block mt-0.5 whitespace-nowrap">Tables Occupied</span>
                 </div>
               </div>
             </div>
@@ -259,121 +256,113 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Right Quick Actions Card (~42% width) */}
-        <div className="col-span-12 xl:col-span-5 bg-white rounded-2xl p-5 2xl:p-6 border border-gray-100 shadow-sm flex flex-col justify-between h-full">
+        <div className="col-span-12 xl:col-span-5 bg-white rounded-2xl p-5 2xl:p-6 border border-gray-100 shadow-sm flex flex-col justify-between h-full min-h-[250px]">
           <div className="flex items-center justify-between pb-2">
             <h3 className="text-sm 2xl:text-base font-bold text-[#191923]">Quick Actions</h3>
             <button 
               onClick={() => navigate('/tools')}
-              className="text-[11px] font-bold text-[#800D32] hover:text-[#5a0923] flex items-center gap-1 transition-colors group"
+              className="text-xs font-semibold text-gray-500 hover:text-[#800D32] flex items-center gap-1.5 transition-colors"
             >
-              <span>View All</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+              <Settings className="w-3.5 h-3.5 text-[#800D32]" />
+              <span>Customize</span>
             </button>
           </div>
 
           <div className="grid grid-cols-4 gap-2.5 2xl:gap-3 flex-1 items-stretch pt-1">
-            {/* 1. New Sale (Featured CTA) */}
+            {/* 1. New Sale (F2) */}
             <button
               onClick={() => navigate('/pos')}
-              className="relative bg-gradient-to-br from-[#FFF0F4] via-[#FCE8F0] to-[#FADBE7] hover:from-[#FCE0EB] hover:to-[#F5CDDD] border border-[#F8C6D6] rounded-2xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all duration-200 group active:scale-95 shadow-sm hover:shadow-md"
+              className="bg-[#FDEBF1] hover:bg-[#FADDE7] border border-[#F8C6D6] rounded-2xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all group active:scale-95 shadow-sm"
             >
-              <span className="absolute top-2 right-2 text-[9px] font-black text-[#800D32] bg-[#800D32]/10 px-1.5 py-0.5 rounded-md leading-none">F2</span>
-              <div className="w-9 h-9 2xl:w-10 2xl:h-10 rounded-xl bg-white shadow-sm text-[#800D32] flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
+              <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl text-[#800D32] flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
                 <ShoppingCart className="w-5 h-5" />
               </div>
-              <span className="text-xs 2xl:text-sm font-black text-[#191923] leading-tight">New Sale</span>
-              <span className="text-[10px] 2xl:text-[11px] text-[#800D32] font-semibold mt-0.5 leading-tight">Take Order</span>
+              <span className="text-xs 2xl:text-sm font-bold text-[#191923] leading-tight">New Sale</span>
+              <span className="text-[10px] text-gray-500 font-semibold mt-0.5">F2</span>
             </button>
 
-            {/* 2. Add Item */}
+            {/* 2. Add Item (F3) */}
             <button
               onClick={() => navigate('/menu')}
-              className="relative bg-white hover:bg-rose-50/20 border border-gray-100 hover:border-gray-200 rounded-2xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all duration-200 group active:scale-95 hover:shadow-sm"
+              className="bg-white hover:bg-gray-50 border border-gray-100 rounded-2xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all group active:scale-95 shadow-sm"
             >
-              <span className="absolute top-2 right-2 text-[9px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-md leading-none">F3</span>
-              <div className="w-9 h-9 2xl:w-10 2xl:h-10 rounded-xl bg-gray-50 group-hover:bg-rose-50 text-gray-700 group-hover:text-[#800D32] flex items-center justify-center mb-1 group-hover:scale-110 transition-all">
+              <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl text-[#800D32] flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
                 <PlusCircle className="w-5 h-5" />
               </div>
               <span className="text-xs 2xl:text-sm font-bold text-[#191923] leading-tight">Add Item</span>
-              <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-medium mt-0.5 leading-tight">Menu & Price</span>
+              <span className="text-[10px] text-gray-400 font-semibold mt-0.5">F3</span>
             </button>
 
-            {/* 3. Add Table */}
+            {/* 3. Add Table (F4) */}
             <button
               onClick={() => navigate('/tables')}
-              className="relative bg-white hover:bg-rose-50/20 border border-gray-100 hover:border-gray-200 rounded-2xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all duration-200 group active:scale-95 hover:shadow-sm"
+              className="bg-white hover:bg-gray-50 border border-gray-100 rounded-2xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all group active:scale-95 shadow-sm"
             >
-              <span className="absolute top-2 right-2 text-[9px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-md leading-none">F4</span>
-              <div className="w-9 h-9 2xl:w-10 2xl:h-10 rounded-xl bg-gray-50 group-hover:bg-rose-50 text-gray-700 group-hover:text-[#800D32] flex items-center justify-center mb-1 group-hover:scale-110 transition-all">
+              <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl text-[#800D32] flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
                 <Grid2X2 className="w-5 h-5" />
               </div>
               <span className="text-xs 2xl:text-sm font-bold text-[#191923] leading-tight">Add Table</span>
-              <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-medium mt-0.5 leading-tight">Manage Tables</span>
+              <span className="text-[10px] text-gray-400 font-semibold mt-0.5">F4</span>
             </button>
 
-            {/* 4. KOT */}
+            {/* 4. KOT (F5) */}
             <button
               onClick={() => navigate('/kitchen')}
-              className="relative bg-white hover:bg-rose-50/20 border border-gray-100 hover:border-gray-200 rounded-2xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all duration-200 group active:scale-95 hover:shadow-sm"
+              className="bg-white hover:bg-gray-50 border border-gray-100 rounded-2xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all group active:scale-95 shadow-sm"
             >
-              <span className="absolute top-2 right-2 text-[9px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-md leading-none">F5</span>
-              <div className="w-9 h-9 2xl:w-10 2xl:h-10 rounded-xl bg-gray-50 group-hover:bg-rose-50 text-gray-700 group-hover:text-[#800D32] flex items-center justify-center mb-1 group-hover:scale-110 transition-all">
+              <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl text-[#800D32] flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
                 <ChefHat className="w-5 h-5" />
               </div>
               <span className="text-xs 2xl:text-sm font-bold text-[#191923] leading-tight">KOT</span>
-              <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-medium mt-0.5 leading-tight">Kitchen Orders</span>
+              <span className="text-[10px] text-gray-400 font-semibold mt-0.5">F5</span>
             </button>
 
-            {/* 5. Customers */}
+            {/* 5. Customers (F6) */}
             <button
               onClick={() => navigate('/customers')}
-              className="relative bg-white hover:bg-rose-50/20 border border-gray-100 hover:border-gray-200 rounded-2xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all duration-200 group active:scale-95 hover:shadow-sm"
+              className="bg-white hover:bg-gray-50 border border-gray-100 rounded-2xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all group active:scale-95 shadow-sm"
             >
-              <span className="absolute top-2 right-2 text-[9px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-md leading-none">F6</span>
-              <div className="w-9 h-9 2xl:w-10 2xl:h-10 rounded-xl bg-gray-50 group-hover:bg-rose-50 text-gray-700 group-hover:text-[#800D32] flex items-center justify-center mb-1 group-hover:scale-110 transition-all">
+              <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl text-[#800D32] flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
                 <Users className="w-5 h-5" />
               </div>
               <span className="text-xs 2xl:text-sm font-bold text-[#191923] leading-tight">Customers</span>
-              <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-medium mt-0.5 leading-tight">Manage CRM</span>
+              <span className="text-[10px] text-gray-400 font-semibold mt-0.5">F6</span>
             </button>
 
-            {/* 6. Reports */}
+            {/* 6. Reports (F7) */}
             <button
               onClick={() => navigate('/tools')}
-              className="relative bg-white hover:bg-rose-50/20 border border-gray-100 hover:border-gray-200 rounded-2xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all duration-200 group active:scale-95 hover:shadow-sm"
+              className="bg-white hover:bg-gray-50 border border-gray-100 rounded-2xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all group active:scale-95 shadow-sm"
             >
-              <span className="absolute top-2 right-2 text-[9px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-md leading-none">F7</span>
-              <div className="w-9 h-9 2xl:w-10 2xl:h-10 rounded-xl bg-gray-50 group-hover:bg-rose-50 text-gray-700 group-hover:text-[#800D32] flex items-center justify-center mb-1 group-hover:scale-110 transition-all">
+              <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl text-[#800D32] flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
                 <BarChart3 className="w-5 h-5" />
               </div>
               <span className="text-xs 2xl:text-sm font-bold text-[#191923] leading-tight">Reports</span>
-              <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-medium mt-0.5 leading-tight">Sales & Orders</span>
+              <span className="text-[10px] text-gray-400 font-semibold mt-0.5">F7</span>
             </button>
 
-            {/* 7. Printers */}
+            {/* 7. Printers (F8) */}
             <button
               onClick={() => navigate('/printers')}
-              className="relative bg-white hover:bg-rose-50/20 border border-gray-100 hover:border-gray-200 rounded-2xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all duration-200 group active:scale-95 hover:shadow-sm"
+              className="bg-white hover:bg-gray-50 border border-gray-100 rounded-2xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all group active:scale-95 shadow-sm"
             >
-              <span className="absolute top-2 right-2 text-[9px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-md leading-none">F8</span>
-              <div className="w-9 h-9 2xl:w-10 2xl:h-10 rounded-xl bg-gray-50 group-hover:bg-rose-50 text-gray-700 group-hover:text-[#800D32] flex items-center justify-center mb-1 group-hover:scale-110 transition-all">
+              <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl text-[#800D32] flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
                 <Printer className="w-5 h-5" />
               </div>
               <span className="text-xs 2xl:text-sm font-bold text-[#191923] leading-tight">Printers</span>
-              <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-medium mt-0.5 leading-tight">Devices & KOT</span>
+              <span className="text-[10px] text-gray-400 font-semibold mt-0.5">F8</span>
             </button>
 
-            {/* 8. Settings */}
+            {/* 8. Settings (F9) */}
             <button
               onClick={() => navigate('/tools')}
-              className="relative bg-white hover:bg-rose-50/20 border border-gray-100 hover:border-gray-200 rounded-2xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all duration-200 group active:scale-95 hover:shadow-sm"
+              className="bg-white hover:bg-gray-50 border border-gray-100 rounded-2xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all group active:scale-95 shadow-sm"
             >
-              <span className="absolute top-2 right-2 text-[9px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-md leading-none">F9</span>
-              <div className="w-9 h-9 2xl:w-10 2xl:h-10 rounded-xl bg-gray-50 group-hover:bg-rose-50 text-gray-700 group-hover:text-[#800D32] flex items-center justify-center mb-1 group-hover:scale-110 transition-all">
+              <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl text-[#800D32] flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
                 <Settings className="w-5 h-5" />
               </div>
               <span className="text-xs 2xl:text-sm font-bold text-[#191923] leading-tight">Settings</span>
-              <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-medium mt-0.5 leading-tight">System & Outlet</span>
+              <span className="text-[10px] text-gray-400 font-semibold mt-0.5">F9</span>
             </button>
           </div>
         </div>
@@ -382,9 +371,9 @@ export const DashboardPage: React.FC = () => {
 
 
       {/* ========================================================
-          ROW 2: 6 SNAPSHOT STAT CARDS IN A ROW (ENLARGED)
+          ROW 2: 6 SNAPSHOT STAT CARDS IN A ROW
          ======================================================== */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5 h-[17%] min-h-[96px] max-h-[125px] items-stretch">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5 items-stretch min-h-[96px]">
         
         {/* Card 1: Total Sales */}
         <div className="bg-white rounded-2xl p-3.5 2xl:p-4 border border-gray-100 shadow-sm flex flex-col justify-between h-full relative overflow-hidden">
@@ -504,9 +493,9 @@ export const DashboardPage: React.FC = () => {
 
 
       {/* ========================================================
-          ROW 3: 4 EQUAL CARDS (COMPACT & LITTLE SMALLER)
+          ROW 3: 4 CARDS (Sales Trend, Order Types, Top Selling, Table Status)
          ======================================================== */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5 flex-1 h-[40%] min-h-[220px] max-h-[285px] items-stretch">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5 items-stretch min-h-[240px]">
         
         {/* Card 1: Sales Trend */}
         <div className="bg-white rounded-2xl p-3.5 2xl:p-4 border border-gray-100 shadow-sm flex flex-col justify-between h-full">
@@ -778,6 +767,224 @@ export const DashboardPage: React.FC = () => {
                 <span className="font-bold text-gray-400">0</span>
               </div>
             </div>
+          </div>
+        </div>
+
+      </div>
+
+
+      {/* ========================================================
+          ROW 4: 4 CARDS (Hourly Sales, Payment Methods, Category Perf, Highlights)
+         ======================================================== */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5 items-stretch min-h-[220px]">
+        
+        {/* Card 1: Hourly Sales */}
+        <div className="bg-white rounded-2xl p-3.5 2xl:p-4 border border-gray-100 shadow-sm flex flex-col justify-between h-full">
+          <div className="flex items-center justify-between pb-1">
+            <h4 className="text-xs 2xl:text-sm font-bold text-[#191923]">Hourly Sales</h4>
+          </div>
+
+          <div className="flex-1 w-full relative mt-1 flex flex-col justify-end min-h-[140px]">
+            {/* Tooltip badge for 4 PM peak */}
+            <div className="absolute top-0 left-[68%] -translate-x-1/2 bg-[#800D32] text-white text-[9px] font-bold px-2 py-0.5 rounded-md shadow-sm z-10">
+              ₹5,840
+            </div>
+
+            <div className="flex items-end justify-between gap-1.5 h-[110px] pt-4 px-1">
+              {[
+                { time: '9 AM', h: '24%' },
+                { time: '10 AM', h: '42%' },
+                { time: '11 AM', h: '58%' },
+                { time: '12 PM', h: '68%' },
+                { time: '1 PM', h: '52%' },
+                { time: '2 PM', h: '62%' },
+                { time: '3 PM', h: '74%' },
+                { time: '4 PM', h: '98%', peak: true },
+                { time: '5 PM', h: '82%' },
+                { time: '6 PM', h: '65%' },
+              ].map((bar, i) => (
+                <div key={i} className="flex-1 flex flex-col items-center h-full justify-end group">
+                  <div 
+                    style={{ height: bar.h }}
+                    className={`w-full max-w-[18px] rounded-t-md transition-all duration-300 ${
+                      bar.peak 
+                        ? 'bg-[#800D32] shadow-sm' 
+                        : 'bg-rose-100/80 hover:bg-rose-200'
+                    }`}
+                  />
+                  <span className="text-[8px] 2xl:text-[9px] font-semibold text-gray-400 mt-1.5 whitespace-nowrap">
+                    {bar.time}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Card 2: Payment Methods */}
+        <div className="bg-white rounded-2xl p-3.5 2xl:p-4 border border-gray-100 shadow-sm flex flex-col justify-between h-full">
+          <h4 className="text-xs 2xl:text-sm font-bold text-[#191923]">Payment Methods</h4>
+
+          <div className="flex items-center justify-between gap-2.5 flex-1 my-auto">
+            {/* Donut Chart with Wallet Icon */}
+            <div className="relative w-28 h-28 2xl:w-32 2xl:h-32 shrink-0 flex items-center justify-center">
+              <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
+                <circle cx="50" cy="50" r="38" fill="transparent" stroke="#F1F1F4" strokeWidth="12" />
+                {/* Cash: 46% (#800D32) */}
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="38"
+                  fill="transparent"
+                  stroke="#800D32"
+                  strokeWidth="12"
+                  strokeDasharray="238.76"
+                  strokeDashoffset={238.76 * (1 - 0.46)}
+                  strokeLinecap="round"
+                />
+                {/* UPI: 32% (#D95D80) */}
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="38"
+                  fill="transparent"
+                  stroke="#D95D80"
+                  strokeWidth="12"
+                  strokeDasharray="238.76"
+                  strokeDashoffset={238.76 * (1 - 0.32)}
+                  style={{
+                    transform: `rotate(${360 * 0.46}deg)`,
+                    transformOrigin: '50px 50px',
+                  }}
+                />
+                {/* Card: 14% (#A855F7) */}
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="38"
+                  fill="transparent"
+                  stroke="#A855F7"
+                  strokeWidth="12"
+                  strokeDasharray="238.76"
+                  strokeDashoffset={238.76 * (1 - 0.14)}
+                  style={{
+                    transform: `rotate(${360 * (0.46 + 0.32)}deg)`,
+                    transformOrigin: '50px 50px',
+                  }}
+                />
+                {/* Other: 8% (#38BDF8) */}
+                <circle
+                  cx="50"
+                  cy="50"
+                  r="38"
+                  fill="transparent"
+                  stroke="#38BDF8"
+                  strokeWidth="12"
+                  strokeDasharray="238.76"
+                  strokeDashoffset={238.76 * (1 - 0.08)}
+                  style={{
+                    transform: `rotate(${360 * (0.46 + 0.32 + 0.14)}deg)`,
+                    transformOrigin: '50px 50px',
+                  }}
+                />
+              </svg>
+
+              <div className="absolute text-[#800D32] bg-rose-50 w-10 h-10 rounded-full flex items-center justify-center">
+                <Wallet className="w-5 h-5" />
+              </div>
+            </div>
+
+            {/* Legend */}
+            <div className="space-y-1.5 text-xs font-semibold pr-1">
+              <div className="flex items-center justify-between gap-4">
+                <span className="flex items-center gap-1.5 text-gray-700">
+                  <span className="w-2 h-2 rounded-full bg-[#800D32]" />
+                  Cash
+                </span>
+                <span className="font-bold text-[#191923]">46%</span>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <span className="flex items-center gap-1.5 text-gray-700">
+                  <span className="w-2 h-2 rounded-full bg-[#D95D80]" />
+                  UPI
+                </span>
+                <span className="font-bold text-[#191923]">32%</span>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <span className="flex items-center gap-1.5 text-gray-700">
+                  <span className="w-2 h-2 rounded-full bg-[#A855F7]" />
+                  Card
+                </span>
+                <span className="font-bold text-[#191923]">14%</span>
+              </div>
+              <div className="flex items-center justify-between gap-4">
+                <span className="flex items-center gap-1.5 text-gray-700">
+                  <span className="w-2 h-2 rounded-full bg-[#38BDF8]" />
+                  Other
+                </span>
+                <span className="font-bold text-[#191923]">8%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Card 3: Category Performance */}
+        <div className="bg-white rounded-2xl p-3.5 2xl:p-4 border border-gray-100 shadow-sm flex flex-col justify-between h-full">
+          <div className="flex items-center justify-between pb-1">
+            <h4 className="text-xs 2xl:text-sm font-bold text-[#191923]">Category Performance</h4>
+            <span className="text-[11px] font-semibold text-gray-500 flex items-center gap-0.5">
+              Revenue <ChevronDown className="w-3.5 h-3.5" />
+            </span>
+          </div>
+
+          <div className="flex items-end justify-between gap-2 h-[120px] pt-2 px-1">
+            {[
+              { name: 'Biryani', icon: '🍛', amount: '₹8,450', h: '92%', top: true },
+              { name: 'Starters', icon: '🍢', amount: '₹5,420', h: '62%' },
+              { name: 'Main Course', icon: '🍲', amount: '₹4,860', h: '55%' },
+              { name: 'Beverages', icon: '🥤', amount: '₹3,240', h: '38%' },
+              { name: 'Desserts', icon: '🧁', amount: '₹1,880', h: '22%' },
+            ].map((cat, i) => (
+              <div key={i} className="flex-1 flex flex-col items-center h-full justify-end group">
+                <div 
+                  style={{ height: cat.h }}
+                  className={`w-full max-w-[24px] rounded-t-md transition-all duration-300 ${
+                    cat.top ? 'bg-[#800D32]' : 'bg-rose-100/80 hover:bg-rose-200'
+                  }`}
+                />
+                <span className="text-[11px] mt-1">{cat.icon}</span>
+                <span className="text-[9px] font-bold text-gray-600 truncate max-w-[48px] leading-tight">
+                  {cat.name}
+                </span>
+                <span className="text-[9px] font-extrabold text-[#191923] leading-none mt-0.5">
+                  {cat.amount}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Card 4: Today's Highlights */}
+        <div className="bg-white rounded-2xl p-3.5 2xl:p-4 border border-gray-100 shadow-sm flex flex-col justify-between h-full">
+          <div className="flex items-center gap-2 pb-1">
+            <Sparkles className="w-4 h-4 text-[#800D32]" />
+            <h4 className="text-xs 2xl:text-sm font-bold text-[#191923]">Today's Highlights</h4>
+          </div>
+
+          <div className="space-y-3 my-auto flex-1 flex flex-col justify-center">
+            {[
+              'Sales is up by 12.8% (₹24,850)',
+              '128 orders completed',
+              '18 of 24 tables are occupied (75%)',
+              '6 KOT pending (2 preparing)',
+            ].map((text, i) => (
+              <div key={i} className="flex items-center gap-2.5 text-xs font-semibold text-gray-700">
+                <div className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                </div>
+                <span>{text}</span>
+              </div>
+            ))}
           </div>
         </div>
 
