@@ -65,22 +65,22 @@ export const DashboardPage: React.FC = () => {
   }[salesTimeframe];
 
   return (
-    <div className="space-y-3 pb-3 w-full select-none">
+    <div className="flex-1 h-full min-h-0 flex flex-col justify-between gap-3 w-full select-none pb-0.5">
       
       {/* ========================================================
           ROW 1: TOP HERO 16:9 BANNER + QUICK ACTIONS
          ======================================================== */}
-      <div className="grid grid-cols-12 gap-4 items-stretch">
+      <div className="grid grid-cols-12 gap-3.5 items-stretch h-[36%] min-h-[250px] max-h-[340px]">
         
         {/* Left 16:9 Hero Banner Card (~58% width) */}
-        <div className="col-span-12 xl:col-span-7 relative rounded-2xl overflow-hidden border border-gray-100 shadow-sm aspect-[16/9] max-h-[285px] min-h-[260px] w-full flex items-center bg-[#FAF8F9]">
+        <div className="col-span-12 xl:col-span-7 relative rounded-2xl overflow-hidden border border-gray-100 shadow-sm w-full h-full flex items-center bg-gradient-to-r from-[#FFF5F8] via-[#FCEAF1] to-[#FCE6EE]">
           <img
             src={bannerBg}
             alt="CyberLim Hero Banner"
-            className="absolute inset-0 w-full h-full object-cover object-right pointer-events-none"
+            className="absolute right-0 top-0 h-full w-auto max-w-[65%] object-contain object-right pointer-events-none z-0"
           />
           
-          <div className="relative z-10 p-6 2xl:p-7 max-w-[420px] 2xl:max-w-[460px] flex flex-col justify-between h-full">
+          <div className="relative z-10 p-5 2xl:p-7 max-w-[420px] 2xl:max-w-[460px] flex flex-col justify-between h-full">
             <div>
               <h2 className="text-2xl 2xl:text-3xl font-black text-[#191923] tracking-tight flex items-center gap-2">
                 Good Afternoon, Rohit <span className="inline-block text-2xl">👋</span>
@@ -133,8 +133,8 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Right Quick Actions Card (~42% width) */}
-        <div className="col-span-12 xl:col-span-5 bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex flex-col justify-between">
-          <div className="flex items-center justify-between pb-2">
+        <div className="col-span-12 xl:col-span-5 bg-white rounded-2xl p-4 2xl:p-5 border border-gray-100 shadow-sm flex flex-col justify-between h-full">
+          <div className="flex items-center justify-between pb-1.5">
             <h3 className="text-sm font-bold text-[#191923]">Quick Actions</h3>
             <button className="text-[11px] font-bold text-gray-500 hover:text-[#800D32] flex items-center gap-1">
               <Settings className="w-3.5 h-3.5" />
@@ -142,11 +142,11 @@ export const DashboardPage: React.FC = () => {
             </button>
           </div>
 
-          <div className="grid grid-cols-4 gap-3 flex-1 items-stretch pt-1">
+          <div className="grid grid-cols-4 gap-2 2xl:gap-3 flex-1 items-stretch pt-1">
             {/* New Sale F2 */}
             <button
               onClick={() => navigate('/pos')}
-              className="bg-[#F9E8ED] hover:bg-[#F3D2DC] border border-[#F3D2DC] rounded-xl p-3 flex flex-col items-center justify-center text-center transition-all group active:scale-95 shadow-sm"
+              className="bg-[#F9E8ED] hover:bg-[#F3D2DC] border border-[#F3D2DC] rounded-xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all group active:scale-95 shadow-sm"
             >
               <div className="w-7 h-7 rounded-lg text-[#800D32] flex items-center justify-center mb-1">
                 <ShoppingCart className="w-5 h-5" />
@@ -158,7 +158,7 @@ export const DashboardPage: React.FC = () => {
             {/* Add Item F3 */}
             <button
               onClick={() => navigate('/menu')}
-              className="bg-white hover:bg-gray-50 border border-gray-100 rounded-xl p-3 flex flex-col items-center justify-center text-center transition-all group active:scale-95"
+              className="bg-white hover:bg-gray-50 border border-gray-100 rounded-xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all group active:scale-95"
             >
               <div className="w-7 h-7 rounded-lg text-[#800D32] flex items-center justify-center mb-1">
                 <PlusCircle className="w-5 h-5" />
@@ -170,7 +170,7 @@ export const DashboardPage: React.FC = () => {
             {/* Add Table F4 */}
             <button
               onClick={() => navigate('/tables')}
-              className="bg-white hover:bg-gray-50 border border-gray-100 rounded-xl p-3 flex flex-col items-center justify-center text-center transition-all group active:scale-95"
+              className="bg-white hover:bg-gray-50 border border-gray-100 rounded-xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all group active:scale-95"
             >
               <div className="w-7 h-7 rounded-lg text-[#800D32] flex items-center justify-center mb-1">
                 <Grid2X2 className="w-5 h-5" />
@@ -182,7 +182,7 @@ export const DashboardPage: React.FC = () => {
             {/* KOT F5 */}
             <button
               onClick={() => navigate('/kitchen')}
-              className="bg-white hover:bg-gray-50 border border-gray-100 rounded-xl p-3 flex flex-col items-center justify-center text-center transition-all group active:scale-95"
+              className="bg-white hover:bg-gray-50 border border-gray-100 rounded-xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all group active:scale-95"
             >
               <div className="w-7 h-7 rounded-lg text-[#800D32] flex items-center justify-center mb-1">
                 <ChefHat className="w-5 h-5" />
@@ -194,7 +194,7 @@ export const DashboardPage: React.FC = () => {
             {/* Customers F6 */}
             <button
               onClick={() => navigate('/customers')}
-              className="bg-white hover:bg-gray-50 border border-gray-100 rounded-xl p-3 flex flex-col items-center justify-center text-center transition-all group active:scale-95"
+              className="bg-white hover:bg-gray-50 border border-gray-100 rounded-xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all group active:scale-95"
             >
               <div className="w-7 h-7 rounded-lg text-[#800D32] flex items-center justify-center mb-1">
                 <Users className="w-5 h-5" />
@@ -206,7 +206,7 @@ export const DashboardPage: React.FC = () => {
             {/* Reports F7 */}
             <button
               onClick={() => navigate('/tools')}
-              className="bg-white hover:bg-gray-50 border border-gray-100 rounded-xl p-3 flex flex-col items-center justify-center text-center transition-all group active:scale-95"
+              className="bg-white hover:bg-gray-50 border border-gray-100 rounded-xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all group active:scale-95"
             >
               <div className="w-7 h-7 rounded-lg text-[#800D32] flex items-center justify-center mb-1">
                 <BarChart3 className="w-5 h-5" />
@@ -218,7 +218,7 @@ export const DashboardPage: React.FC = () => {
             {/* Printers F8 */}
             <button
               onClick={() => navigate('/printers')}
-              className="bg-white hover:bg-gray-50 border border-gray-100 rounded-xl p-3 flex flex-col items-center justify-center text-center transition-all group active:scale-95"
+              className="bg-white hover:bg-gray-50 border border-gray-100 rounded-xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all group active:scale-95"
             >
               <div className="w-7 h-7 rounded-lg text-[#800D32] flex items-center justify-center mb-1">
                 <Printer className="w-5 h-5" />
@@ -230,7 +230,7 @@ export const DashboardPage: React.FC = () => {
             {/* Settings F9 */}
             <button
               onClick={() => navigate('/tools')}
-              className="bg-white hover:bg-gray-50 border border-gray-100 rounded-xl p-3 flex flex-col items-center justify-center text-center transition-all group active:scale-95"
+              className="bg-white hover:bg-gray-50 border border-gray-100 rounded-xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all group active:scale-95"
             >
               <div className="w-7 h-7 rounded-lg text-[#800D32] flex items-center justify-center mb-1">
                 <Settings className="w-5 h-5" />
@@ -247,10 +247,10 @@ export const DashboardPage: React.FC = () => {
       {/* ========================================================
           ROW 2: 6 SNAPSHOT STAT CARDS IN A ROW WITH MINI SPARKLINES
          ======================================================== */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5 h-[14%] min-h-[88px] max-h-[110px] items-stretch">
         
         {/* Card 1: Total Sales */}
-        <div className="bg-white rounded-2xl p-3.5 border border-gray-100 shadow-sm flex flex-col justify-between h-[96px] relative overflow-hidden">
+        <div className="bg-white rounded-2xl p-3 2xl:p-3.5 border border-gray-100 shadow-sm flex flex-col justify-between h-full relative overflow-hidden">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
               <Coins className="w-4.5 h-4.5" />
@@ -269,7 +269,7 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Card 2: Total Orders */}
-        <div className="bg-white rounded-2xl p-3.5 border border-gray-100 shadow-sm flex flex-col justify-between h-[96px] relative overflow-hidden">
+        <div className="bg-white rounded-2xl p-3 2xl:p-3.5 border border-gray-100 shadow-sm flex flex-col justify-between h-full relative overflow-hidden">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
               <FileText className="w-4.5 h-4.5" />
@@ -288,7 +288,7 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Card 3: Occupied Tables */}
-        <div className="bg-white rounded-2xl p-3.5 border border-gray-100 shadow-sm flex flex-col justify-between h-[96px] relative overflow-hidden">
+        <div className="bg-white rounded-2xl p-3 2xl:p-3.5 border border-gray-100 shadow-sm flex flex-col justify-between h-full relative overflow-hidden">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
               <Grid2X2 className="w-4.5 h-4.5" />
@@ -307,7 +307,7 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Card 4: Total Customers */}
-        <div className="bg-white rounded-2xl p-3.5 border border-gray-100 shadow-sm flex flex-col justify-between h-[96px] relative overflow-hidden">
+        <div className="bg-white rounded-2xl p-3 2xl:p-3.5 border border-gray-100 shadow-sm flex flex-col justify-between h-full relative overflow-hidden">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center shrink-0">
               <Users className="w-4.5 h-4.5" />
@@ -326,7 +326,7 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Card 5: Pending KOT */}
-        <div className="bg-white rounded-2xl p-3.5 border border-gray-100 shadow-sm flex flex-col justify-between h-[96px] relative overflow-hidden">
+        <div className="bg-white rounded-2xl p-3 2xl:p-3.5 border border-gray-100 shadow-sm flex flex-col justify-between h-full relative overflow-hidden">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
               <ChefHat className="w-4.5 h-4.5" />
@@ -345,7 +345,7 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Card 6: Inventory Value */}
-        <div className="bg-white rounded-2xl p-3.5 border border-gray-100 shadow-sm flex flex-col justify-between h-[96px] relative overflow-hidden">
+        <div className="bg-white rounded-2xl p-3 2xl:p-3.5 border border-gray-100 shadow-sm flex flex-col justify-between h-full relative overflow-hidden">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
               <Package className="w-4.5 h-4.5" />
@@ -369,10 +369,10 @@ export const DashboardPage: React.FC = () => {
       {/* ========================================================
           ROW 3: 4 EQUAL CARDS (Sales Trend, Order Types, Top Selling, Table Status)
          ======================================================== */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5 flex-1 min-h-[280px] items-stretch">
         
         {/* Card 1: Sales Trend */}
-        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex flex-col justify-between min-h-[300px]">
+        <div className="bg-white rounded-2xl p-4 2xl:p-5 border border-gray-100 shadow-sm flex flex-col justify-between h-full">
           <div className="flex items-center justify-between">
             <h4 className="text-sm font-bold text-[#191923]">Sales Trend</h4>
             <div className="flex items-center gap-1 bg-gray-100 p-0.5 rounded-lg text-[10px] font-bold">
@@ -391,14 +391,14 @@ export const DashboardPage: React.FC = () => {
           </div>
 
           {/* Spline Area Chart with Tooltip Node */}
-          <div className="h-48 w-full relative mt-3">
+          <div className="flex-1 w-full relative mt-2 flex flex-col justify-between min-h-[160px]">
             {/* Tooltip Pill */}
             <div className="absolute top-2 left-1/2 -translate-x-4 bg-white border border-gray-200 shadow-md rounded-lg px-2.5 py-1 text-[10px] font-bold text-[#191923] flex items-center gap-1.5 z-10">
               <span className="w-2 h-2 rounded-full bg-[#800D32]" />
               <span>₹26,400 at 4:00 PM</span>
             </div>
 
-            <svg className="w-full h-full overflow-visible" viewBox="0 0 320 125" preserveAspectRatio="none">
+            <svg className="w-full flex-1 min-h-[130px] overflow-visible" viewBox="0 0 320 125" preserveAspectRatio="none">
               <defs>
                 <linearGradient id="trendGrad" x1="0%" y1="0%" x2="0%" y2="100%">
                   <stop offset="0%" stopColor="#800D32" stopOpacity="0.35" />
@@ -448,12 +448,12 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Card 2: Order Types */}
-        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex flex-col justify-between min-h-[300px]">
+        <div className="bg-white rounded-2xl p-4 2xl:p-5 border border-gray-100 shadow-sm flex flex-col justify-between h-full">
           <h4 className="text-sm font-bold text-[#191923]">Order Types</h4>
 
           <div className="flex items-center justify-between gap-3 flex-1 my-auto">
             {/* Donut Chart */}
-            <div className="relative w-32 h-32 2xl:w-36 2xl:h-36 shrink-0 flex items-center justify-center">
+            <div className="relative w-32 h-32 2xl:w-40 2xl:h-40 shrink-0 flex items-center justify-center">
               <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
                 <circle cx="50" cy="50" r="38" fill="transparent" stroke="#F1F1F4" strokeWidth="13" />
                 <circle
@@ -531,7 +531,7 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Card 3: Top Selling Items */}
-        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex flex-col justify-between min-h-[300px]">
+        <div className="bg-white rounded-2xl p-4 2xl:p-5 border border-gray-100 shadow-sm flex flex-col justify-between h-full">
           <div className="flex items-center justify-between mb-2">
             <h4 className="text-sm font-bold text-[#191923]">Top Selling Items</h4>
             <span className="text-xs font-semibold text-gray-500 flex items-center gap-0.5">
@@ -539,7 +539,7 @@ export const DashboardPage: React.FC = () => {
             </span>
           </div>
 
-          <div className="space-y-3 my-auto">
+          <div className="space-y-2.5 2xl:space-y-3 my-auto flex-1 flex flex-col justify-between">
             {[
               { name: 'Chicken Biryani', orders: 42, barWidth: '100%' },
               { name: 'Paneer Tikka', orders: 28, barWidth: '66%' },
@@ -569,12 +569,12 @@ export const DashboardPage: React.FC = () => {
         </div>
 
         {/* Card 4: Table Status */}
-        <div className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm flex flex-col justify-between min-h-[300px]">
+        <div className="bg-white rounded-2xl p-4 2xl:p-5 border border-gray-100 shadow-sm flex flex-col justify-between h-full">
           <h4 className="text-sm font-bold text-[#191923]">Table Status</h4>
 
           <div className="flex items-center justify-between gap-3 flex-1 my-auto">
             {/* Donut Chart */}
-            <div className="relative w-32 h-32 2xl:w-36 2xl:h-36 shrink-0 flex items-center justify-center">
+            <div className="relative w-32 h-32 2xl:w-40 2xl:h-40 shrink-0 flex items-center justify-center">
               <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
                 <circle cx="50" cy="50" r="38" fill="transparent" stroke="#F1F1F4" strokeWidth="13" />
                 {/* Occupied: 18/24 = 75% Maroon */}

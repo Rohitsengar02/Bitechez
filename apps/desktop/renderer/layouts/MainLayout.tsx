@@ -147,7 +147,7 @@ export const MainLayout: React.FC = () => {
       </div>
 
       {/* 3. MAIN DASHBOARD CONTENT AREA */}
-      <main className="flex-1 overflow-y-auto px-2 sm:px-3 py-2.5 bg-[#FAF8F9]">
+      <main className="flex-1 overflow-y-auto px-2 sm:px-3 py-2.5 bg-[#FAF8F9] flex flex-col min-h-0">
         <Outlet />
       </main>
     </div>
