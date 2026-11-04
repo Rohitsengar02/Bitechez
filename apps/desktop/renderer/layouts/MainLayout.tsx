@@ -141,8 +141,8 @@ export const MainLayout: React.FC = () => {
         </nav>
       </div>
 
-      {/* 3. MAIN DASHBOARD CONTENT AREA */}
-      <main className="flex-1 overflow-y-auto px-6 py-4 bg-[#FAF8F9]">
+      {/* 3. MAIN DASHBOARD CONTENT AREA - FITS SCREEN NO SCROLL */}
+      <main className="flex-1 overflow-hidden px-6 py-3 bg-[#FAF8F9]">
         <Outlet />
       </main>
     </div>
