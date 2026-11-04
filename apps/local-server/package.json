@@ -1,0 +1,30 @@
+{
+  "name": "@bitechez/local-server",
+  "version": "1.0.0",
+  "private": true,
+  "main": "./src/index.ts",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@bitechez/business-logic": "workspace:*",
+    "@bitechez/config": "workspace:*",
+    "@bitechez/database-schema": "workspace:*",
+    "@bitechez/shared-types": "workspace:*",
+    "@bitechez/sync-engine": "workspace:*",
+    "@bitechez/validation": "workspace:*",
+    "@fastify/cors": "^10.0.2",
+    "dotenv": "^16.4.7",
+    "fastify": "^5.2.1",
+    "socket.io": "^4.8.1",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.8.2"
+  }
+}

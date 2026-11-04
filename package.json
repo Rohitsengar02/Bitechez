@@ -1,0 +1,27 @@
+{
+  "name": "bitechez-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Bitechez POS – Premium Offline-First Restaurant POS Desktop & Cloud Platform",
+  "author": "CyberLim Solutions",
+  "license": "UNLICENSED",
+  "packageManager": "pnpm@12.16.1",
+  "scripts": {
+    "dev": "turbo run dev",
+    "dev:desktop": "turbo run dev --filter=@bitechez/desktop",
+    "dev:server": "turbo run dev --filter=@bitechez/local-server",
+    "dev:cloud": "turbo run dev --filter=@bitechez/cloud-api",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "lint": "turbo run lint",
+    "check-types": "turbo run check-types",
+    "precheck": "node infrastructure/scripts/precheck.mjs",
+    "setup:env": "node infrastructure/scripts/setup-env.mjs",
+    "seed": "node infrastructure/scripts/seed-data.mjs"
+  },
+  "devDependencies": {
+    "turbo": "^2.4.4",
+    "typescript": "^5.8.2",
+    "prettier": "^3.5.3"
+  }
+}

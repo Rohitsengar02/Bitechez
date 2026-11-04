@@ -1,0 +1,51 @@
+{
+  "name": "@bitechez/desktop",
+  "version": "1.0.0",
+  "type": "module",
+  "private": true,
+  "main": "./dist-electron/main/index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build && electron-builder --dir",
+    "build:win": "tsc && vite build && electron-builder --win",
+    "check-types": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@bitechez/business-logic": "workspace:*",
+    "@bitechez/config": "workspace:*",
+    "@bitechez/database-schema": "workspace:*",
+    "@bitechez/printing-engine": "workspace:*",
+    "@bitechez/shared-types": "workspace:*",
+    "@bitechez/sync-engine": "workspace:*",
+    "@bitechez/ui-components": "workspace:*",
+    "@bitechez/validation": "workspace:*",
+    "@tanstack/react-query": "^5.66.0",
+    "better-sqlite3": "^11.8.1",
+    "clsx": "^2.1.1",
+    "drizzle-orm": "^0.38.4",
+    "lucide-react": "^0.475.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-hook-form": "^7.54.2",
+    "react-router-dom": "^7.2.0",
+    "socket.io-client": "^4.8.1",
+    "tailwind-merge": "^3.0.1",
+    "zod": "^3.24.2",
+    "zustand": "^5.0.3"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.12",
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "electron": "^34.2.0",
+    "electron-builder": "^25.1.8",
+    "postcss": "^8.5.2",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.8.2",
+    "vite": "^6.1.0",
+    "vite-plugin-electron": "^0.29.0",
+    "vite-plugin-electron-renderer": "^0.14.6"
+  }
+}
