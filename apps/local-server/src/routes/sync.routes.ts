@@ -40,3 +40,4 @@ export async function syncRoutes(fastify: FastifyInstance) {
     return reply.send(response);
   });
 }
+

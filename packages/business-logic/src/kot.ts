@@ -24,3 +24,4 @@ export function getKotNextActionLabel(status: KotStatus): string | null {
       return null;
   }
 }
+

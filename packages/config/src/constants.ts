@@ -35,3 +35,4 @@ export const GST_SLABS = [
   { label: '18% AC Restaurant / Standard', rate: 18 },
   { label: '28% Luxury / Aerated', rate: 28 },
 ] as const;
+

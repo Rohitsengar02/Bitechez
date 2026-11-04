@@ -1,160 +1,150 @@
 import React from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { 
-  LayoutDashboard, 
-  UtensilsCrossed, 
+  Home, 
+  Monitor, 
   Grid2X2, 
   ChefHat, 
-  BellRing, 
+  Bell, 
   Users, 
-  BookOpen, 
+  UtensilsCrossed, 
   Printer, 
-  Layers, 
-  WifiOff, 
-  Wifi, 
-  PlusCircle,
-  HardDrive
+  LayoutGrid, 
+  Search, 
+  Store, 
+  ChevronDown 
 } from 'lucide-react';
-import { useSyncStore } from '../stores/syncStore';
 
-const NAV_ITEMS = [
-  { path: '/', label: 'Dashboard', icon: LayoutDashboard },
-  { path: '/pos', label: 'POS Billing', icon: UtensilsCrossed },
+const NAV_TABS = [
+  { path: '/', label: 'Home', icon: Home },
+  { path: '/pos', label: 'POS', icon: Monitor },
   { path: '/tables', label: 'Tables', icon: Grid2X2 },
   { path: '/kitchen', label: 'Kitchen KOT', icon: ChefHat },
-  { path: '/requests', label: 'Requests', icon: BellRing },
+  { path: '/requests', label: 'Requests', icon: Bell },
   { path: '/customers', label: 'Customers', icon: Users },
-  { path: '/menu', label: 'Item Menu', icon: BookOpen },
+  { path: '/menu', label: 'Item Menu', icon: UtensilsCrossed },
   { path: '/printers', label: 'Printers', icon: Printer },
-  { path: '/tools', label: 'More Tools', icon: Layers },
+  { path: '/tools', label: 'More Tools', icon: LayoutGrid },
 ];
 
 export const MainLayout: React.FC = () => {
   const navigate = useNavigate();
-  const { isOnline } = useSyncStore();
-  const [time, setTime] = React.useState(new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }));
-
-  React.useEffect(() => {
-    const timer = setInterval(() => {
-      setTime(new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }));
-    }, 1000);
-    return () => clearInterval(timer);
-  }, []);
+  const [searchQuery, setSearchQuery] = React.useState('');
 
   return (
-    <div className="flex h-screen w-screen bg-[#FAF8F9] overflow-hidden select-none">
-      {/* Persistent Left Sidebar Navigation */}
-      <aside className="w-64 bg-[#800D32] text-white flex flex-col justify-between shadow-xl z-20">
-        <div>
-          {/* Brand Header */}
-          <div className="p-5 border-b border-[#600821] flex items-center justify-between">
+    <div className="flex flex-col h-screen w-screen bg-[#FAF8F9] text-[#191923] overflow-hidden select-none">
+      {/* 1. TOP DARK MAROON HEADER BAR */}
+      <header className="h-16 bg-[#600821] px-6 flex items-center justify-between shrink-0 z-30 shadow-sm">
+        {/* Left: Brand Logo & Outlet Pill */}
+        <div className="flex items-center gap-5">
+          {/* Hexagonal Logo + Name */}
+          <div 
+            onClick={() => navigate('/')} 
+            className="flex items-center gap-2.5 cursor-pointer group"
+          >
+            <div className="w-9 h-9 rounded-xl bg-white text-[#600821] flex items-center justify-center font-black shadow-md transition-transform group-hover:scale-105">
+              {/* Hexagonal stylized C icon */}
+              <svg className="w-5 h-5 text-[#800D32]" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L3 7v10l9 5 9-5V7l-9-5zm0 3.2L18.5 8v8L12 19.8 5.5 16V8L12 5.2zM9 10a3 3 0 100 4h5a1 1 0 100-2H9a1 1 0 110-2h5a1 1 0 100-2H9z" />
+              </svg>
+            </div>
+            <div className="flex items-baseline">
+              <span className="text-xl font-extrabold tracking-tight text-white">CyberLim</span>
+              <span className="text-xs font-black text-rose-300 ml-1 tracking-wider uppercase">POS</span>
+            </div>
+          </div>
+
+          {/* Outlet Switcher Pill */}
+          <button className="bg-[#480518] hover:bg-[#3D0414] border border-rose-900/60 rounded-2xl px-3.5 py-1.5 flex items-center gap-3 transition-colors text-left shadow-inner">
+            <div className="w-6 h-6 rounded-lg bg-rose-200/20 flex items-center justify-center text-rose-200">
+              <Store className="w-3.5 h-3.5" />
+            </div>
             <div>
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-[#FAF8F9] text-[#800D32] flex items-center justify-center font-black text-lg shadow-sm">
-                  B
-                </div>
-                <div>
-                  <h1 className="text-xl font-bold tracking-tight text-white leading-none">Bitechez</h1>
-                  <span className="text-[10px] font-semibold text-rose-200 tracking-wider uppercase">Restaurant POS</span>
-                </div>
-              </div>
+              <p className="text-xs font-bold text-white leading-tight">Resto Daddy</p>
+              <p className="text-[10px] text-rose-300/80 font-medium leading-none">Main Outlet</p>
             </div>
-            <span className="text-[11px] px-2 py-0.5 rounded-full bg-[#600821] text-rose-200 font-mono">v1.0</span>
-          </div>
-
-          {/* Quick Action Button */}
-          <div className="p-3">
-            <button
-              onClick={() => navigate('/pos')}
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 bg-white text-[#800D32] hover:bg-[#F9E8ED] rounded-xl font-bold text-sm shadow-md transition-all active:scale-[0.98]"
-            >
-              <PlusCircle className="w-4 h-4" />
-              <span>New Order</span>
-            </button>
-          </div>
-
-          {/* Main Navigation Links */}
-          <nav className="px-3 py-2 space-y-1">
-            {NAV_ITEMS.map((item) => {
-              const Icon = item.icon;
-              return (
-                <NavLink
-                  key={item.path}
-                  to={item.path}
-                  className={({ isActive }) =>
-                    `flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all ${
-                      isActive
-                        ? 'bg-[#600821] text-white shadow-inner font-semibold translate-x-1'
-                        : 'text-rose-100 hover:bg-[#A31542]/50 hover:text-white'
-                    }`
-                  }
-                >
-                  <Icon className="w-4 h-4 shrink-0" />
-                  <span>{item.label}</span>
-                </NavLink>
-              );
-            })}
-          </nav>
+            <ChevronDown className="w-3.5 h-3.5 text-rose-300 ml-1" />
+          </button>
         </div>
 
-        {/* Bottom Station & Hardware Info */}
-        <div className="p-4 border-t border-[#600821] bg-[#600821]/40 space-y-2">
-          {/* System Operating Status */}
-          <div className="flex items-center justify-between text-xs">
-            <div className="flex items-center gap-1.5 text-rose-200 font-medium">
-              <HardDrive className="w-3.5 h-3.5" />
-              <span>SQLite Terminal</span>
+        {/* Center: Search Box */}
+        <div className="flex items-center justify-center flex-1 max-w-xl mx-8">
+          <div className="w-full bg-[#480518] border border-rose-900/60 rounded-2xl px-4 py-2 flex items-center justify-between text-xs text-rose-200 shadow-inner focus-within:border-rose-400 focus-within:ring-1 focus-within:ring-rose-400/50 transition-all">
+            <div className="flex items-center gap-2.5 flex-1 mr-3">
+              <Search className="w-4 h-4 text-rose-300 shrink-0" />
+              <input
+                type="text"
+                placeholder="Search menu, table, order or customer..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="bg-transparent text-white placeholder-rose-300/60 text-xs outline-none w-full font-medium"
+              />
             </div>
-            <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-[#800D32] text-rose-100 text-[10px] font-medium border border-rose-900">
-              {isOnline ? (
-                <>
-                  <Wifi className="w-3 h-3 text-emerald-400" />
-                  <span>Cloud Live</span>
-                </>
-              ) : (
-                <>
-                  <WifiOff className="w-3 h-3 text-amber-400" />
-                  <span>Local First</span>
-                </>
-              )}
-            </div>
-          </div>
-
-          <div className="pt-1 flex items-center justify-between text-[11px] text-rose-300 font-mono">
-            <span>Terminal: T-CASH-01</span>
-            <span>{time}</span>
+            <kbd className="bg-[#380412] px-2 py-0.5 rounded-lg text-[10px] font-mono font-bold text-rose-300 border border-rose-950 shrink-0">
+              ⌘ K
+            </kbd>
           </div>
         </div>
-      </aside>
 
-      {/* Main Content Viewport */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden">
-        {/* Top Operational Bar */}
-        <header className="h-14 bg-white border-b border-gray-200 px-6 flex items-center justify-between shrink-0">
-          <div className="flex items-center gap-3">
-            <span className="text-xs font-semibold uppercase tracking-wider text-gray-500">Outlet</span>
-            <span className="text-sm font-bold text-[#191923]">Bitechez Bistro & Bar – Mumbai Flagship</span>
-            <span className="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-              Open Shift
-            </span>
-          </div>
+        {/* Right: Notifications & User Profile */}
+        <div className="flex items-center gap-5">
+          {/* Notification Bell */}
+          <button className="relative w-9 h-9 rounded-xl bg-[#480518] hover:bg-[#3D0414] border border-rose-900/60 flex items-center justify-center text-rose-200 transition-colors">
+            <Bell className="w-4 h-4" />
+            <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-rose-500 ring-2 ring-[#600821]" />
+          </button>
 
-          <div className="flex items-center gap-4">
-            <div className="text-right">
-              <p className="text-xs font-bold text-[#191923]">Cashier: Rohit Verma</p>
-              <p className="text-[11px] text-gray-500">Shift #1042 • 8 Orders Active</p>
+          {/* User Profile */}
+          <div className="flex items-center gap-3 cursor-pointer">
+            <div className="w-9 h-9 rounded-full ring-2 ring-rose-400/50 overflow-hidden bg-rose-100 flex items-center justify-center shadow-sm">
+              <img
+                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&h=120&q=80"
+                alt="Rohit Sengar"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  // Fallback to initials if offline
+                  (e.target as HTMLElement).style.display = 'none';
+                }}
+              />
+              <span className="text-xs font-black text-[#800D32]">RS</span>
             </div>
-            <div className="w-8 h-8 rounded-full bg-[#F9E8ED] text-[#800D32] flex items-center justify-center font-bold text-xs border border-[#F3D2DC]">
-              RV
+            <div className="text-left">
+              <p className="text-xs font-bold text-white leading-tight">Rohit Sengar</p>
+              <p className="text-[10px] text-rose-300/80 font-medium leading-none">Owner</p>
             </div>
           </div>
-        </header>
+        </div>
+      </header>
 
-        {/* Dynamic Page Router Outlet */}
-        <main className="flex-1 overflow-auto bg-[#FAF8F9] p-6">
-          <Outlet />
-        </main>
+      {/* 2. SECOND HORIZONTAL NAVIGATION TABS BAR */}
+      <div className="bg-[#FAF8F9] px-6 py-3 shrink-0 border-b border-gray-200/60">
+        <nav className="flex items-center gap-3 overflow-x-auto scrollbar-none">
+          {NAV_TABS.map((tab) => {
+            const Icon = tab.icon;
+            return (
+              <NavLink
+                key={tab.path}
+                to={tab.path}
+                className={({ isActive }) =>
+                  `flex items-center gap-2.5 px-6 py-2.5 rounded-2xl text-xs font-bold transition-all whitespace-nowrap shadow-sm ${
+                    isActive
+                      ? 'bg-[#800D32] text-white shadow-md shadow-[#800D32]/20 translate-y-[-1px]'
+                      : 'bg-white text-gray-700 hover:text-[#800D32] hover:bg-white/80 border border-gray-200/70 hover:border-rose-200'
+                  }`
+                }
+              >
+                <Icon className="w-4 h-4 shrink-0" />
+                <span>{tab.label}</span>
+              </NavLink>
+            );
+          })}
+        </nav>
       </div>
+
+      {/* 3. MAIN DASHBOARD CONTENT AREA */}
+      <main className="flex-1 overflow-y-auto px-6 py-4 bg-[#FAF8F9]">
+        <Outlet />
+      </main>
     </div>
   );
 };

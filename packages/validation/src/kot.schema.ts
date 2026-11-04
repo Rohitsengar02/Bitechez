@@ -29,3 +29,4 @@ export const UpdateKotStatusSchema = z.object({
   id: z.string().uuid(),
   status: z.enum(['pending', 'preparing', 'ready', 'completed', 'cancelled']),
 });
+

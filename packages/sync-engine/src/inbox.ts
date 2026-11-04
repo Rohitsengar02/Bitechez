@@ -23,3 +23,4 @@ export function createInboxRecord(params: {
     processedAt: new Date().toISOString(),
   };
 }
+

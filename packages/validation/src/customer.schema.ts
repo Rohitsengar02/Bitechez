@@ -7,3 +7,4 @@ export const CustomerUpsertSchema = z.object({
   email: z.string().email().optional().or(z.literal('')),
   address: z.string().max(250).optional(),
 });
+

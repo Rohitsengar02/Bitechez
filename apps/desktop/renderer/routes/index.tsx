@@ -32,3 +32,4 @@ const router = createHashRouter([
 export const AppRouter: React.FC = () => {
   return <RouterProvider router={router} />;
 };
+

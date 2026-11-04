@@ -260,3 +260,4 @@ export const sqlitePrintJobs = sqliteTable('print_jobs', {
   createdAt: text('created_at').notNull(),
   completedAt: text('completed_at'),
 });
+

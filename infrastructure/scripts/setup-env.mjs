@@ -20,3 +20,4 @@ if (!fs.existsSync(targetPath)) {
 }
 
 console.log('🎉 Environment setup complete.');
+

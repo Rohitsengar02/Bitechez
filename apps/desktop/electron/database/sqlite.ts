@@ -280,3 +280,4 @@ function seedDefaultData(db: Database.Database) {
 
   console.log('[Bitechez DB] Seed complete.');
 }
+

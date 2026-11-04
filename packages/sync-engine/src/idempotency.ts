@@ -14,3 +14,4 @@ export function generateIdempotencyKey(params: {
   const version = params.version ?? 1;
   return `${params.outletId}:${params.entityType}:${params.entityId}:v${version}:${params.action}`;
 }
+

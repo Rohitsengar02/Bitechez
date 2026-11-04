@@ -61,3 +61,4 @@ export interface SyncPushBatchResponse {
   failedIds: Array<{ id: UUID; error: string; retryable: boolean }>;
   serverTime: string;
 }
+

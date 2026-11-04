@@ -235,3 +235,4 @@ export interface ServiceRequest {
   createdAt: string;
   resolvedAt?: string;
 }
+

@@ -24,3 +24,4 @@ declare global {
     bitechezAPI: typeof bitechezAPI;
   }
 }
+

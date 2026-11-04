@@ -35,3 +35,4 @@ export function createOutboxEvent<T>(params: {
     createdAt: new Date().toISOString(),
   };
 }
+

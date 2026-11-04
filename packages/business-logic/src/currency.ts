@@ -30,3 +30,4 @@ export function rupeesToPaise(rupees: number | string): Paise {
 export function paiseToRupees(paise: Paise): number {
   return paise / 100;
 }
+

@@ -50,3 +50,4 @@ describe('Bitechez Business Logic - Cart & Financial Calculations', () => {
     expect(result.grandTotalPaise).toBe(94500); // ₹945.00
   });
 });
+

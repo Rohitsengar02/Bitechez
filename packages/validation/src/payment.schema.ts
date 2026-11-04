@@ -15,3 +15,4 @@ export const RecordPaymentSchema = z.object({
 });
 
 export type RecordPaymentInput = z.infer<typeof RecordPaymentSchema>;
+

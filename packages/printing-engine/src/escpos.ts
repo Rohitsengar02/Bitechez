@@ -82,3 +82,4 @@ export class EscPosBuilder {
     return btoa(binary);
   }
 }
+

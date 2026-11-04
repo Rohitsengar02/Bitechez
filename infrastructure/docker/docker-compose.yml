@@ -32,3 +32,4 @@ services:
 volumes:
   local_pg_data:
   cloud_pg_data:
+

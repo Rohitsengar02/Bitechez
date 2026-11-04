@@ -21,3 +21,4 @@ export const useSyncStore = create<SyncState>((set) => ({
   setPendingCount: (pendingSyncCount) => set({ pendingSyncCount }),
   setLastSyncedAt: (lastSyncedAt) => set({ lastSyncedAt }),
 }));
+

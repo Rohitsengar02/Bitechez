@@ -162,3 +162,4 @@ export const pgSyncEvents = pgTable('sync_events', {
   version: integer('version').notNull().default(1),
   createdAt: timestamp('created_at').notNull().defaultNow(),
 });
+

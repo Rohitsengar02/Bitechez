@@ -87,3 +87,4 @@ export function buildReceiptEscPos(data: ReceiptData): Uint8Array {
 
   return esc.toUint8Array();
 }
+

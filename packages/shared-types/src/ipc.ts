@@ -44,3 +44,4 @@ export interface IPCChannels {
 }
 
 export type IPCChannelName = keyof IPCChannels;
+

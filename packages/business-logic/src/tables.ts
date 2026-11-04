@@ -10,3 +10,4 @@ export const TABLE_STATE_TRANSITIONS: Record<TableStatus, TableStatus[]> = {
 export function canTransitionTableStatus(current: TableStatus, next: TableStatus): boolean {
   return TABLE_STATE_TRANSITIONS[current]?.includes(next) ?? false;
 }
+

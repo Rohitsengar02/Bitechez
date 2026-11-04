@@ -52,3 +52,4 @@ export function buildKotEscPos(data: KotPrintData): Uint8Array {
 
   return esc.toUint8Array();
 }
+

@@ -17,3 +17,4 @@ export function calculateBackoffDelay(retryCount: number, options: BackoffOption
   const randomJitter = Math.random() * (cappedDelay * 0.3);
   return Math.floor(cappedDelay + randomJitter);
 }
+

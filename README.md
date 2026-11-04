@@ -94,3 +94,4 @@ All currency calculations strictly use integer **paise** ($1 \text{ INR} = 100 \
 - ₹ 250.00 = `25000` paise
 - 5% GST on ₹ 500.00 = `2500` paise (split into `1250` paise CGST + `1250` paise SGST)
 - Automatic 50-paise / Rupee rounding adjustment.
+

@@ -19,3 +19,4 @@ Bitechez POS guarantees continuous billing operations under any network failure:
 - `nodeIntegration: false`
 - Renderer never accesses filesystem or SQLite directly.
 - Strict IPC whitelist validation via Zod schemas.
+
