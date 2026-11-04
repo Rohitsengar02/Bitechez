@@ -14,7 +14,8 @@ import {
   Grid2X2,
   Coins,
   Package,
-  ChevronDown
+  ChevronDown,
+  ArrowRight
 } from 'lucide-react';
 import bannerBg from '../assets/banner_bg.jpg';
 
@@ -210,47 +211,47 @@ export const DashboardPage: React.FC = () => {
               </p>
             </div>
 
-            {/* Beautiful Stat Cards Row */}
-            <div className="flex flex-wrap sm:flex-nowrap items-center gap-2.5 self-start pointer-events-auto">
+            {/* Beautiful Stat Cards Row - Exactly Same Width (grid-cols-3) */}
+            <div className="grid grid-cols-3 gap-2.5 w-full max-w-[460px] 2xl:max-w-[500px] self-start pointer-events-auto">
               {/* Card 1: Orders Today */}
-              <div className="banner-stat-card bg-white/95 hover:bg-white backdrop-blur-md rounded-xl px-3 py-2 border border-white/90 shadow-[0_2px_8px_rgba(128,13,50,0.06)] hover:shadow-md transition-all flex items-center gap-2.5 group">
-                <div className="w-8 h-8 rounded-lg bg-rose-50 text-[#800D32] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <div className="banner-stat-card bg-white/95 hover:bg-white backdrop-blur-md rounded-2xl p-2.5 2xl:p-3 border border-white/90 shadow-[0_4px_14px_rgba(128,13,50,0.06)] hover:shadow-lg transition-all flex items-center gap-2.5 group cursor-pointer hover:-translate-y-0.5">
+                <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl bg-gradient-to-br from-rose-50 to-pink-100/60 text-[#800D32] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                   <UtensilsCrossed className="w-4 h-4" />
                 </div>
-                <div>
-                  <div className="flex items-center gap-1.5">
-                    <span ref={ordersValRef} className="text-sm 2xl:text-base font-black text-[#191923] leading-none">128</span>
-                    <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded leading-none">+12%</span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5 flex-nowrap">
+                    <span ref={ordersValRef} className="text-sm 2xl:text-base font-black text-[#191923] leading-none whitespace-nowrap">128</span>
+                    <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded leading-none whitespace-nowrap">+12%</span>
                   </div>
-                  <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-semibold block mt-1">Orders Today</span>
+                  <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-semibold block mt-1 whitespace-nowrap truncate">Orders Today</span>
                 </div>
               </div>
 
               {/* Card 2: Sales Today */}
-              <div className="banner-stat-card bg-white/95 hover:bg-white backdrop-blur-md rounded-xl px-3 py-2 border border-white/90 shadow-[0_2px_8px_rgba(128,13,50,0.06)] hover:shadow-md transition-all flex items-center gap-2.5 group">
-                <div className="w-8 h-8 rounded-lg bg-rose-50 text-[#800D32] flex items-center justify-center font-bold text-xs shrink-0 group-hover:scale-105 transition-transform">
+              <div className="banner-stat-card bg-white/95 hover:bg-white backdrop-blur-md rounded-2xl p-2.5 2xl:p-3 border border-white/90 shadow-[0_4px_14px_rgba(128,13,50,0.06)] hover:shadow-lg transition-all flex items-center gap-2.5 group cursor-pointer hover:-translate-y-0.5">
+                <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl bg-gradient-to-br from-rose-50 to-pink-100/60 text-[#800D32] flex items-center justify-center font-bold text-xs shrink-0 group-hover:scale-105 transition-transform">
                   ₹
                 </div>
-                <div>
-                  <div className="flex items-center gap-1.5">
-                    <span ref={salesValRef} className="text-sm 2xl:text-base font-black text-[#191923] leading-none">₹24,850</span>
-                    <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded leading-none">+8.2%</span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5 flex-nowrap">
+                    <span ref={salesValRef} className="text-sm 2xl:text-base font-black text-[#191923] leading-none whitespace-nowrap">₹24,850</span>
+                    <span className="text-[9px] font-bold text-emerald-600 bg-emerald-50 px-1 py-0.5 rounded leading-none whitespace-nowrap">+8.2%</span>
                   </div>
-                  <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-semibold block mt-1">Sales Today</span>
+                  <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-semibold block mt-1 whitespace-nowrap truncate">Sales Today</span>
                 </div>
               </div>
 
               {/* Card 3: Tables Occupied */}
-              <div className="banner-stat-card bg-white/95 hover:bg-white backdrop-blur-md rounded-xl px-3 py-2 border border-white/90 shadow-[0_2px_8px_rgba(128,13,50,0.06)] hover:shadow-md transition-all flex items-center gap-2.5 group">
-                <div className="w-8 h-8 rounded-lg bg-rose-50 text-[#800D32] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <div className="banner-stat-card bg-white/95 hover:bg-white backdrop-blur-md rounded-2xl p-2.5 2xl:p-3 border border-white/90 shadow-[0_4px_14px_rgba(128,13,50,0.06)] hover:shadow-lg transition-all flex items-center gap-2.5 group cursor-pointer hover:-translate-y-0.5">
+                <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl bg-gradient-to-br from-rose-50 to-pink-100/60 text-[#800D32] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
                   <Grid2X2 className="w-4 h-4" />
                 </div>
-                <div>
-                  <div className="flex items-center gap-1.5">
-                    <span ref={tablesValRef} className="text-sm 2xl:text-base font-black text-[#191923] leading-none">18 / 24</span>
-                    <span className="text-[9px] font-bold text-[#800D32] bg-rose-50 px-1 py-0.5 rounded leading-none">75%</span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center gap-1.5 flex-nowrap">
+                    <span ref={tablesValRef} className="text-sm 2xl:text-base font-black text-[#191923] leading-none whitespace-nowrap">18 / 24</span>
+                    <span className="text-[9px] font-bold text-[#800D32] bg-rose-50 px-1 py-0.5 rounded leading-none whitespace-nowrap">75%</span>
                   </div>
-                  <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-semibold block mt-1">Tables Occupied</span>
+                  <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-semibold block mt-1 whitespace-nowrap truncate">Tables Occupied</span>
                 </div>
               </div>
             </div>
@@ -261,107 +262,118 @@ export const DashboardPage: React.FC = () => {
         <div className="col-span-12 xl:col-span-5 bg-white rounded-2xl p-5 2xl:p-6 border border-gray-100 shadow-sm flex flex-col justify-between h-full">
           <div className="flex items-center justify-between pb-2">
             <h3 className="text-sm 2xl:text-base font-bold text-[#191923]">Quick Actions</h3>
-            <button className="text-[11px] font-bold text-gray-500 hover:text-[#800D32] flex items-center gap-1">
-              <Settings className="w-3.5 h-3.5" />
-              <span>Customize</span>
+            <button 
+              onClick={() => navigate('/tools')}
+              className="text-[11px] font-bold text-[#800D32] hover:text-[#5a0923] flex items-center gap-1 transition-colors group"
+            >
+              <span>View All</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
             </button>
           </div>
 
           <div className="grid grid-cols-4 gap-2.5 2xl:gap-3 flex-1 items-stretch pt-1">
-            {/* New Sale F2 */}
+            {/* 1. New Sale (Featured CTA) */}
             <button
               onClick={() => navigate('/pos')}
-              className="bg-[#F9E8ED] hover:bg-[#F3D2DC] border border-[#F3D2DC] rounded-2xl p-3 2xl:p-3.5 h-full flex flex-col items-center justify-center text-center transition-all group active:scale-95 shadow-sm"
+              className="relative bg-gradient-to-br from-[#FFF0F4] via-[#FCE8F0] to-[#FADBE7] hover:from-[#FCE0EB] hover:to-[#F5CDDD] border border-[#F8C6D6] rounded-2xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all duration-200 group active:scale-95 shadow-sm hover:shadow-md"
             >
-              <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl text-[#800D32] flex items-center justify-center mb-1">
-                <ShoppingCart className="w-5 h-5 2xl:w-5.5 2xl:h-5.5" />
+              <span className="absolute top-2 right-2 text-[9px] font-black text-[#800D32] bg-[#800D32]/10 px-1.5 py-0.5 rounded-md leading-none">F2</span>
+              <div className="w-9 h-9 2xl:w-10 2xl:h-10 rounded-xl bg-white shadow-sm text-[#800D32] flex items-center justify-center mb-1 group-hover:scale-110 transition-transform">
+                <ShoppingCart className="w-5 h-5" />
               </div>
-              <span className="text-xs 2xl:text-sm font-bold text-[#191923] leading-tight">New Sale</span>
-              <span className="text-[10px] text-gray-500 font-semibold mt-0.5">F2</span>
+              <span className="text-xs 2xl:text-sm font-black text-[#191923] leading-tight">New Sale</span>
+              <span className="text-[10px] 2xl:text-[11px] text-[#800D32] font-semibold mt-0.5 leading-tight">Take Order</span>
             </button>
 
-            {/* Add Item F3 */}
+            {/* 2. Add Item */}
             <button
               onClick={() => navigate('/menu')}
-              className="bg-white hover:bg-gray-50 border border-gray-100 rounded-2xl p-3 2xl:p-3.5 h-full flex flex-col items-center justify-center text-center transition-all group active:scale-95"
+              className="relative bg-white hover:bg-rose-50/20 border border-gray-100 hover:border-gray-200 rounded-2xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all duration-200 group active:scale-95 hover:shadow-sm"
             >
-              <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl text-[#800D32] flex items-center justify-center mb-1">
-                <PlusCircle className="w-5 h-5 2xl:w-5.5 2xl:h-5.5" />
+              <span className="absolute top-2 right-2 text-[9px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-md leading-none">F3</span>
+              <div className="w-9 h-9 2xl:w-10 2xl:h-10 rounded-xl bg-gray-50 group-hover:bg-rose-50 text-gray-700 group-hover:text-[#800D32] flex items-center justify-center mb-1 group-hover:scale-110 transition-all">
+                <PlusCircle className="w-5 h-5" />
               </div>
               <span className="text-xs 2xl:text-sm font-bold text-[#191923] leading-tight">Add Item</span>
-              <span className="text-[10px] text-gray-400 font-semibold mt-0.5">F3</span>
+              <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-medium mt-0.5 leading-tight">Menu & Price</span>
             </button>
 
-            {/* Add Table F4 */}
+            {/* 3. Add Table */}
             <button
               onClick={() => navigate('/tables')}
-              className="bg-white hover:bg-gray-50 border border-gray-100 rounded-2xl p-3 2xl:p-3.5 h-full flex flex-col items-center justify-center text-center transition-all group active:scale-95"
+              className="relative bg-white hover:bg-rose-50/20 border border-gray-100 hover:border-gray-200 rounded-2xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all duration-200 group active:scale-95 hover:shadow-sm"
             >
-              <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl text-[#800D32] flex items-center justify-center mb-1">
-                <Grid2X2 className="w-5 h-5 2xl:w-5.5 2xl:h-5.5" />
+              <span className="absolute top-2 right-2 text-[9px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-md leading-none">F4</span>
+              <div className="w-9 h-9 2xl:w-10 2xl:h-10 rounded-xl bg-gray-50 group-hover:bg-rose-50 text-gray-700 group-hover:text-[#800D32] flex items-center justify-center mb-1 group-hover:scale-110 transition-all">
+                <Grid2X2 className="w-5 h-5" />
               </div>
               <span className="text-xs 2xl:text-sm font-bold text-[#191923] leading-tight">Add Table</span>
-              <span className="text-[10px] text-gray-400 font-semibold mt-0.5">F4</span>
+              <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-medium mt-0.5 leading-tight">Manage Tables</span>
             </button>
 
-            {/* KOT F5 */}
+            {/* 4. KOT */}
             <button
               onClick={() => navigate('/kitchen')}
-              className="bg-white hover:bg-gray-50 border border-gray-100 rounded-2xl p-3 2xl:p-3.5 h-full flex flex-col items-center justify-center text-center transition-all group active:scale-95"
+              className="relative bg-white hover:bg-rose-50/20 border border-gray-100 hover:border-gray-200 rounded-2xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all duration-200 group active:scale-95 hover:shadow-sm"
             >
-              <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl text-[#800D32] flex items-center justify-center mb-1">
-                <ChefHat className="w-5 h-5 2xl:w-5.5 2xl:h-5.5" />
+              <span className="absolute top-2 right-2 text-[9px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-md leading-none">F5</span>
+              <div className="w-9 h-9 2xl:w-10 2xl:h-10 rounded-xl bg-gray-50 group-hover:bg-rose-50 text-gray-700 group-hover:text-[#800D32] flex items-center justify-center mb-1 group-hover:scale-110 transition-all">
+                <ChefHat className="w-5 h-5" />
               </div>
               <span className="text-xs 2xl:text-sm font-bold text-[#191923] leading-tight">KOT</span>
-              <span className="text-[10px] text-gray-400 font-semibold mt-0.5">F5</span>
+              <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-medium mt-0.5 leading-tight">Kitchen Orders</span>
             </button>
 
-            {/* Customers F6 */}
+            {/* 5. Customers */}
             <button
               onClick={() => navigate('/customers')}
-              className="bg-white hover:bg-gray-50 border border-gray-100 rounded-2xl p-3 2xl:p-3.5 h-full flex flex-col items-center justify-center text-center transition-all group active:scale-95"
+              className="relative bg-white hover:bg-rose-50/20 border border-gray-100 hover:border-gray-200 rounded-2xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all duration-200 group active:scale-95 hover:shadow-sm"
             >
-              <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl text-[#800D32] flex items-center justify-center mb-1">
-                <Users className="w-5 h-5 2xl:w-5.5 2xl:h-5.5" />
+              <span className="absolute top-2 right-2 text-[9px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-md leading-none">F6</span>
+              <div className="w-9 h-9 2xl:w-10 2xl:h-10 rounded-xl bg-gray-50 group-hover:bg-rose-50 text-gray-700 group-hover:text-[#800D32] flex items-center justify-center mb-1 group-hover:scale-110 transition-all">
+                <Users className="w-5 h-5" />
               </div>
               <span className="text-xs 2xl:text-sm font-bold text-[#191923] leading-tight">Customers</span>
-              <span className="text-[10px] text-gray-400 font-semibold mt-0.5">F6</span>
+              <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-medium mt-0.5 leading-tight">Manage CRM</span>
             </button>
 
-            {/* Reports F7 */}
+            {/* 6. Reports */}
             <button
               onClick={() => navigate('/tools')}
-              className="bg-white hover:bg-gray-50 border border-gray-100 rounded-2xl p-3 2xl:p-3.5 h-full flex flex-col items-center justify-center text-center transition-all group active:scale-95"
+              className="relative bg-white hover:bg-rose-50/20 border border-gray-100 hover:border-gray-200 rounded-2xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all duration-200 group active:scale-95 hover:shadow-sm"
             >
-              <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl text-[#800D32] flex items-center justify-center mb-1">
-                <BarChart3 className="w-5 h-5 2xl:w-5.5 2xl:h-5.5" />
+              <span className="absolute top-2 right-2 text-[9px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-md leading-none">F7</span>
+              <div className="w-9 h-9 2xl:w-10 2xl:h-10 rounded-xl bg-gray-50 group-hover:bg-rose-50 text-gray-700 group-hover:text-[#800D32] flex items-center justify-center mb-1 group-hover:scale-110 transition-all">
+                <BarChart3 className="w-5 h-5" />
               </div>
               <span className="text-xs 2xl:text-sm font-bold text-[#191923] leading-tight">Reports</span>
-              <span className="text-[10px] text-gray-400 font-semibold mt-0.5">F7</span>
+              <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-medium mt-0.5 leading-tight">Sales & Orders</span>
             </button>
 
-            {/* Printers F8 */}
+            {/* 7. Printers */}
             <button
               onClick={() => navigate('/printers')}
-              className="bg-white hover:bg-gray-50 border border-gray-100 rounded-2xl p-3 2xl:p-3.5 h-full flex flex-col items-center justify-center text-center transition-all group active:scale-95"
+              className="relative bg-white hover:bg-rose-50/20 border border-gray-100 hover:border-gray-200 rounded-2xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all duration-200 group active:scale-95 hover:shadow-sm"
             >
-              <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl text-[#800D32] flex items-center justify-center mb-1">
-                <Printer className="w-5 h-5 2xl:w-5.5 2xl:h-5.5" />
+              <span className="absolute top-2 right-2 text-[9px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-md leading-none">F8</span>
+              <div className="w-9 h-9 2xl:w-10 2xl:h-10 rounded-xl bg-gray-50 group-hover:bg-rose-50 text-gray-700 group-hover:text-[#800D32] flex items-center justify-center mb-1 group-hover:scale-110 transition-all">
+                <Printer className="w-5 h-5" />
               </div>
               <span className="text-xs 2xl:text-sm font-bold text-[#191923] leading-tight">Printers</span>
-              <span className="text-[10px] text-gray-400 font-semibold mt-0.5">F8</span>
+              <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-medium mt-0.5 leading-tight">Devices & KOT</span>
             </button>
 
-            {/* Settings F9 */}
+            {/* 8. Settings */}
             <button
               onClick={() => navigate('/tools')}
-              className="bg-white hover:bg-gray-50 border border-gray-100 rounded-2xl p-3 2xl:p-3.5 h-full flex flex-col items-center justify-center text-center transition-all group active:scale-95"
+              className="relative bg-white hover:bg-rose-50/20 border border-gray-100 hover:border-gray-200 rounded-2xl p-2.5 2xl:p-3 h-full flex flex-col items-center justify-center text-center transition-all duration-200 group active:scale-95 hover:shadow-sm"
             >
-              <div className="w-8 h-8 2xl:w-9 2xl:h-9 rounded-xl text-[#800D32] flex items-center justify-center mb-1">
-                <Settings className="w-5 h-5 2xl:w-5.5 2xl:h-5.5" />
+              <span className="absolute top-2 right-2 text-[9px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded-md leading-none">F9</span>
+              <div className="w-9 h-9 2xl:w-10 2xl:h-10 rounded-xl bg-gray-50 group-hover:bg-rose-50 text-gray-700 group-hover:text-[#800D32] flex items-center justify-center mb-1 group-hover:scale-110 transition-all">
+                <Settings className="w-5 h-5" />
               </div>
               <span className="text-xs 2xl:text-sm font-bold text-[#191923] leading-tight">Settings</span>
-              <span className="text-[10px] text-gray-400 font-semibold mt-0.5">F9</span>
+              <span className="text-[10px] 2xl:text-[11px] text-gray-500 font-medium mt-0.5 leading-tight">System & Outlet</span>
             </button>
           </div>
         </div>
