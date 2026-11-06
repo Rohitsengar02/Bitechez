@@ -11,7 +11,6 @@ import {
   Globe,
   Plus,
   Search,
-  Filter,
   Eye,
   MoreHorizontal,
   ChevronLeft,
@@ -170,6 +169,7 @@ export const OrdersPage: React.FC = () => {
 
   // Right sidebar mode: 'order' (default showing selected order) or 'filters' (opened on clicking filter icon)
   const [rightPanelMode, setRightPanelMode] = useState<'order' | 'filters'>('order');
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
   // Filter state for the advanced filter sidebar
   const [filterStatus, setFilterStatus] = useState<string>('all');
@@ -344,65 +344,65 @@ export const OrdersPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Status Metric Cards Row */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 py-3 border-b border-gray-100 shrink-0">
-          <div className="bg-white rounded-2xl border border-gray-100 p-2.5 px-3 shadow-xs flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#00C060] flex items-center justify-center shrink-0">
+        {/* Status Metric Cards Row (Swipeable on mobile, grid on desktop) */}
+        <div className="flex lg:grid lg:grid-cols-5 gap-2.5 sm:gap-3 py-2.5 sm:py-3 border-b border-gray-100 shrink-0 overflow-x-auto scrollbar-none snap-x">
+          <div className="shrink-0 snap-start bg-white rounded-2xl border border-gray-100 p-2 sm:p-2.5 px-3 shadow-xs flex items-center gap-2.5 sm:gap-3">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-50 text-[#00C060] flex items-center justify-center shrink-0">
               <ShoppingBag className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-lg font-black text-gray-900 leading-none">{counts.all}</p>
-              <p className="text-[10px] font-semibold text-gray-500 mt-1">Total Orders</p>
+              <p className="text-base sm:text-lg font-black text-gray-900 leading-none">{counts.all}</p>
+              <p className="text-[10px] font-semibold text-gray-500 mt-1 whitespace-nowrap">Total Orders</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-100 p-2.5 px-3 shadow-xs flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+          <div className="shrink-0 snap-start bg-white rounded-2xl border border-gray-100 p-2 sm:p-2.5 px-3 shadow-xs flex items-center gap-2.5 sm:gap-3">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
               <CheckCircle2 className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-lg font-black text-gray-900 leading-none">{counts.completed}</p>
-              <p className="text-[10px] font-semibold text-gray-500 mt-1">Completed</p>
+              <p className="text-base sm:text-lg font-black text-gray-900 leading-none">{counts.completed}</p>
+              <p className="text-[10px] font-semibold text-gray-500 mt-1 whitespace-nowrap">Completed</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-100 p-2.5 px-3 shadow-xs flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
+          <div className="shrink-0 snap-start bg-white rounded-2xl border border-gray-100 p-2 sm:p-2.5 px-3 shadow-xs flex items-center gap-2.5 sm:gap-3">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
               <Clock className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-lg font-black text-gray-900 leading-none">{counts.in_progress}</p>
-              <p className="text-[10px] font-semibold text-gray-500 mt-1">In Progress</p>
+              <p className="text-base sm:text-lg font-black text-gray-900 leading-none">{counts.in_progress}</p>
+              <p className="text-[10px] font-semibold text-gray-500 mt-1 whitespace-nowrap">In Progress</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-100 p-2.5 px-3 shadow-xs flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0">
+          <div className="shrink-0 snap-start bg-white rounded-2xl border border-gray-100 p-2 sm:p-2.5 px-3 shadow-xs flex items-center gap-2.5 sm:gap-3">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0">
               <XCircle className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-lg font-black text-gray-900 leading-none">{counts.cancelled}</p>
-              <p className="text-[10px] font-semibold text-gray-500 mt-1">Cancelled</p>
+              <p className="text-base sm:text-lg font-black text-gray-900 leading-none">{counts.cancelled}</p>
+              <p className="text-[10px] font-semibold text-gray-500 mt-1 whitespace-nowrap">Cancelled</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-100 p-2.5 px-3 shadow-xs flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+          <div className="shrink-0 snap-start bg-white rounded-2xl border border-gray-100 p-2 sm:p-2.5 px-3 shadow-xs flex items-center gap-2.5 sm:gap-3">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
               <IndianRupee className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-lg font-black text-gray-900 leading-none">₹28,430.00</p>
-              <p className="text-[10px] font-semibold text-gray-500 mt-1">Total Sales</p>
+              <p className="text-base sm:text-lg font-black text-gray-900 leading-none">₹28,430.00</p>
+              <p className="text-[10px] font-semibold text-gray-500 mt-1 whitespace-nowrap">Total Sales</p>
             </div>
           </div>
         </div>
 
         {/* Filter Pills + Search Input Bar */}
-        <div className="flex items-center justify-between gap-3 py-3 border-b border-gray-100 flex-wrap shrink-0">
-          <div className="flex items-center gap-2 overflow-x-auto max-w-full">
+        <div className="flex items-center justify-between gap-2.5 py-2.5 sm:py-3 border-b border-gray-100 flex-wrap shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none snap-x max-w-full py-0.5">
             <button
               onClick={() => setActiveFilterPill('all')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+              className={`shrink-0 snap-start px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                 activeFilterPill === 'all'
                   ? 'bg-[#00C060] text-white shadow-xs'
                   : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
@@ -412,7 +412,7 @@ export const OrdersPage: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveFilterPill('dine_in')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`shrink-0 snap-start px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
                 activeFilterPill === 'dine_in'
                   ? 'bg-[#00C060] text-white shadow-xs'
                   : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
@@ -423,7 +423,7 @@ export const OrdersPage: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveFilterPill('takeaway')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`shrink-0 snap-start px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
                 activeFilterPill === 'takeaway'
                   ? 'bg-[#00C060] text-white shadow-xs'
                   : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
@@ -434,7 +434,7 @@ export const OrdersPage: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveFilterPill('delivery')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`shrink-0 snap-start px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
                 activeFilterPill === 'delivery'
                   ? 'bg-[#00C060] text-white shadow-xs'
                   : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
@@ -445,7 +445,7 @@ export const OrdersPage: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveFilterPill('online')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`shrink-0 snap-start px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
                 activeFilterPill === 'online'
                   ? 'bg-[#00C060] text-white shadow-xs'
                   : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
@@ -456,36 +456,114 @@ export const OrdersPage: React.FC = () => {
             </button>
           </div>
 
-          <div className="flex items-center gap-2">
-            <div className="relative w-64">
-              <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+            <div className="relative flex-1 sm:w-56">
+              <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search order (ID, table, customer...)"
-                className="w-full pl-9 pr-3 py-1.5 rounded-xl border border-gray-200 text-xs focus:outline-none focus:border-[#00C060] bg-gray-50/60"
+                placeholder="Search orders..."
+                className="w-full pl-8 pr-3 py-1.5 rounded-xl border border-gray-200 text-xs focus:outline-none focus:border-[#00C060] bg-gray-50/60"
               />
             </div>
 
-            {/* Filter Toggle Button */}
             <button
-              onClick={() => setRightPanelMode(rightPanelMode === 'filters' ? 'order' : 'filters')}
-              className={`p-2 rounded-xl border transition-all ${
-                rightPanelMode === 'filters'
-                  ? 'bg-[#00C060] text-white border-[#00C060] shadow-xs'
-                  : 'border-gray-200 text-gray-700 hover:bg-gray-50'
-              }`}
-              title="Toggle Advanced Filters & Analytics"
+              onClick={() => {
+                setRightPanelMode('filters');
+                setMobileDrawerOpen(true);
+              }}
+              className="p-2 rounded-xl border border-gray-200 text-gray-600 hover:border-gray-300 hover:text-gray-900 bg-white shadow-xs transition-colors shrink-0"
+              title="Open Filters"
             >
-              <Filter className="w-4 h-4" />
+              <SlidersHorizontal className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
 
-        {/* Orders Table Container */}
-        <div className="flex-1 overflow-y-auto pt-2">
-          <table className="w-full text-left text-xs border-collapse">
+        {/* Mobile: Beautiful Order Cards Grid | Desktop: Responsive Data Table */}
+        <div className="flex-1 min-h-0 overflow-y-auto scrollbar-none pb-28 lg:pb-0 pt-2">
+          {/* Mobile Order Cards Grid (Visible on mobile only) */}
+          <div className="lg:hidden space-y-2.5">
+            {filteredOrders.length === 0 ? (
+              <div className="py-12 text-center text-xs text-gray-400 font-bold">
+                No orders match your filter criteria.
+              </div>
+            ) : (
+              filteredOrders.map((ord) => {
+                const isSelected = selectedOrder?.id === ord.id;
+                return (
+                  <div
+                    key={ord.id}
+                    onClick={() => {
+                      setSelectedOrderId(ord.id);
+                      setRightPanelMode('order');
+                      setMobileDrawerOpen(true);
+                    }}
+                    className={`p-3 rounded-2xl border transition-all cursor-pointer bg-white relative shadow-xs flex flex-col gap-2 ${
+                      isSelected && rightPanelMode === 'order'
+                        ? 'border-[#00C060] ring-2 ring-[#00C060]/20 bg-[#F9FEFA]'
+                        : 'border-gray-100 hover:border-gray-200'
+                    }`}
+                  >
+                    {/* Top Row: Order ID + Status + Type Badge */}
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-black text-gray-900 tracking-tight">{ord.id}</span>
+                        {getTypeBadge(ord.type)}
+                      </div>
+                      <div className="shrink-0">{getStatusBadge(ord.status)}</div>
+                    </div>
+
+                    {/* Middle Row: Customer Info & Table */}
+                    <div className="flex items-center justify-between text-xs text-gray-600 bg-gray-50/70 rounded-xl px-2.5 py-1.5">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span className="text-gray-400 text-xs">👤</span>
+                        <span className="font-bold text-gray-800 truncate">{ord.customerName}</span>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0 font-bold text-gray-700">
+                        {ord.tableName ? (
+                          <span className="px-1.5 py-0.5 rounded-md bg-white border border-gray-200 text-[10px] font-black text-emerald-700">
+                            {ord.tableName}
+                          </span>
+                        ) : (
+                          <span className="text-[10px] text-gray-400 font-semibold">—</span>
+                        )}
+                        <span className="text-gray-300">•</span>
+                        <span className="text-[11px] font-medium text-gray-500">{ord.time}</span>
+                      </div>
+                    </div>
+
+                    {/* Bottom Row: Items count + Amount + Action Button */}
+                    <div className="flex items-center justify-between pt-1">
+                      <span className="text-xs font-medium text-gray-500">
+                        {ord.itemCount} items
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-black text-gray-900">
+                          ₹{ord.amount.toFixed(2)}
+                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedOrderId(ord.id);
+                            setRightPanelMode('order');
+                            setMobileDrawerOpen(true);
+                          }}
+                          className="px-2.5 py-1 rounded-lg border border-gray-200 text-[11px] font-bold text-gray-700 hover:bg-gray-50 bg-white shadow-2xs"
+                        >
+                          View
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {/* Desktop Data Table (Hidden on mobile) */}
+          <table className="hidden lg:table w-full text-left text-xs border-collapse">
             <thead className="sticky top-0 bg-white border-b border-gray-100 z-10 text-gray-400 font-bold">
               <tr>
                 <th className="py-2.5 px-3 w-8">
@@ -511,6 +589,7 @@ export const OrdersPage: React.FC = () => {
                     onClick={() => {
                       setSelectedOrderId(ord.id);
                       setRightPanelMode('order');
+                      setMobileDrawerOpen(true);
                     }}
                     className={`cursor-pointer transition-colors ${
                       isSelected && rightPanelMode === 'order'
@@ -540,6 +619,7 @@ export const OrdersPage: React.FC = () => {
                           onClick={() => {
                             setSelectedOrderId(ord.id);
                             setRightPanelMode('order');
+                            setMobileDrawerOpen(true);
                           }}
                           className="hover:text-gray-700 p-1"
                           title="View Details"
@@ -591,8 +671,8 @@ export const OrdersPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Right Sidebar: Dynamic between 'order' (Default) and 'filters' (Scrollable Filter & Analytics) */}
-      <div className="w-[320px] xl:w-[350px] bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col p-4 shrink-0 h-full overflow-hidden">
+      {/* Right Sidebar (Desktop only; Mobile uses Slide-up drawer) */}
+      <div className="hidden lg:flex w-[320px] xl:w-[350px] bg-white rounded-2xl border border-gray-200 shadow-sm flex-col p-4 shrink-0 h-full overflow-hidden">
         {rightPanelMode === 'filters' ? (
           /* ============================================================
              CUSTOM FILTER & SALES REVENUE SIDEBAR
@@ -904,6 +984,276 @@ export const OrdersPage: React.FC = () => {
           )
         )}
       </div>
+
+      {/* ================= MOBILE BOTTOM FLOATING ORDER BAR & SLIDE-UP DRAWER ================= */}
+      {selectedOrder && (
+        <>
+          {/* Floating Mobile Bar above bottom navigation */}
+          <div className="lg:hidden fixed bottom-14 left-2 right-2 z-40 bg-white/98 backdrop-blur-lg rounded-2xl border border-slate-200/90 shadow-[0_6px_24px_rgba(0,0,0,0.12)] p-2 sm:p-2.5 flex items-center justify-between gap-2">
+            <button
+              onClick={() => {
+                setRightPanelMode('order');
+                setMobileDrawerOpen(true);
+              }}
+              className="flex items-center gap-2 min-w-0 text-left flex-1"
+            >
+              <div className="w-8 h-8 rounded-xl bg-emerald-50 text-[#00C060] flex items-center justify-center shrink-0">
+                <ShoppingBag className="w-4 h-4" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-xs font-black text-gray-900 leading-none">{selectedOrder.id}</span>
+                  {getStatusBadge(selectedOrder.status)}
+                </div>
+                <p className="text-[10px] font-semibold text-gray-500 truncate mt-0.5">
+                  {selectedOrder.customerName} • {selectedOrder.itemCount} items
+                </p>
+              </div>
+            </button>
+
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                onClick={() => {
+                  setRightPanelMode('order');
+                  setMobileDrawerOpen(true);
+                }}
+                className="px-2.5 py-1.5 rounded-xl border border-gray-200 text-gray-700 text-xs font-bold bg-white hover:bg-gray-50 shadow-2xs"
+              >
+                Details
+              </button>
+              <button
+                onClick={() => handleMarkReady(selectedOrder.id)}
+                className="px-3 py-1.5 rounded-xl bg-[#00C060] text-white text-xs font-black shadow-xs flex items-center gap-1 active:scale-95 transition"
+              >
+                <Check className="w-3.5 h-3.5 stroke-[3]" />
+                <span>Ready</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile Bottom Sheet Drawer */}
+          {mobileDrawerOpen && (
+            <div
+              className="lg:hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end justify-center"
+              onClick={(e) => e.target === e.currentTarget && setMobileDrawerOpen(false)}
+            >
+              <div className="w-full bg-white rounded-t-3xl max-h-[85dvh] flex flex-col shadow-2xl border-t border-gray-100 animate-in slide-in-from-bottom duration-300">
+                {/* Drag handle */}
+                <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mt-2.5 mb-1" />
+
+                {rightPanelMode === 'filters' ? (
+                  /* Mobile Filter View */
+                  <div className="flex flex-col h-full min-h-0 p-4">
+                    <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+                      <div className="flex items-center gap-2">
+                        <SlidersHorizontal className="w-4 h-4 text-[#00C060]" />
+                        <h3 className="text-sm font-black text-gray-900">Filters & Revenue</h3>
+                      </div>
+                      <button
+                        onClick={() => setMobileDrawerOpen(false)}
+                        className="w-7 h-7 rounded-lg bg-gray-100 text-gray-500 flex items-center justify-center font-bold"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    <div className="py-3 flex-1 min-h-0 overflow-y-auto space-y-4 text-xs pr-1">
+                      {/* Revenue Summary */}
+                      <div className="p-3 bg-gradient-to-br from-[#E7F9F0] to-emerald-50/50 rounded-2xl border border-emerald-200">
+                        <div className="flex items-center justify-between mb-1.5">
+                          <span className="text-xs font-black text-emerald-950 flex items-center gap-1.5">
+                            <TrendingUp className="w-3.5 h-3.5 text-[#00C060]" /> Sales Revenue
+                          </span>
+                          <span className="text-[10px] font-bold text-emerald-700 bg-white px-2 py-0.5 rounded-full shadow-2xs">
+                            Today
+                          </span>
+                        </div>
+                        <p className="text-lg font-black text-emerald-950">₹28,430.00</p>
+                      </div>
+
+                      {/* Filter by Status */}
+                      <div>
+                        <label className="text-[11px] font-bold text-gray-700 block mb-1">Order Status</label>
+                        <div className="grid grid-cols-2 gap-1.5">
+                          {['all', 'in_progress', 'completed', 'cancelled'].map((st) => (
+                            <button
+                              key={st}
+                              onClick={() => setFilterStatus(st)}
+                              className={`p-2 rounded-xl text-xs font-bold border capitalize ${
+                                filterStatus === st
+                                  ? 'bg-[#E7F9F0] text-[#00C060] border-[#00C060]'
+                                  : 'border-gray-200 text-gray-600'
+                              }`}
+                            >
+                              {st.replace('_', ' ')}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Filter by Table */}
+                      <div>
+                        <label className="text-[11px] font-bold text-gray-700 block mb-1">Filter by Table</label>
+                        <select
+                          value={filterTable}
+                          onChange={(e) => setFilterTable(e.target.value)}
+                          className="w-full p-2.5 rounded-xl border border-gray-200 text-xs font-semibold bg-white"
+                        >
+                          <option value="all">All Tables</option>
+                          <option value="T-01">Table T-01</option>
+                          <option value="T-02">Table T-02</option>
+                          <option value="T-03">Table T-03</option>
+                          <option value="T-06">Table T-06</option>
+                        </select>
+                      </div>
+
+                      {/* Amount Range */}
+                      <div>
+                        <div className="flex justify-between items-center mb-1">
+                          <label className="text-[11px] font-bold text-gray-700">Amount Max</label>
+                          <span className="text-xs font-black text-[#00C060]">₹{filterMaxAmount}</span>
+                        </div>
+                        <input
+                          type="range"
+                          min="0"
+                          max="5000"
+                          step="100"
+                          value={filterMaxAmount}
+                          onChange={(e) => setFilterMaxAmount(Number(e.target.value))}
+                          className="w-full accent-[#00C060]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="pt-3 border-t border-gray-100 flex items-center gap-2 mt-auto">
+                      <button
+                        onClick={handleResetFilters}
+                        className="py-2.5 px-3 rounded-xl border border-gray-200 text-xs font-bold text-gray-700 flex items-center justify-center gap-1 flex-1"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5 text-gray-400" />
+                        <span>Reset</span>
+                      </button>
+                      <button
+                        onClick={() => setMobileDrawerOpen(false)}
+                        className="py-2.5 px-4 rounded-xl bg-[#00C060] text-white text-xs font-black shadow-xs flex items-center justify-center gap-1 flex-1"
+                      >
+                        <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        <span>Apply</span>
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  /* Mobile Order Details View */
+                  <div className="flex flex-col h-full min-h-0 p-4">
+                    {/* Header */}
+                    <div className="flex items-start justify-between pb-2.5 border-b border-gray-100">
+                      <div>
+                        <h3 className="text-sm font-black text-gray-900 leading-tight">Order Details</h3>
+                        <p className="text-[10px] text-gray-400 font-medium mt-0.5">
+                          {selectedOrder.id} • {selectedOrder.date}
+                        </p>
+                      </div>
+
+                      <div className="flex items-center gap-1.5">
+                        {getStatusBadge(selectedOrder.status)}
+                        <button
+                          onClick={() => setMobileDrawerOpen(false)}
+                          className="w-7 h-7 rounded-lg bg-gray-100 text-gray-500 flex items-center justify-center font-bold"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Customer */}
+                    <div className="py-2 border-b border-gray-100 flex items-center justify-between text-xs">
+                      <div>
+                        <p className="font-black text-gray-900">{selectedOrder.customerName}</p>
+                        <p className="text-[10px] text-gray-400">{selectedOrder.customerPhone || 'Walk-in Guest'} • {selectedOrder.tableName || 'Takeaway'}</p>
+                      </div>
+                      {getTypeBadge(selectedOrder.type)}
+                    </div>
+
+                    {/* Items */}
+                    <div className="py-2 flex-1 min-h-0 overflow-y-auto space-y-1.5">
+                      <h4 className="text-[11px] font-black text-gray-900">
+                        Items ({selectedOrder.items.length})
+                      </h4>
+                      <div className="space-y-1.5">
+                        {selectedOrder.items.map((it) => (
+                          <div
+                            key={it.id}
+                            className="flex items-center justify-between p-2 rounded-xl bg-gray-50 border border-gray-100"
+                          >
+                            <div className="flex items-center gap-2 min-w-0">
+                              <img
+                                src={it.image}
+                                alt={it.name}
+                                className="w-8 h-8 rounded-lg object-cover bg-white p-0.5 border border-gray-200 shrink-0"
+                              />
+                              <span className="text-xs font-bold text-gray-900 truncate">
+                                {it.name} <span className="text-gray-400">×{it.qty}</span>
+                              </span>
+                            </div>
+                            <span className="text-xs font-black text-gray-900 ml-1.5 shrink-0">
+                              ₹{it.price.toFixed(2)}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Calculation breakdown */}
+                    <div className="pt-2 border-t border-gray-100 space-y-1 text-xs">
+                      <div className="flex justify-between text-gray-500 text-[11px]">
+                        <span>Subtotal</span>
+                        <span>₹{selectedOrder.subtotal.toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between text-gray-500 text-[11px]">
+                        <span>Tax & Charges</span>
+                        <span>₹{(selectedOrder.tax + selectedOrder.serviceCharge).toFixed(2)}</span>
+                      </div>
+                      <div className="flex justify-between items-center pt-1.5 border-t border-gray-100 font-black text-gray-900 text-sm">
+                        <span>Total Amount</span>
+                        <span className="text-[#00C060] text-base">₹{selectedOrder.amount.toFixed(2)}</span>
+                      </div>
+                    </div>
+
+                    {/* Actions */}
+                    <div className="pt-3 border-t border-gray-100 flex items-center gap-2 mt-auto">
+                      <button
+                        onClick={() => {
+                          handleCancelOrder(selectedOrder.id);
+                          setMobileDrawerOpen(false);
+                        }}
+                        className="py-2.5 px-3 rounded-xl border border-rose-200 text-xs font-bold text-rose-600"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={() => alert(`Printing KOT for ${selectedOrder.id}...`)}
+                        className="py-2.5 px-3 rounded-xl border border-gray-200 text-xs font-bold text-gray-700 flex-1"
+                      >
+                        Print KOT
+                      </button>
+                      <button
+                        onClick={() => {
+                          handleMarkReady(selectedOrder.id);
+                          setMobileDrawerOpen(false);
+                        }}
+                        className="py-2.5 px-4 rounded-xl bg-[#00C060] text-white text-xs font-black flex items-center justify-center gap-1.5 flex-1"
+                      >
+                        <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        <span>Mark Ready</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 };

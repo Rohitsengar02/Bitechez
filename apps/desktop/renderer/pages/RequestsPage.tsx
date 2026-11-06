@@ -222,6 +222,7 @@ export const RequestsPage: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<RequestCategory>('all');
   const [selectedId, setSelectedId] = useState<string>('R-1048');
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [staffModalOpen, setStaffModalOpen] = useState(false);
   const [raiseModalOpen, setRaiseModalOpen] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState('Rahul Sharma');
@@ -434,65 +435,65 @@ export const RequestsPage: React.FC = () => {
     <div className="flex gap-4 font-sans text-[#191923] select-none pb-2 h-full overflow-hidden">
       {/* Left Main Section */}
       <div className="flex-1 min-w-0 flex flex-col gap-3.5 h-full overflow-hidden">
-        {/* Metric Cards Row */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-          <div className="bg-white rounded-2xl border border-gray-100 p-3 shadow-xs flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#00C060] flex items-center justify-center shrink-0">
-              <Bell className="w-5 h-5" />
+        {/* Metric Cards Row (Swipeable on mobile, grid on desktop) */}
+        <div className="flex lg:grid lg:grid-cols-5 gap-2.5 sm:gap-3 overflow-x-auto scrollbar-none snap-x py-0.5 shrink-0">
+          <div className="shrink-0 snap-start bg-white rounded-2xl border border-gray-100 p-2.5 sm:p-3 shadow-xs flex items-center gap-2.5 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 text-[#00C060] flex items-center justify-center shrink-0">
+              <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <p className="text-xl font-black text-gray-900 leading-none">{counts.all}</p>
-              <p className="text-[11px] font-semibold text-gray-500 mt-1">Total Requests</p>
+              <p className="text-base sm:text-xl font-black text-gray-900 leading-none">{counts.all}</p>
+              <p className="text-[10px] sm:text-[11px] font-semibold text-gray-500 mt-1 whitespace-nowrap">Total Requests</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-100 p-3 shadow-xs flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
-              <Clock className="w-5 h-5" />
+          <div className="shrink-0 snap-start bg-white rounded-2xl border border-gray-100 p-2.5 sm:p-3 shadow-xs flex items-center gap-2.5 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
+              <Clock className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <p className="text-xl font-black text-gray-900 leading-none">{counts.pending}</p>
-              <p className="text-[11px] font-semibold text-gray-500 mt-1">Pending</p>
+              <p className="text-base sm:text-xl font-black text-gray-900 leading-none">{counts.pending}</p>
+              <p className="text-[10px] sm:text-[11px] font-semibold text-gray-500 mt-1 whitespace-nowrap">Pending</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-100 p-3 shadow-xs flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
-              <RotateCw className="w-5 h-5" />
+          <div className="shrink-0 snap-start bg-white rounded-2xl border border-gray-100 p-2.5 sm:p-3 shadow-xs flex items-center gap-2.5 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
+              <RotateCw className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <p className="text-xl font-black text-gray-900 leading-none">{counts.in_progress}</p>
-              <p className="text-[11px] font-semibold text-gray-500 mt-1">In Progress</p>
+              <p className="text-base sm:text-xl font-black text-gray-900 leading-none">{counts.in_progress}</p>
+              <p className="text-[10px] sm:text-[11px] font-semibold text-gray-500 mt-1 whitespace-nowrap">In Progress</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-100 p-3 shadow-xs flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0">
-              <CheckCircle2 className="w-5 h-5" />
+          <div className="shrink-0 snap-start bg-white rounded-2xl border border-gray-100 p-2.5 sm:p-3 shadow-xs flex items-center gap-2.5 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0">
+              <CheckCircle2 className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <p className="text-xl font-black text-gray-900 leading-none">{counts.completed}</p>
-              <p className="text-[11px] font-semibold text-gray-500 mt-1">Completed</p>
+              <p className="text-base sm:text-xl font-black text-gray-900 leading-none">{counts.completed}</p>
+              <p className="text-[10px] sm:text-[11px] font-semibold text-gray-500 mt-1 whitespace-nowrap">Completed</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-100 p-3 shadow-xs flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0">
-              <XCircle className="w-5 h-5" />
+          <div className="shrink-0 snap-start bg-white rounded-2xl border border-gray-100 p-2.5 sm:p-3 shadow-xs flex items-center gap-2.5 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0">
+              <XCircle className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <p className="text-xl font-black text-gray-900 leading-none">{counts.cancelled}</p>
-              <p className="text-[11px] font-semibold text-gray-500 mt-1">Cancelled</p>
+              <p className="text-base sm:text-xl font-black text-gray-900 leading-none">{counts.cancelled}</p>
+              <p className="text-[10px] sm:text-[11px] font-semibold text-gray-500 mt-1 whitespace-nowrap">Cancelled</p>
             </div>
           </div>
         </div>
 
         {/* Filter Pills + "Raise Request" Button */}
         <div className="flex items-center justify-between flex-wrap gap-2.5">
-          <div className="flex items-center gap-2 overflow-x-auto max-w-full pb-0.5">
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none snap-x max-w-full pb-0.5">
             <button
               onClick={() => setActiveCategory('all')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`shrink-0 snap-start px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
                 activeCategory === 'all'
                   ? 'bg-[#00C060] text-white shadow-xs'
                   : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
@@ -503,7 +504,7 @@ export const RequestsPage: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveCategory('service')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`shrink-0 snap-start px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
                 activeCategory === 'service'
                   ? 'bg-[#00C060] text-white shadow-xs'
                   : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
@@ -514,7 +515,7 @@ export const RequestsPage: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveCategory('refill')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`shrink-0 snap-start px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
                 activeCategory === 'refill'
                   ? 'bg-[#00C060] text-white shadow-xs'
                   : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
@@ -525,7 +526,7 @@ export const RequestsPage: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveCategory('bill')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`shrink-0 snap-start px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
                 activeCategory === 'bill'
                   ? 'bg-[#00C060] text-white shadow-xs'
                   : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
@@ -536,7 +537,7 @@ export const RequestsPage: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveCategory('assistance')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`shrink-0 snap-start px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
                 activeCategory === 'assistance'
                   ? 'bg-[#00C060] text-white shadow-xs'
                   : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
@@ -547,7 +548,7 @@ export const RequestsPage: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveCategory('special')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`shrink-0 snap-start px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
                 activeCategory === 'special'
                   ? 'bg-[#00C060] text-white shadow-xs'
                   : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
@@ -562,7 +563,7 @@ export const RequestsPage: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => openRaiseForTable()}
-              className="px-3.5 py-1.5 rounded-xl bg-[#00C060] text-white text-xs font-bold hover:bg-[#00a854] shadow-xs flex items-center gap-1.5 transition-all"
+              className="px-3 sm:px-3.5 py-1.5 rounded-xl bg-[#00C060] text-white text-xs font-bold hover:bg-[#00a854] shadow-xs flex items-center gap-1.5 transition-all"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Raise Request</span>
@@ -613,7 +614,10 @@ export const RequestsPage: React.FC = () => {
                     return (
                       <tr
                         key={r.id}
-                        onClick={() => setSelectedId(r.id)}
+                        onClick={() => {
+                          setSelectedId(r.id);
+                          setMobileDrawerOpen(true);
+                        }}
                         className={`cursor-pointer transition-colors ${
                           isSelected
                             ? 'bg-[#E7F9F0]/60 border-y border-[#00C060]/30'
@@ -672,7 +676,10 @@ export const RequestsPage: React.FC = () => {
                 return (
                   <div
                     key={r.id}
-                    onClick={() => setSelectedId(r.id)}
+                    onClick={() => {
+                      setSelectedId(r.id);
+                      setMobileDrawerOpen(true);
+                    }}
                     className={`p-3.5 rounded-xl border transition-all cursor-pointer bg-white relative shadow-xs flex flex-col justify-between ${
                       isSelected
                         ? 'border-[#00C060] ring-2 ring-[#00C060]/20'
@@ -703,8 +710,8 @@ export const RequestsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Right Detail Sidebar */}
-      <div className="w-[300px] xl:w-[330px] bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col p-4 shrink-0 h-full overflow-hidden">
+      {/* Right Detail Sidebar (Desktop only; Mobile uses bottom sheet drawer) */}
+      <div className="hidden lg:flex w-[300px] xl:w-[330px] bg-white rounded-2xl border border-gray-200 shadow-sm flex-col p-4 shrink-0 h-full overflow-hidden">
         {selectedReq ? (
           <div className="flex flex-col h-full min-h-0">
             {/* Header: Concierge Icon, Request #, Status */}
@@ -837,6 +844,185 @@ export const RequestsPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* ================= MOBILE BOTTOM FLOATING REQUEST BAR & SLIDE-UP DRAWER ================= */}
+      {selectedReq && (
+        <>
+          {/* Floating Mobile Bar above bottom navigation */}
+          <div className="lg:hidden fixed bottom-14 inset-x-2 z-40 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/90 shadow-[0_4px_20px_rgba(0,0,0,0.12)] p-2.5 flex items-center justify-between gap-2.5">
+            <button
+              onClick={() => setMobileDrawerOpen(true)}
+              className="flex items-center gap-2.5 min-w-0 text-left flex-1"
+            >
+              <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#00C060] flex items-center justify-center shrink-0">
+                <ConciergeBell className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-black text-gray-900">{selectedReq.id}</span>
+                  {getTableBadge(selectedReq.table, selectedReq.tableColor)}
+                  {getStatusBadge(selectedReq.status)}
+                </div>
+                <p className="text-[10px] font-bold text-gray-500 truncate">
+                  {selectedReq.categoryLabel} • {selectedReq.details}
+                </p>
+              </div>
+            </button>
+
+            <div className="flex items-center gap-1.5 shrink-0">
+              {selectedReq.status === 'pending' ? (
+                <button
+                  onClick={(e) => handleAccept(selectedReq.id, e)}
+                  className="px-3 py-1.5 bg-[#00C060] text-white rounded-xl text-xs font-black shadow-xs flex items-center gap-1"
+                >
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>Accept</span>
+                </button>
+              ) : selectedReq.status === 'in_progress' ? (
+                <button
+                  onClick={(e) => handleComplete(selectedReq.id, e)}
+                  className="px-3 py-1.5 bg-[#00C060] text-white rounded-xl text-xs font-black shadow-xs flex items-center gap-1"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>Done</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => setMobileDrawerOpen(true)}
+                  className="px-2.5 py-1.5 rounded-xl border border-gray-200 text-gray-700 text-xs font-bold bg-white"
+                >
+                  Details
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Mobile Bottom Sheet Drawer */}
+          {mobileDrawerOpen && (
+            <div
+              className="lg:hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end justify-center"
+              onClick={(e) => e.target === e.currentTarget && setMobileDrawerOpen(false)}
+            >
+              <div className="w-full bg-white rounded-t-3xl max-h-[80dvh] flex flex-col shadow-2xl border-t border-gray-100 animate-in slide-in-from-bottom duration-300">
+                {/* Drag handle */}
+                <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mt-2.5 mb-1" />
+
+                {/* Header */}
+                <div className="px-4 py-2.5 flex items-center justify-between border-b border-gray-100 shrink-0">
+                  <div className="flex items-center gap-2">
+                    <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#00C060] flex items-center justify-center shrink-0">
+                      <ConciergeBell className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-black text-gray-900 leading-tight">
+                        Request #{selectedReq.id}
+                      </h3>
+                      <p className="text-[10px] text-gray-400 font-medium">Table {selectedReq.table} • {selectedReq.timeAgo}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {getStatusBadge(selectedReq.status)}
+                    <button
+                      onClick={() => setMobileDrawerOpen(false)}
+                      className="w-7 h-7 rounded-lg bg-gray-100 text-gray-500 flex items-center justify-center font-bold"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Table & Guests Summary */}
+                <div className="px-4 py-2.5 border-b border-gray-100 grid grid-cols-3 gap-2 text-center bg-gray-50/50">
+                  <div className="bg-white rounded-xl p-2 border border-gray-100 flex flex-col items-center">
+                    <span className="text-[10px] text-gray-400 font-bold mb-0.5">Table</span>
+                    <span className="text-xs font-black text-emerald-700">{selectedReq.table}</span>
+                  </div>
+                  <div className="bg-white rounded-xl p-2 border border-gray-100 flex flex-col items-center">
+                    <span className="text-[10px] text-gray-400 font-bold mb-0.5">Guests</span>
+                    <span className="text-xs font-black text-gray-800">{selectedReq.guests}</span>
+                  </div>
+                  <div className="bg-white rounded-xl p-2 border border-gray-100 flex flex-col items-center">
+                    <span className="text-[10px] text-gray-400 font-bold mb-0.5">Category</span>
+                    <span className="text-xs font-black text-gray-800 truncate">{selectedReq.categoryLabel}</span>
+                  </div>
+                </div>
+
+                {/* Details */}
+                <div className="p-4 flex-1 min-h-0 overflow-y-auto space-y-3">
+                  <div>
+                    <span className="text-[11px] font-bold text-gray-700 block mb-1">Request Details</span>
+                    <div className="p-3 bg-gray-50 rounded-xl border border-gray-100 text-xs font-medium text-gray-800">
+                      {selectedReq.details}
+                    </div>
+                  </div>
+
+                  {selectedReq.assignedStaff && (
+                    <div className="p-2.5 bg-blue-50/60 rounded-xl border border-blue-100 flex items-center justify-between text-xs font-bold text-blue-900">
+                      <span>Assigned Staff</span>
+                      <span>{selectedReq.assignedStaff}</span>
+                    </div>
+                  )}
+                </div>
+
+                {/* Actions */}
+                <div className="p-4 border-t border-gray-100 space-y-2 bg-white shrink-0 pb-6">
+                  {selectedReq.status === 'pending' ? (
+                    <button
+                      onClick={() => {
+                        handleAccept(selectedReq.id);
+                        setMobileDrawerOpen(false);
+                      }}
+                      className="w-full py-2.5 bg-[#00C060] text-white rounded-xl text-xs font-black flex items-center justify-center gap-1.5 shadow-sm"
+                    >
+                      <Check className="w-4 h-4 stroke-[3]" />
+                      Accept Request
+                    </button>
+                  ) : selectedReq.status === 'in_progress' ? (
+                    <button
+                      onClick={() => {
+                        handleComplete(selectedReq.id);
+                        setMobileDrawerOpen(false);
+                      }}
+                      className="w-full py-2.5 bg-[#00C060] text-white rounded-xl text-xs font-black flex items-center justify-center gap-1.5 shadow-sm"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      Mark Completed
+                    </button>
+                  ) : (
+                    <div className="w-full py-2 text-center bg-gray-100 text-gray-600 text-xs font-bold rounded-xl">
+                      Request {selectedReq.status === 'completed' ? 'Resolved' : 'Cancelled'}
+                    </div>
+                  )}
+
+                  <div className="grid grid-cols-2 gap-2 pt-1">
+                    <button
+                      onClick={() => {
+                        setMobileDrawerOpen(false);
+                        setStaffModalOpen(true);
+                      }}
+                      className="py-2 px-1 rounded-xl border border-gray-200 text-xs font-bold text-gray-700 flex items-center justify-center gap-1"
+                    >
+                      <UserPlus className="w-3.5 h-3.5 text-gray-400" />
+                      Assign Staff
+                    </button>
+                    <button
+                      onClick={() => {
+                        handleReject(selectedReq.id);
+                        setMobileDrawerOpen(false);
+                      }}
+                      className="py-2 px-1 rounded-xl border border-rose-200 text-xs font-bold text-rose-600 flex items-center justify-center gap-1"
+                    >
+                      <X className="w-3.5 h-3.5 text-rose-500" />
+                      Reject
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
 
       {/* Raise New Request Modal */}
       {raiseModalOpen && (

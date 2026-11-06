@@ -278,6 +278,7 @@ export const CustomersPage: React.FC = () => {
   const [activeFilter, setActiveFilter] = useState<CustomerFilter>('all');
   const [sidebarTab, setSidebarTab] = useState<'orders' | 'visits' | 'rewards'>('orders');
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [searchQuery] = useState('');
 
   // Modals
@@ -416,65 +417,65 @@ export const CustomersPage: React.FC = () => {
     <div className="flex gap-4 font-sans text-[#191923] select-none pb-2 h-full overflow-hidden">
       {/* Left Main Section */}
       <div className="flex-1 min-w-0 flex flex-col gap-3.5 h-full overflow-hidden">
-        {/* Metric Cards Row */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-          <div className="bg-white rounded-2xl border border-gray-100 p-3 shadow-xs flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#00C060] flex items-center justify-center shrink-0">
-              <Users className="w-5 h-5" />
+        {/* Metric Cards Row (Swipeable on mobile, grid on desktop) */}
+        <div className="flex lg:grid lg:grid-cols-5 gap-2.5 sm:gap-3 overflow-x-auto scrollbar-none snap-x py-0.5 shrink-0">
+          <div className="shrink-0 snap-start bg-white rounded-2xl border border-gray-100 p-2.5 sm:p-3 shadow-xs flex items-center gap-2.5 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 text-[#00C060] flex items-center justify-center shrink-0">
+              <Users className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <p className="text-xl font-black text-gray-900 leading-none">1,248</p>
-              <p className="text-[11px] font-semibold text-gray-500 mt-1">Total Customers</p>
+              <p className="text-base sm:text-xl font-black text-gray-900 leading-none">1,248</p>
+              <p className="text-[10px] sm:text-[11px] font-semibold text-gray-500 mt-1 whitespace-nowrap">Total Customers</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-100 p-3 shadow-xs flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
-              <UserPlus className="w-5 h-5" />
+          <div className="shrink-0 snap-start bg-white rounded-2xl border border-gray-100 p-2.5 sm:p-3 shadow-xs flex items-center gap-2.5 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
+              <UserPlus className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <p className="text-xl font-black text-gray-900 leading-none">86</p>
-              <p className="text-[11px] font-semibold text-gray-500 mt-1">New (This Month)</p>
+              <p className="text-base sm:text-xl font-black text-gray-900 leading-none">86</p>
+              <p className="text-[10px] sm:text-[11px] font-semibold text-gray-500 mt-1 whitespace-nowrap">New (This Month)</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-100 p-3 shadow-xs flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center shrink-0">
-              <Repeat className="w-5 h-5" />
+          <div className="shrink-0 snap-start bg-white rounded-2xl border border-gray-100 p-2.5 sm:p-3 shadow-xs flex items-center gap-2.5 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center shrink-0">
+              <Repeat className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <p className="text-xl font-black text-gray-900 leading-none">412</p>
-              <p className="text-[11px] font-semibold text-gray-500 mt-1">Repeat Customers</p>
+              <p className="text-base sm:text-xl font-black text-gray-900 leading-none">412</p>
+              <p className="text-[10px] sm:text-[11px] font-semibold text-gray-500 mt-1 whitespace-nowrap">Repeat Customers</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-100 p-3 shadow-xs flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
-              <Crown className="w-5 h-5" />
+          <div className="shrink-0 snap-start bg-white rounded-2xl border border-gray-100 p-2.5 sm:p-3 shadow-xs flex items-center gap-2.5 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
+              <Crown className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <p className="text-xl font-black text-gray-900 leading-none">128</p>
-              <p className="text-[11px] font-semibold text-gray-500 mt-1">Loyal Customers</p>
+              <p className="text-base sm:text-xl font-black text-gray-900 leading-none">128</p>
+              <p className="text-[10px] sm:text-[11px] font-semibold text-gray-500 mt-1 whitespace-nowrap">Loyal Customers</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-100 p-3 shadow-xs flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
-              <IndianRupee className="w-5 h-5" />
+          <div className="shrink-0 snap-start bg-white rounded-2xl border border-gray-100 p-2.5 sm:p-3 shadow-xs flex items-center gap-2.5 sm:gap-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+              <IndianRupee className="w-4 h-4 sm:w-5 sm:h-5" />
             </div>
             <div>
-              <p className="text-xl font-black text-gray-900 leading-none">₹2,86,430</p>
-              <p className="text-[11px] font-semibold text-gray-500 mt-1">Total Sales</p>
+              <p className="text-base sm:text-xl font-black text-gray-900 leading-none">₹2,86,430</p>
+              <p className="text-[10px] sm:text-[11px] font-semibold text-gray-500 mt-1 whitespace-nowrap">Total Sales</p>
             </div>
           </div>
         </div>
 
         {/* Filter Pills + Add Customer Button */}
         <div className="flex items-center justify-between flex-wrap gap-2.5">
-          <div className="flex items-center gap-2 overflow-x-auto max-w-full pb-0.5">
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none snap-x max-w-full pb-0.5">
             <button
               onClick={() => setActiveFilter('all')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`shrink-0 snap-start px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
                 activeFilter === 'all'
                   ? 'bg-[#00C060] text-white shadow-xs'
                   : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
@@ -485,7 +486,7 @@ export const CustomersPage: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveFilter('loyal')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`shrink-0 snap-start px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
                 activeFilter === 'loyal'
                   ? 'bg-[#00C060] text-white shadow-xs'
                   : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
@@ -496,7 +497,7 @@ export const CustomersPage: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveFilter('new')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`shrink-0 snap-start px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
                 activeFilter === 'new'
                   ? 'bg-[#00C060] text-white shadow-xs'
                   : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
@@ -507,7 +508,7 @@ export const CustomersPage: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveFilter('regular')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`shrink-0 snap-start px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
                 activeFilter === 'regular'
                   ? 'bg-[#00C060] text-white shadow-xs'
                   : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
@@ -518,7 +519,7 @@ export const CustomersPage: React.FC = () => {
             </button>
             <button
               onClick={() => setActiveFilter('inactive')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`shrink-0 snap-start px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
                 activeFilter === 'inactive'
                   ? 'bg-[#00C060] text-white shadow-xs'
                   : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
@@ -554,7 +555,7 @@ export const CustomersPage: React.FC = () => {
 
             <button
               onClick={() => setAddCustomerOpen(true)}
-              className="px-4 py-1.5 rounded-xl bg-[#00C060] text-white text-xs font-bold hover:bg-[#00a854] shadow-xs flex items-center gap-1.5 transition-all"
+              className="px-3 sm:px-4 py-1.5 rounded-xl bg-[#00C060] text-white text-xs font-bold hover:bg-[#00a854] shadow-xs flex items-center gap-1.5 transition-all"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Add Customer</span>
@@ -587,7 +588,10 @@ export const CustomersPage: React.FC = () => {
                     return (
                       <tr
                         key={c.id}
-                        onClick={() => setSelectedId(c.id)}
+                        onClick={() => {
+                          setSelectedId(c.id);
+                          setMobileDrawerOpen(true);
+                        }}
                         className={`cursor-pointer transition-colors ${
                           isSelected
                             ? 'bg-[#E7F9F0]/60 border-y border-[#00C060]/30'
@@ -651,7 +655,10 @@ export const CustomersPage: React.FC = () => {
                 return (
                   <div
                     key={c.id}
-                    onClick={() => setSelectedId(c.id)}
+                    onClick={() => {
+                      setSelectedId(c.id);
+                      setMobileDrawerOpen(true);
+                    }}
                     className={`p-3.5 rounded-xl border transition-all cursor-pointer bg-white relative shadow-xs flex flex-col justify-between ${
                       isSelected
                         ? 'border-[#00C060] ring-2 ring-[#00C060]/20'
@@ -702,8 +709,8 @@ export const CustomersPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Right Detail Sidebar */}
-      <div className="w-[320px] xl:w-[350px] bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col p-4 shrink-0 h-full overflow-hidden">
+      {/* Right Detail Sidebar (Desktop only; Mobile uses bottom sheet drawer) */}
+      <div className="hidden lg:flex w-[320px] xl:w-[350px] bg-white rounded-2xl border border-gray-200 shadow-sm flex-col p-4 shrink-0 h-full overflow-hidden">
         {selectedCustomer ? (
           <div className="flex flex-col h-full min-h-0">
             {/* Customer Profile Header */}
@@ -965,6 +972,226 @@ export const CustomersPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* ================= MOBILE BOTTOM FLOATING CUSTOMER BAR & SLIDE-UP DRAWER ================= */}
+      {selectedCustomer && (
+        <>
+          {/* Floating Mobile Bar above bottom navigation */}
+          <div className="lg:hidden fixed bottom-14 inset-x-2 z-40 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/90 shadow-[0_4px_20px_rgba(0,0,0,0.12)] p-2.5 flex items-center justify-between gap-2.5">
+            <button
+              onClick={() => setMobileDrawerOpen(true)}
+              className="flex items-center gap-2.5 min-w-0 text-left flex-1"
+            >
+              <div
+                className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs shrink-0 ${
+                  selectedCustomer.avatarBg || 'bg-amber-100 text-amber-800'
+                }`}
+              >
+                {selectedCustomer.avatarText || 'CU'}
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-black text-gray-900">{selectedCustomer.name}</span>
+                  {getTierBadge(selectedCustomer.tier)}
+                </div>
+                <p className="text-[10px] font-bold text-gray-500 truncate">
+                  {selectedCustomer.phone} • {selectedCustomer.totalOrders} orders • ₹{selectedCustomer.totalSpent.toLocaleString('en-IN')}
+                </p>
+              </div>
+            </button>
+
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                onClick={() => setMobileDrawerOpen(true)}
+                className="px-2.5 py-1.5 rounded-xl border border-gray-200 text-gray-700 text-xs font-bold bg-white"
+              >
+                Profile
+              </button>
+              <button
+                onClick={() => setAddPointsOpen(true)}
+                className="px-3 py-1.5 rounded-xl bg-[#00C060] text-white text-xs font-black shadow-xs flex items-center gap-1"
+              >
+                <Gift className="w-3.5 h-3.5" />
+                <span>+Pts</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile Bottom Sheet Drawer */}
+          {mobileDrawerOpen && (
+            <div
+              className="lg:hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end justify-center"
+              onClick={(e) => e.target === e.currentTarget && setMobileDrawerOpen(false)}
+            >
+              <div className="w-full bg-white rounded-t-3xl max-h-[85dvh] flex flex-col shadow-2xl border-t border-gray-100 animate-in slide-in-from-bottom duration-300">
+                {/* Drag handle */}
+                <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mt-2.5 mb-1" />
+
+                {/* Profile Header */}
+                <div className="px-4 py-2.5 flex items-center justify-between border-b border-gray-100 shrink-0">
+                  <div className="flex items-center gap-2.5">
+                    <div
+                      className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-sm shrink-0 ${
+                        selectedCustomer.avatarBg || 'bg-amber-100 text-amber-800'
+                      }`}
+                    >
+                      {selectedCustomer.avatarText || 'CU'}
+                    </div>
+                    <div>
+                      <div className="flex items-center gap-1.5">
+                        <h3 className="text-sm font-black text-gray-900 leading-tight">
+                          {selectedCustomer.name}
+                        </h3>
+                        {getTierBadge(selectedCustomer.tier)}
+                      </div>
+                      <p className="text-[10px] text-gray-400 font-semibold">{selectedCustomer.phone}</p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setMobileDrawerOpen(false)}
+                    className="w-7 h-7 rounded-lg bg-gray-100 text-gray-500 flex items-center justify-center font-bold"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Quick Stats Grid */}
+                <div className="px-4 py-2 border-b border-gray-100 grid grid-cols-4 gap-2 text-center bg-gray-50/50">
+                  <div className="bg-white rounded-xl p-2 border border-gray-100 flex flex-col items-center">
+                    <span className="text-xs font-black text-gray-900">{selectedCustomer.totalOrders}</span>
+                    <span className="text-[9px] text-gray-400 font-bold">Orders</span>
+                  </div>
+                  <div className="bg-white rounded-xl p-2 border border-gray-100 flex flex-col items-center">
+                    <span className="text-xs font-black text-gray-900">₹{selectedCustomer.totalSpent.toLocaleString('en-IN')}</span>
+                    <span className="text-[9px] text-gray-400 font-bold truncate">Spent</span>
+                  </div>
+                  <div className="bg-white rounded-xl p-2 border border-gray-100 flex flex-col items-center">
+                    <span className="text-xs font-black text-gray-900">{selectedCustomer.visits}</span>
+                    <span className="text-[9px] text-gray-400 font-bold">Visits</span>
+                  </div>
+                  <div className="bg-white rounded-xl p-2 border border-gray-100 flex flex-col items-center">
+                    <span className="text-xs font-black text-[#00C060]">{selectedCustomer.rewardPoints}</span>
+                    <span className="text-[9px] text-gray-400 font-bold">Points</span>
+                  </div>
+                </div>
+
+                {/* Sub-tabs */}
+                <div className="flex items-center justify-between border-b border-gray-100 text-xs font-bold px-4 pt-2 pb-1 shrink-0">
+                  <button
+                    onClick={() => setSidebarTab('orders')}
+                    className={`flex-1 py-1.5 transition-all text-center ${
+                      sidebarTab === 'orders' ? 'text-[#00C060] font-black border-b-2 border-[#00C060]' : 'text-gray-400'
+                    }`}
+                  >
+                    Orders ({selectedCustomer.recentOrders.length})
+                  </button>
+                  <button
+                    onClick={() => setSidebarTab('visits')}
+                    className={`flex-1 py-1.5 transition-all text-center ${
+                      sidebarTab === 'visits' ? 'text-[#00C060] font-black border-b-2 border-[#00C060]' : 'text-gray-400'
+                    }`}
+                  >
+                    Visits
+                  </button>
+                  <button
+                    onClick={() => setSidebarTab('rewards')}
+                    className={`flex-1 py-1.5 transition-all text-center ${
+                      sidebarTab === 'rewards' ? 'text-[#00C060] font-black border-b-2 border-[#00C060]' : 'text-gray-400'
+                    }`}
+                  >
+                    Rewards
+                  </button>
+                </div>
+
+                {/* Tab content */}
+                <div className="p-4 flex-1 min-h-0 overflow-y-auto space-y-2">
+                  {sidebarTab === 'orders' && (
+                    <div className="space-y-2">
+                      {selectedCustomer.recentOrders.map((ord) => (
+                        <div
+                          key={ord.id}
+                          className="flex items-center justify-between p-2 rounded-xl bg-gray-50 border border-gray-100"
+                        >
+                          <div className="flex items-center gap-2 min-w-0">
+                            <img
+                              src={ord.image}
+                              alt="Item"
+                              className="w-9 h-9 rounded-lg object-cover bg-white p-0.5 border border-gray-200 shrink-0"
+                            />
+                            <div className="min-w-0">
+                              <h4 className="text-xs font-black text-gray-900 leading-tight truncate">{ord.title}</h4>
+                              <p className="text-[10px] text-gray-400">{ord.type}</p>
+                            </div>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <span className="text-xs font-black text-gray-900">₹{ord.amount.toLocaleString('en-IN')}</span>
+                            <span className="text-[9px] text-gray-400 block">{ord.time}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {sidebarTab === 'visits' && (
+                    <div className="space-y-2 text-xs">
+                      <div className="p-2.5 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-between">
+                        <div>
+                          <p className="font-bold text-gray-800">Dine-in Visit</p>
+                          <p className="text-[10px] text-gray-400 font-semibold">Table T-02 · 4 Guests</p>
+                        </div>
+                        <span className="font-black text-[#00C060]">Today, 2:35 PM</span>
+                      </div>
+                      <div className="p-2.5 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-between">
+                        <div>
+                          <p className="font-bold text-gray-800">Takeaway Pickup</p>
+                          <p className="text-[10px] text-gray-400 font-semibold">Order #OD8405</p>
+                        </div>
+                        <span className="font-black text-gray-600">25 Oct, 8:20 PM</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {sidebarTab === 'rewards' && (
+                    <div className="space-y-2 text-xs">
+                      <div className="p-3 rounded-xl bg-amber-50/80 border border-amber-200 flex items-center justify-between">
+                        <span className="font-black text-amber-900">Loyalty Balance</span>
+                        <span className="text-base font-black text-amber-700">{selectedCustomer.rewardPoints} pts</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Actions */}
+                <div className="p-4 border-t border-gray-100 space-y-2 bg-white shrink-0 pb-6">
+                  <div className="grid grid-cols-2 gap-2">
+                    <button
+                      onClick={() => {
+                        setMobileDrawerOpen(false);
+                        setNoteOpen(true);
+                      }}
+                      className="py-2.5 rounded-xl border border-gray-200 text-xs font-bold text-gray-700 flex items-center justify-center gap-1.5"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5 text-gray-400" />
+                      Add Note
+                    </button>
+                    <button
+                      onClick={() => {
+                        setMobileDrawerOpen(false);
+                        setAddPointsOpen(true);
+                      }}
+                      className="py-2.5 rounded-xl bg-[#00C060] text-white text-xs font-black shadow-xs flex items-center justify-center gap-1.5"
+                    >
+                      <Gift className="w-3.5 h-3.5" />
+                      Add Points
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
 
       {/* Add Customer Modal */}
       {addCustomerOpen && (

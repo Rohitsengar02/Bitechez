@@ -348,6 +348,8 @@ export const KitchenKotPage: React.FC = () => {
   const [actionModal, setActionModal] = useState<null | { type: 'addTime' | 'edit' | 'cancel'; kotId: string }>(null);
   const [extraTime, setExtraTime] = useState(5);
   const [editNote, setEditNote] = useState('');
+  const [mobileTab, setMobileTab] = useState<'all' | 'pending' | 'preparing' | 'ready' | 'served'>('all');
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
   const seenIds = useRef<Set<string>>(new Set(queue.map((k) => k.id)));
 
@@ -491,11 +493,11 @@ export const KitchenKotPage: React.FC = () => {
       <div className="flex-1 min-w-0 flex flex-col gap-3.5 h-full overflow-hidden">
         {/* Top Controls Row: Filter Pills + Auto Refresh + Fullscreen */}
         <div className="flex items-center justify-between flex-wrap gap-2.5">
-          {/* Filter Pills */}
-          <div className="flex items-center gap-2">
+          {/* Filter Pills (Swipeable on mobile) */}
+          <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none snap-x py-0.5">
             <button
               onClick={() => setOrderFilter('all')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+              className={`shrink-0 snap-start px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
                 orderFilter === 'all'
                   ? 'bg-[#00C060] text-white shadow-xs'
                   : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
@@ -505,7 +507,7 @@ export const KitchenKotPage: React.FC = () => {
             </button>
             <button
               onClick={() => setOrderFilter('dine_in')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`shrink-0 snap-start px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
                 orderFilter === 'dine_in'
                   ? 'bg-[#00C060] text-white shadow-xs'
                   : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
@@ -516,7 +518,7 @@ export const KitchenKotPage: React.FC = () => {
             </button>
             <button
               onClick={() => setOrderFilter('takeaway')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`shrink-0 snap-start px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
                 orderFilter === 'takeaway'
                   ? 'bg-[#00C060] text-white shadow-xs'
                   : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
@@ -527,7 +529,7 @@ export const KitchenKotPage: React.FC = () => {
             </button>
             <button
               onClick={() => setOrderFilter('delivery')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+              className={`shrink-0 snap-start px-3 sm:px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 whitespace-nowrap ${
                 orderFilter === 'delivery'
                   ? 'bg-[#00C060] text-white shadow-xs'
                   : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
@@ -539,10 +541,10 @@ export const KitchenKotPage: React.FC = () => {
           </div>
 
           {/* Auto Refresh Switch + Fullscreen */}
-          <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-2 shrink-0">
             <div className="flex items-center gap-2 bg-white px-2.5 py-1.5 rounded-xl border border-gray-200 shadow-xs">
               <span className="w-2 h-2 rounded-full bg-[#00C060] animate-pulse"></span>
-              <span className="text-xs font-bold text-gray-600">Auto Refresh</span>
+              <span className="text-xs font-bold text-gray-600 hidden sm:inline">Auto Refresh</span>
               <button
                 onClick={() =>
                   setSettings((s) => ({
@@ -550,13 +552,13 @@ export const KitchenKotPage: React.FC = () => {
                     autoRefresh: !s.autoRefresh,
                   }))
                 }
-                className={`w-8 h-4.5 rounded-full p-0.5 transition-colors relative ${
+                className={`w-7 h-4 sm:w-8 sm:h-4.5 rounded-full p-0.5 transition-colors relative ${
                   settings.autoRefresh ? 'bg-[#00C060]' : 'bg-gray-300'
                 }`}
               >
                 <div
-                  className={`w-3.5 h-3.5 rounded-full bg-white transition-transform ${
-                    settings.autoRefresh ? 'translate-x-3.5' : 'translate-x-0'
+                  className={`w-3 h-3 sm:w-3.5 sm:h-3.5 rounded-full bg-white transition-transform ${
+                    settings.autoRefresh ? 'translate-x-3 sm:translate-x-3.5' : 'translate-x-0'
                   }`}
                 />
               </button>
@@ -572,73 +574,156 @@ export const KitchenKotPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Metric Cards Row (To the left of the full-height right sidebar) */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
-          <div className="bg-white rounded-2xl border border-gray-100 p-2.5 shadow-xs flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#E7F9F0] text-[#00C060] flex items-center justify-center shrink-0">
+        {/* Metric Cards Row (Swipeable on mobile, grid on desktop) */}
+        <div className="flex lg:grid lg:grid-cols-6 gap-2 sm:gap-2.5 overflow-x-auto scrollbar-none snap-x py-0.5 shrink-0">
+          <div
+            onClick={() => setMobileTab('all')}
+            className={`shrink-0 snap-start bg-white rounded-2xl border p-2 sm:p-2.5 shadow-xs flex items-center gap-2 sm:gap-2.5 cursor-pointer transition ${
+              mobileTab === 'all' ? 'border-[#00C060] ring-1 ring-[#00C060]' : 'border-gray-100 hover:border-gray-200'
+            }`}
+          >
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-[#E7F9F0] text-[#00C060] flex items-center justify-center shrink-0">
               <FileText className="w-4 h-4" />
             </div>
-            <div className="min-w-0">
-              <p className="text-base font-black text-gray-900 leading-none">{queue.length}</p>
-              <p className="text-[10px] font-semibold text-gray-500 mt-1 truncate">Total KOT</p>
+            <div className="min-w-0 pr-1 sm:pr-0">
+              <p className="text-sm sm:text-base font-black text-gray-900 leading-none">{queue.length}</p>
+              <p className="text-[10px] font-semibold text-gray-500 mt-1 whitespace-nowrap">Total KOT</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-100 p-2.5 shadow-xs flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
+          <div
+            onClick={() => setMobileTab('pending')}
+            className={`shrink-0 snap-start bg-white rounded-2xl border p-2 sm:p-2.5 shadow-xs flex items-center gap-2 sm:gap-2.5 cursor-pointer transition ${
+              mobileTab === 'pending' ? 'border-amber-400 ring-1 ring-amber-400' : 'border-gray-100 hover:border-gray-200'
+            }`}
+          >
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
               <Clock className="w-4 h-4" />
             </div>
-            <div className="min-w-0">
-              <p className="text-base font-black text-gray-900 leading-none">{columns.pending.length}</p>
-              <p className="text-[10px] font-semibold text-gray-500 mt-1 truncate">New</p>
+            <div className="min-w-0 pr-1 sm:pr-0">
+              <p className="text-sm sm:text-base font-black text-amber-600 leading-none">{columns.pending.length}</p>
+              <p className="text-[10px] font-semibold text-gray-500 mt-1 whitespace-nowrap">New</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-100 p-2.5 shadow-xs flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
+          <div
+            onClick={() => setMobileTab('preparing')}
+            className={`shrink-0 snap-start bg-white rounded-2xl border p-2 sm:p-2.5 shadow-xs flex items-center gap-2 sm:gap-2.5 cursor-pointer transition ${
+              mobileTab === 'preparing' ? 'border-blue-400 ring-1 ring-blue-400' : 'border-gray-100 hover:border-gray-200'
+            }`}
+          >
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
               <ChefHat className="w-4 h-4" />
             </div>
-            <div className="min-w-0">
-              <p className="text-base font-black text-gray-900 leading-none">{columns.preparing.length}</p>
-              <p className="text-[10px] font-semibold text-gray-500 mt-1 truncate">Preparing</p>
+            <div className="min-w-0 pr-1 sm:pr-0">
+              <p className="text-sm sm:text-base font-black text-blue-600 leading-none">{columns.preparing.length}</p>
+              <p className="text-[10px] font-semibold text-gray-500 mt-1 whitespace-nowrap">Preparing</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-100 p-2.5 shadow-xs flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0">
+          <div
+            onClick={() => setMobileTab('ready')}
+            className={`shrink-0 snap-start bg-white rounded-2xl border p-2 sm:p-2.5 shadow-xs flex items-center gap-2 sm:gap-2.5 cursor-pointer transition ${
+              mobileTab === 'ready' ? 'border-emerald-400 ring-1 ring-emerald-400' : 'border-gray-100 hover:border-gray-200'
+            }`}
+          >
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0">
               <BellRing className="w-4 h-4" />
             </div>
-            <div className="min-w-0">
-              <p className="text-base font-black text-gray-900 leading-none">{columns.ready.length}</p>
-              <p className="text-[10px] font-semibold text-gray-500 mt-1 truncate">Ready</p>
+            <div className="min-w-0 pr-1 sm:pr-0">
+              <p className="text-sm sm:text-base font-black text-emerald-600 leading-none">{columns.ready.length}</p>
+              <p className="text-[10px] font-semibold text-gray-500 mt-1 whitespace-nowrap">Ready</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-100 p-2.5 shadow-xs flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-500 flex items-center justify-center shrink-0">
+          <div
+            onClick={() => setMobileTab('served')}
+            className={`shrink-0 snap-start bg-white rounded-2xl border p-2 sm:p-2.5 shadow-xs flex items-center gap-2 sm:gap-2.5 cursor-pointer transition ${
+              mobileTab === 'served' ? 'border-purple-400 ring-1 ring-purple-400' : 'border-gray-100 hover:border-gray-200'
+            }`}
+          >
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-purple-50 text-purple-500 flex items-center justify-center shrink-0">
               <CheckCircle2 className="w-4 h-4" />
             </div>
-            <div className="min-w-0">
-              <p className="text-base font-black text-gray-900 leading-none">{columns.served.length}</p>
-              <p className="text-[10px] font-semibold text-gray-500 mt-1 truncate">Served</p>
+            <div className="min-w-0 pr-1 sm:pr-0">
+              <p className="text-sm sm:text-base font-black text-purple-600 leading-none">{columns.served.length}</p>
+              <p className="text-[10px] font-semibold text-gray-500 mt-1 whitespace-nowrap">Served</p>
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-100 p-2.5 shadow-xs flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0">
+          <div className="shrink-0 snap-start bg-white rounded-2xl border border-gray-100 p-2 sm:p-2.5 shadow-xs flex items-center gap-2 sm:gap-2.5">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0">
               <Clock className="w-4 h-4" />
             </div>
-            <div className="min-w-0">
-              <p className="text-base font-black text-gray-900 leading-none">32 min</p>
-              <p className="text-[10px] font-semibold text-gray-500 mt-1 truncate">Avg. Prep</p>
+            <div className="min-w-0 pr-1 sm:pr-0">
+              <p className="text-sm sm:text-base font-black text-gray-900 leading-none">32 min</p>
+              <p className="text-[10px] font-semibold text-gray-500 mt-1 whitespace-nowrap">Avg. Prep</p>
             </div>
           </div>
         </div>
 
-        {/* 4-Column Kanban Board */}
-        <div className="flex-1 min-h-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 overflow-y-auto pr-1">
+        {/* Mobile Stage Selector Switcher Pills (New, Preparing, Ready, Served, All) */}
+        <div className="lg:hidden flex items-center gap-1.5 overflow-x-auto scrollbar-none snap-x py-1 bg-white p-1 rounded-2xl border border-gray-200/80 shrink-0">
+          <button
+            onClick={() => setMobileTab('all')}
+            className={`shrink-0 snap-start px-3 py-1.5 rounded-xl text-xs font-black transition-all ${
+              mobileTab === 'all'
+                ? 'bg-[#00C060] text-white shadow-xs'
+                : 'text-gray-600 hover:bg-gray-50'
+            }`}
+          >
+            All ({queue.length})
+          </button>
+          <button
+            onClick={() => setMobileTab('pending')}
+            className={`shrink-0 snap-start px-3 py-1.5 rounded-xl text-xs font-black flex items-center gap-1 transition-all ${
+              mobileTab === 'pending'
+                ? 'bg-amber-500 text-white shadow-xs'
+                : 'text-amber-800 bg-amber-50/70 hover:bg-amber-100'
+            }`}
+          >
+            <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+            New ({columns.pending.length})
+          </button>
+          <button
+            onClick={() => setMobileTab('preparing')}
+            className={`shrink-0 snap-start px-3 py-1.5 rounded-xl text-xs font-black flex items-center gap-1 transition-all ${
+              mobileTab === 'preparing'
+                ? 'bg-blue-600 text-white shadow-xs'
+                : 'text-blue-800 bg-blue-50/70 hover:bg-blue-100'
+            }`}
+          >
+            <ChefHat className="w-3.5 h-3.5" />
+            Preparing ({columns.preparing.length})
+          </button>
+          <button
+            onClick={() => setMobileTab('ready')}
+            className={`shrink-0 snap-start px-3 py-1.5 rounded-xl text-xs font-black flex items-center gap-1 transition-all ${
+              mobileTab === 'ready'
+                ? 'bg-emerald-600 text-white shadow-xs'
+                : 'text-emerald-800 bg-emerald-50/70 hover:bg-emerald-100'
+            }`}
+          >
+            <Check className="w-3.5 h-3.5" />
+            Ready ({columns.ready.length})
+          </button>
+          <button
+            onClick={() => setMobileTab('served')}
+            className={`shrink-0 snap-start px-3 py-1.5 rounded-xl text-xs font-black flex items-center gap-1 transition-all ${
+              mobileTab === 'served'
+                ? 'bg-purple-600 text-white shadow-xs'
+                : 'text-purple-800 bg-purple-50/70 hover:bg-purple-100'
+            }`}
+          >
+            <CheckCircle2 className="w-3.5 h-3.5" />
+            Served ({columns.served.length})
+          </button>
+        </div>
+
+        {/* 4-Column Kanban Board (Desktop) or Selected Stage Filter (Mobile) */}
+        <div className="flex-1 min-h-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 overflow-y-auto pr-1 pb-28 lg:pb-0">
           {/* Column 1: New */}
-          <div className="flex flex-col bg-[#FFF9F3] border border-amber-100 rounded-2xl p-2.5 min-h-[460px]">
+          <div className={`flex-1 flex-col bg-[#FFF9F3] border border-amber-100 rounded-2xl p-2.5 min-h-[460px] ${mobileTab === 'all' || mobileTab === 'pending' ? 'flex' : 'hidden lg:flex'}`}>
             <div className="flex items-center gap-2 px-2 py-1.5 mb-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
               <h2 className="text-xs font-black text-amber-900">New ({columns.pending.length})</h2>
@@ -649,7 +734,10 @@ export const KitchenKotPage: React.FC = () => {
                 return (
                   <div
                     key={k.id}
-                    onClick={() => setSelectedId(k.id)}
+                    onClick={() => {
+                      setSelectedId(k.id);
+                      setMobileDrawerOpen(true);
+                    }}
                     className={`bg-white rounded-xl p-2.5 border transition-all cursor-pointer relative shadow-xs ${
                       isSelected
                         ? 'border-[#00C060] ring-2 ring-[#00C060]/20'
@@ -725,7 +813,7 @@ export const KitchenKotPage: React.FC = () => {
           </div>
 
           {/* Column 2: Preparing */}
-          <div className="flex flex-col bg-[#F3F8FF] border border-blue-100 rounded-2xl p-2.5 min-h-[460px]">
+          <div className={`flex-1 flex-col bg-[#F3F8FF] border border-blue-100 rounded-2xl p-2.5 min-h-[460px] ${mobileTab === 'all' || mobileTab === 'preparing' ? 'flex' : 'hidden lg:flex'}`}>
             <div className="flex items-center gap-2 px-2 py-1.5 mb-1.5">
               <ChefHat className="w-4 h-4 text-blue-600" />
               <h2 className="text-xs font-black text-blue-900">Preparing ({columns.preparing.length})</h2>
@@ -741,7 +829,10 @@ export const KitchenKotPage: React.FC = () => {
                 return (
                   <div
                     key={k.id}
-                    onClick={() => setSelectedId(k.id)}
+                    onClick={() => {
+                      setSelectedId(k.id);
+                      setMobileDrawerOpen(true);
+                    }}
                     className={`bg-white rounded-xl p-2.5 border transition-all cursor-pointer relative shadow-xs ${
                       isSelected
                         ? 'border-[#00C060] ring-2 ring-[#00C060]/20'
@@ -821,7 +912,7 @@ export const KitchenKotPage: React.FC = () => {
           </div>
 
           {/* Column 3: Ready */}
-          <div className="flex flex-col bg-[#F0FAF4] border border-emerald-100 rounded-2xl p-2.5 min-h-[460px]">
+          <div className={`flex-1 flex-col bg-[#F0FAF4] border border-emerald-100 rounded-2xl p-2.5 min-h-[460px] ${mobileTab === 'all' || mobileTab === 'ready' ? 'flex' : 'hidden lg:flex'}`}>
             <div className="flex items-center gap-2 px-2 py-1.5 mb-1.5">
               <Check className="w-4 h-4 text-emerald-600" />
               <h2 className="text-xs font-black text-emerald-900">Ready ({columns.ready.length})</h2>
@@ -833,7 +924,10 @@ export const KitchenKotPage: React.FC = () => {
                 return (
                   <div
                     key={k.id}
-                    onClick={() => setSelectedId(k.id)}
+                    onClick={() => {
+                      setSelectedId(k.id);
+                      setMobileDrawerOpen(true);
+                    }}
                     className={`bg-white rounded-xl p-2.5 border transition-all cursor-pointer relative shadow-xs ${
                       isSelected
                         ? 'border-[#00C060] ring-2 ring-[#00C060]/20'
@@ -913,7 +1007,7 @@ export const KitchenKotPage: React.FC = () => {
           </div>
 
           {/* Column 4: Served */}
-          <div className="flex flex-col bg-[#F7F4FD] border border-purple-100 rounded-2xl p-2.5 min-h-[460px]">
+          <div className={`flex-1 flex-col bg-[#F7F4FD] border border-purple-100 rounded-2xl p-2.5 min-h-[460px] ${mobileTab === 'all' || mobileTab === 'served' ? 'flex' : 'hidden lg:flex'}`}>
             <div className="flex items-center gap-2 px-2 py-1.5 mb-1.5">
               <CheckCircle2 className="w-4 h-4 text-purple-600" />
               <h2 className="text-xs font-black text-purple-900">Served ({columns.served.length})</h2>
@@ -924,7 +1018,10 @@ export const KitchenKotPage: React.FC = () => {
                 return (
                   <div
                     key={k.id}
-                    onClick={() => setSelectedId(k.id)}
+                    onClick={() => {
+                      setSelectedId(k.id);
+                      setMobileDrawerOpen(true);
+                    }}
                     className={`bg-white rounded-xl p-2.5 border transition-all cursor-pointer relative shadow-xs opacity-90 hover:opacity-100 ${
                       isSelected
                         ? 'border-[#00C060] ring-2 ring-[#00C060]/20'
@@ -991,8 +1088,8 @@ export const KitchenKotPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Right Detail Sidebar: Extended Full to Top */}
-      <div className="w-[320px] xl:w-[350px] bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col p-3.5 shrink-0 h-full overflow-hidden">
+      {/* Right Detail Sidebar (Desktop: Full Height Sidebar; Mobile: Hidden, replaced with Bottom Floating Bar & Drawer) */}
+      <div className="hidden lg:flex w-[320px] xl:w-[350px] bg-white rounded-2xl border border-gray-200 shadow-sm flex-col p-3.5 shrink-0 h-full overflow-hidden">
         {selectedKot ? (
           <div className="flex flex-col h-full min-h-0">
             {/* Header: Badge, KOT #, Status */}
@@ -1177,6 +1274,274 @@ export const KitchenKotPage: React.FC = () => {
           </div>
         )}
       </div>
+
+      {/* ================= MOBILE FLOATING KOT BAR & BOTTOM DRAWER ================= */}
+      {selectedKot && (
+        <>
+          {/* Floating Mobile Bar above bottom navigation */}
+          <div className="lg:hidden fixed bottom-14 inset-x-2 z-40 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/90 shadow-[0_4px_20px_rgba(0,0,0,0.12)] p-2.5 flex items-center justify-between gap-2.5">
+            <button
+              onClick={() => setMobileDrawerOpen(true)}
+              className="flex items-center gap-2.5 min-w-0 text-left flex-1"
+            >
+              <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                <ChefHat className="w-5 h-5" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-black text-gray-900">KOT #{selectedKot.kotNumber}</span>
+                  {selectedKot.tableName && (
+                    <span className="text-[10px] font-bold text-gray-500 bg-gray-100 px-1.5 py-0.2 rounded-md">
+                      {selectedKot.tableName}
+                    </span>
+                  )}
+                  <span
+                    className={`inline-flex items-center px-1.5 py-0.2 rounded-full text-[9px] font-black capitalize ${
+                      selectedKot.status === 'preparing'
+                        ? 'bg-blue-100 text-blue-700'
+                        : selectedKot.status === 'ready'
+                        ? 'bg-emerald-100 text-emerald-700'
+                        : selectedKot.status === 'served'
+                        ? 'bg-purple-100 text-purple-700'
+                        : 'bg-amber-100 text-amber-700'
+                    }`}
+                  >
+                    {selectedKot.status}
+                  </span>
+                </div>
+                <p className="text-[10px] font-bold text-gray-500 truncate">
+                  {selectedKot.items.length} items • {formatAgo(selectedKot.createdAt, now)}
+                </p>
+              </div>
+            </button>
+
+            <div className="flex items-center gap-1.5 shrink-0">
+              {selectedKot.status === 'pending' ? (
+                <button
+                  onClick={(e) => handleStart(selectedKot.id, e)}
+                  className="px-3 py-1.5 bg-[#00C060] text-white rounded-xl text-xs font-black shadow-xs flex items-center gap-1"
+                >
+                  <ChefHat className="w-3.5 h-3.5" />
+                  <span>Start</span>
+                </button>
+              ) : selectedKot.status === 'preparing' ? (
+                <button
+                  onClick={(e) => handleMarkReady(selectedKot.id, e)}
+                  className="px-3 py-1.5 bg-[#00C060] text-white rounded-xl text-xs font-black shadow-xs flex items-center gap-1"
+                >
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  <span>Ready</span>
+                </button>
+              ) : selectedKot.status === 'ready' ? (
+                <button
+                  onClick={(e) => handleServe(selectedKot.id, e)}
+                  className="px-3 py-1.5 bg-purple-600 text-white rounded-xl text-xs font-black shadow-xs flex items-center gap-1"
+                >
+                  <CheckCircle2 className="w-3.5 h-3.5" />
+                  <span>Serve</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => setMobileDrawerOpen(true)}
+                  className="px-2.5 py-1.5 border border-gray-200 text-gray-700 text-xs font-bold rounded-xl bg-white"
+                >
+                  View
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Mobile Bottom Sheet Drawer */}
+          {mobileDrawerOpen && (
+            <div
+              className="lg:hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end justify-center"
+              onClick={(e) => e.target === e.currentTarget && setMobileDrawerOpen(false)}
+            >
+              <div className="w-full bg-white rounded-t-3xl max-h-[85dvh] flex flex-col shadow-2xl border-t border-gray-100 animate-in slide-in-from-bottom duration-300">
+                {/* Drag handle */}
+                <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mt-2.5 mb-1" />
+
+                {/* Header */}
+                <div className="px-4 py-2.5 flex items-center justify-between border-b border-gray-100 shrink-0">
+                  <div className="flex items-center gap-2">
+                    <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                      <ChefHat className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-black text-gray-900 leading-tight">
+                        KOT #{selectedKot.kotNumber}
+                      </h3>
+                      <div className="flex items-center gap-2 text-[10px] font-semibold text-gray-500 mt-0.5">
+                        {selectedKot.tableName && <span>{selectedKot.tableName}</span>}
+                        <span>•</span>
+                        <span>{selectedKot.guests || 2} Guests</span>
+                        <span>•</span>
+                        <span className="capitalize">{selectedKot.orderType.replace('_', ' ')}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`text-[10px] font-black px-2 py-0.5 rounded-full capitalize ${
+                        selectedKot.status === 'preparing'
+                          ? 'bg-blue-100 text-blue-700'
+                          : selectedKot.status === 'ready'
+                          ? 'bg-emerald-100 text-emerald-700'
+                          : selectedKot.status === 'served'
+                          ? 'bg-purple-100 text-purple-700'
+                          : 'bg-amber-100 text-amber-700'
+                      }`}
+                    >
+                      {selectedKot.status}
+                    </span>
+                    <button
+                      onClick={() => setMobileDrawerOpen(false)}
+                      className="w-7 h-7 rounded-lg bg-gray-100 text-gray-500 flex items-center justify-center font-bold"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Timers */}
+                <div className="px-4 py-2 border-b border-gray-100 flex items-center justify-between text-xs bg-gray-50/50">
+                  <div className="flex items-center gap-1 text-gray-600 font-semibold text-[11px]">
+                    <Clock className="w-3.5 h-3.5 text-gray-400" />
+                    <span>Time: {formatTimeOnly(selectedKot.createdAt)} ({formatAgo(selectedKot.createdAt, now)})</span>
+                  </div>
+                  <span className="font-bold text-[#00C060] text-[11px]">
+                    {Math.max(1, (selectedKot.estMinutes || 20) - minsSince(selectedKot.createdAt, now))} min left
+                  </span>
+                </div>
+
+                {/* Items */}
+                <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-1.5">
+                  <h4 className="text-[11px] font-black text-gray-900 mb-1">
+                    Order Items ({selectedKot.items.length})
+                  </h4>
+                  <div className="space-y-1.5">
+                    {selectedKot.items.map((it, i) => (
+                      <div
+                        key={i}
+                        className="flex items-center justify-between p-2 rounded-xl bg-gray-50 border border-gray-100"
+                      >
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <img
+                            src={getItemThumbnail(it.name)}
+                            alt={it.name}
+                            className="w-8 h-8 rounded-lg object-cover bg-white p-0.5 border border-gray-200 shrink-0"
+                          />
+                          <span className="text-xs font-bold text-gray-900 truncate">{it.name}</span>
+                        </div>
+                        <span className="text-xs font-black text-gray-700 ml-1.5 shrink-0">×{it.qty}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Kitchen Note */}
+                  {selectedKot.kitchenNote && (
+                    <div className="mt-2.5 p-2 rounded-xl bg-amber-50/80 border border-amber-200">
+                      <div className="flex items-center gap-1 text-amber-800 text-[10px] font-bold mb-0.5">
+                        <FileText className="w-3 h-3" />
+                        <span>Kitchen Note</span>
+                      </div>
+                      <p className="text-[11px] text-amber-900/90 font-medium">{selectedKot.kitchenNote}</p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Mobile Drawer Actions */}
+                <div className="p-4 border-t border-gray-100 space-y-2 bg-white shrink-0 pb-6">
+                  {selectedKot.status === 'pending' ? (
+                    <button
+                      onClick={() => {
+                        handleStart(selectedKot.id);
+                        setMobileDrawerOpen(false);
+                      }}
+                      className="w-full py-2.5 bg-[#00C060] text-white rounded-xl text-xs font-black shadow-sm flex items-center justify-center gap-1.5"
+                    >
+                      <ChefHat className="w-4 h-4" />
+                      Start Preparing
+                    </button>
+                  ) : selectedKot.status === 'preparing' ? (
+                    <button
+                      onClick={() => {
+                        handleMarkReady(selectedKot.id);
+                        setMobileDrawerOpen(false);
+                      }}
+                      className="w-full py-2.5 bg-[#00C060] text-white rounded-xl text-xs font-black shadow-sm flex items-center justify-center gap-1.5"
+                    >
+                      <Check className="w-4 h-4 stroke-[3]" />
+                      Mark Ready
+                    </button>
+                  ) : selectedKot.status === 'ready' ? (
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={() => handleCallServer(selectedKot.id)}
+                        className="py-2.5 rounded-xl border border-emerald-300 text-emerald-700 text-xs font-black flex items-center justify-center gap-1 bg-emerald-50"
+                      >
+                        <BellRing className="w-4 h-4" />
+                        Call Server
+                      </button>
+                      <button
+                        onClick={() => {
+                          handleServe(selectedKot.id);
+                          setMobileDrawerOpen(false);
+                        }}
+                        className="py-2.5 bg-purple-600 text-white rounded-xl text-xs font-black shadow-sm flex items-center justify-center gap-1"
+                      >
+                        <CheckCircle2 className="w-4 h-4" />
+                        Serve Order
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="w-full py-2 text-center bg-purple-50 text-purple-700 text-xs font-black rounded-xl">
+                      Order Completed
+                    </div>
+                  )}
+
+                  {/* Secondary buttons */}
+                  <div className="grid grid-cols-3 gap-1.5 pt-1">
+                    <button
+                      onClick={() => {
+                        setMobileDrawerOpen(false);
+                        setActionModal({ type: 'addTime', kotId: selectedKot.id });
+                        setExtraTime(5);
+                      }}
+                      className="py-1.5 px-1 rounded-xl border border-gray-200 text-[11px] font-bold text-gray-700 flex items-center justify-center gap-1"
+                    >
+                      <Clock className="w-3 h-3 text-gray-400" />
+                      + Time
+                    </button>
+                    <button
+                      onClick={() => {
+                        setMobileDrawerOpen(false);
+                        setActionModal({ type: 'edit', kotId: selectedKot.id });
+                        setEditNote(selectedKot.kitchenNote || '');
+                      }}
+                      className="py-1.5 px-1 rounded-xl border border-gray-200 text-[11px] font-bold text-gray-700 flex items-center justify-center gap-1"
+                    >
+                      <Edit2 className="w-3 h-3 text-gray-400" />
+                      Note
+                    </button>
+                    <button
+                      onClick={() => {
+                        setMobileDrawerOpen(false);
+                        setActionModal({ type: 'cancel', kotId: selectedKot.id });
+                      }}
+                      className="py-1.5 px-1 rounded-xl border border-rose-200 text-[11px] font-bold text-rose-600 flex items-center justify-center gap-1"
+                    >
+                      <X className="w-3 h-3 text-rose-500" />
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
 
       {/* Action Modals */}
       {actionModal && (
