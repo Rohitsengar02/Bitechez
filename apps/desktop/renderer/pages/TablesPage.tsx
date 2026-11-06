@@ -381,6 +381,7 @@ export const TablesPage: React.FC = () => {
   const [section, setSection] = useState('Floor 1');
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [smokeKey, setSmokeKey] = useState(0);
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
   const triggerSmoke = useCallback(() => {
     setSmokeKey((k) => k + 1);
@@ -529,7 +530,7 @@ export const TablesPage: React.FC = () => {
       {/* Toast */}
       {toast && (
         <div
-          className={`fixed top-5 right-5 z-[80] px-4 py-2.5 rounded-2xl shadow-xl flex items-center gap-2 text-xs font-bold border ${
+          className={`fixed top-5 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-5 z-[80] px-4 py-2.5 rounded-2xl shadow-xl flex items-center gap-2 text-xs font-bold border ${
             toast.type === 'success' ? 'bg-[#00C060] text-white border-emerald-300' : 'bg-white text-rose-600 border-rose-200'
           }`}
         >
@@ -541,11 +542,11 @@ export const TablesPage: React.FC = () => {
       {/* Main Floor Body */}
       <div className="flex-1 min-h-0 flex gap-3 overflow-hidden">
         {/* ================= LEFT / CENTER: TABLES FLOOR ================= */}
-        <div className="flex-1 min-w-0 flex flex-col gap-3 h-full overflow-hidden">
+        <div className="flex-1 min-w-0 flex flex-col gap-2.5 sm:gap-3 h-full overflow-hidden">
           {/* Top Row: Floor Switcher Pills + Grid/List Icons */}
-          <div className="flex items-center justify-between shrink-0">
-            {/* Floor tabs */}
-            <div className="flex items-center gap-2">
+          <div className="flex items-center justify-between shrink-0 gap-2">
+            {/* Floor tabs carousel on mobile */}
+            <div className="flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none snap-x snap-mandatory py-0.5">
               {[
                 { id: 'Floor 1', label: 'Floor 1 (16)' },
                 { id: 'Floor 2', label: 'Floor 2 (12)' },
@@ -556,13 +557,13 @@ export const TablesPage: React.FC = () => {
                   <button
                     key={f.id}
                     onClick={() => handleSectionChange(f.id)}
-                    className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-black transition-all ${
+                    className={`shrink-0 snap-start inline-flex items-center gap-1 sm:gap-1.5 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-xs font-black transition-all whitespace-nowrap ${
                       active
                         ? 'bg-[#00C060] text-white shadow-md shadow-emerald-500/20'
                         : 'bg-white border border-slate-200/80 text-slate-700 hover:border-emerald-300 hover:text-[#00C060]'
                     }`}
                   >
-                    <span className="w-3.5 h-3.5 rounded border border-current flex items-center justify-center text-[9px] leading-none">
+                    <span className="w-3.5 h-3.5 rounded border border-current flex items-center justify-center text-[9px] leading-none font-bold">
                       {f.id === 'Floor 1' ? '1' : f.id === 'Floor 2' ? '2' : 'R'}
                     </span>
                     <span>{f.label}</span>
@@ -572,7 +573,7 @@ export const TablesPage: React.FC = () => {
             </div>
 
             {/* Quick Actions / Add table */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 shrink-0">
               <button
                 onClick={() => setModal('add')}
                 className="w-8 h-8 rounded-xl bg-white border border-slate-200/90 text-slate-700 flex items-center justify-center hover:border-emerald-300 hover:text-[#00C060] transition shadow-xs"
@@ -586,91 +587,91 @@ export const TablesPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Status Metric Filter Cards (Matching Reference) */}
-          <div className="grid grid-cols-5 gap-2.5 shrink-0">
+          {/* Status Metric Filter Cards (Carousel on mobile, Grid on desktop) */}
+          <div className="flex lg:grid lg:grid-cols-5 gap-2 sm:gap-2.5 shrink-0 overflow-x-auto scrollbar-none snap-x snap-mandatory py-0.5">
             {/* Total */}
             <button
               onClick={() => handleStatusChange('all')}
-              className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border bg-white transition shadow-xs hover:border-slate-300 ${
+              className={`shrink-0 snap-start flex items-center gap-2 sm:gap-2.5 px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-xl border bg-white transition shadow-xs hover:border-slate-300 ${
                 statusFilter === 'all' ? 'ring-2 ring-slate-800 border-slate-800' : 'border-slate-100'
               }`}
             >
-              <span className="w-7 h-7 rounded-lg bg-emerald-50 text-[#00C060] flex items-center justify-center">
-                <Armchair className="w-4 h-4 stroke-[2.5]" />
+              <span className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-emerald-50 text-[#00C060] flex items-center justify-center shrink-0">
+                <Armchair className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
               </span>
-              <div className="text-left leading-tight">
-                <span className="text-sm font-black text-slate-900">{counts.total}</span>
-                <span className="block text-[11px] font-bold text-slate-500">Total Tables</span>
+              <div className="text-left leading-tight whitespace-nowrap">
+                <span className="text-xs sm:text-sm font-black text-slate-900">{counts.total}</span>
+                <span className="block text-[10px] sm:text-[11px] font-bold text-slate-500">Total Tables</span>
               </div>
             </button>
 
             {/* Occupied (Red) */}
             <button
               onClick={() => handleStatusChange('occupied')}
-              className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border bg-white transition shadow-xs hover:border-rose-300 ${
+              className={`shrink-0 snap-start flex items-center gap-2 sm:gap-2.5 px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-xl border bg-white transition shadow-xs hover:border-rose-300 ${
                 statusFilter === 'occupied' ? 'ring-2 ring-rose-500 border-rose-500' : 'border-slate-100'
               }`}
             >
-              <span className="w-7 h-7 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center">
-                <Armchair className="w-4 h-4 stroke-[2.5]" />
+              <span className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
+                <Armchair className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
               </span>
-              <div className="text-left leading-tight">
-                <span className="text-sm font-black text-rose-600">{counts.occupied}</span>
-                <span className="block text-[11px] font-bold text-slate-500">Occupied</span>
+              <div className="text-left leading-tight whitespace-nowrap">
+                <span className="text-xs sm:text-sm font-black text-rose-600">{counts.occupied}</span>
+                <span className="block text-[10px] sm:text-[11px] font-bold text-slate-500">Occupied</span>
               </div>
             </button>
 
             {/* Available (Green) */}
             <button
               onClick={() => handleStatusChange('available')}
-              className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border bg-white transition shadow-xs hover:border-emerald-300 ${
+              className={`shrink-0 snap-start flex items-center gap-2 sm:gap-2.5 px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-xl border bg-white transition shadow-xs hover:border-emerald-300 ${
                 statusFilter === 'available' ? 'ring-2 ring-[#00C060] border-[#00C060]' : 'border-slate-100'
               }`}
             >
-              <span className="w-7 h-7 rounded-lg bg-emerald-50 text-[#00C060] flex items-center justify-center">
-                <Armchair className="w-4 h-4 stroke-[2.5]" />
+              <span className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-emerald-50 text-[#00C060] flex items-center justify-center shrink-0">
+                <Armchair className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
               </span>
-              <div className="text-left leading-tight">
-                <span className="text-sm font-black text-[#00C060]">{counts.available}</span>
-                <span className="block text-[11px] font-bold text-slate-500">Available</span>
+              <div className="text-left leading-tight whitespace-nowrap">
+                <span className="text-xs sm:text-sm font-black text-[#00C060]">{counts.available}</span>
+                <span className="block text-[10px] sm:text-[11px] font-bold text-slate-500">Available</span>
               </div>
             </button>
 
             {/* Reserved (Blue) */}
             <button
               onClick={() => handleStatusChange('reserved')}
-              className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border bg-white transition shadow-xs hover:border-blue-300 ${
+              className={`shrink-0 snap-start flex items-center gap-2 sm:gap-2.5 px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-xl border bg-white transition shadow-xs hover:border-blue-300 ${
                 statusFilter === 'reserved' ? 'ring-2 ring-blue-500 border-blue-500' : 'border-slate-100'
               }`}
             >
-              <span className="w-7 h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-                <CalendarDays className="w-4 h-4 stroke-[2.5]" />
+              <span className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                <CalendarDays className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
               </span>
-              <div className="text-left leading-tight">
-                <span className="text-sm font-black text-blue-600">{counts.reserved}</span>
-                <span className="block text-[11px] font-bold text-slate-500">Reserved</span>
+              <div className="text-left leading-tight whitespace-nowrap">
+                <span className="text-xs sm:text-sm font-black text-blue-600">{counts.reserved}</span>
+                <span className="block text-[10px] sm:text-[11px] font-bold text-slate-500">Reserved</span>
               </div>
             </button>
 
             {/* Cleaning (Yellow / Orange) */}
             <button
               onClick={() => handleStatusChange('cleaning')}
-              className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border bg-white transition shadow-xs hover:border-amber-300 ${
+              className={`shrink-0 snap-start flex items-center gap-2 sm:gap-2.5 px-3 sm:px-3.5 py-2 sm:py-2.5 rounded-xl border bg-white transition shadow-xs hover:border-amber-300 ${
                 statusFilter === 'cleaning' ? 'ring-2 ring-amber-500 border-amber-500' : 'border-slate-100'
               }`}
             >
-              <span className="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
-                <Brush className="w-4 h-4 stroke-[2.5]" />
+              <span className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+                <Brush className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
               </span>
-              <div className="text-left leading-tight">
-                <span className="text-sm font-black text-amber-600">{counts.cleaning}</span>
-                <span className="block text-[11px] font-bold text-slate-500">Cleaning</span>
+              <div className="text-left leading-tight whitespace-nowrap">
+                <span className="text-xs sm:text-sm font-black text-amber-600">{counts.cleaning}</span>
+                <span className="block text-[10px] sm:text-[11px] font-bold text-slate-500">Cleaning</span>
               </div>
             </button>
           </div>
 
           {/* Tables Grid with Smoke Wave Transition on Filter/Floor Switch */}
-          <div className="relative flex-1 min-h-0 overflow-y-auto pos-scroll pr-1 pb-4">
+          <div className="relative flex-1 min-h-0 overflow-y-auto pos-scroll pr-1 pb-32 lg:pb-4">
             {/* Visual Smoke Animation Layer */}
             <div
               key={smokeKey}
@@ -678,7 +679,7 @@ export const TablesPage: React.FC = () => {
             />
 
             {loading ? (
-              <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-3">
                 {Array.from({ length: 16 }).map((_, i) => (
                   <div key={i} className="h-28 rounded-2xl bg-white border border-slate-100 p-4 animate-pulse shadow-xs" />
                 ))}
@@ -687,19 +688,22 @@ export const TablesPage: React.FC = () => {
               <div className="py-16 text-center">
                 <AlertCircle className="w-10 h-10 text-rose-400 mx-auto mb-2" />
                 <p className="text-sm font-bold text-slate-700">{loadError}</p>
-                <button onClick={load} className="mt-3 px-4 py-2 rounded-xl bg-[#00C060] text-white text-xs font-bold">
+                <button onClick={load} className="mt-3 px-4 py-2 rounded-xl bg-[#00C060] text-white text-xs font-bold shadow-md">
                   Retry
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-3">
                 {visibleTables.map((t) => (
                   <TableCard
                     key={t.id}
                     t={t}
                     selected={t.id === sel?.id}
                     now={now}
-                    onSelect={(id) => setSelectedId(id)}
+                    onSelect={(id) => {
+                      setSelectedId(id);
+                      setMobileDrawerOpen(true);
+                    }}
                   />
                 ))}
               </div>
@@ -707,8 +711,8 @@ export const TablesPage: React.FC = () => {
           </div>
         </div>
 
-        {/* ================= RIGHT: SELECTED TABLE ORDER SIDEBAR ================= */}
-        <aside className="w-[320px] xl:w-[350px] shrink-0 bg-white rounded-2xl border border-slate-100 shadow-[0_4px_24px_rgba(15,23,42,0.05)] flex flex-col h-full overflow-hidden justify-between">
+        {/* ================= RIGHT: SELECTED TABLE ORDER SIDEBAR (Desktop) ================= */}
+        <aside className="hidden lg:flex w-[320px] xl:w-[350px] shrink-0 bg-white rounded-2xl border border-slate-100 shadow-[0_4px_24px_rgba(15,23,42,0.05)] flex-col h-full overflow-hidden justify-between">
           {sel ? (
             <div className="flex flex-col h-full overflow-hidden">
               {/* Header */}
@@ -896,6 +900,259 @@ export const TablesPage: React.FC = () => {
           )}
         </aside>
       </div>
+
+      {/* ================= MOBILE BOTTOM FLOATING TABLE BAR & SLIDE-UP DRAWER ================= */}
+      {sel && (
+        <>
+          {/* Mobile Floating Bar above bottom navigation */}
+          <div className="lg:hidden fixed bottom-14 inset-x-2 z-40 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-200/90 shadow-[0_4px_20px_rgba(0,0,0,0.12)] p-2.5 flex items-center justify-between gap-2.5 anim-float-gentle">
+            <button
+              onClick={() => setMobileDrawerOpen(true)}
+              className="flex items-center gap-2.5 min-w-0 text-left flex-1"
+            >
+              <div className="w-9 h-9 rounded-xl bg-[#E7F9F0] text-[#00C060] flex items-center justify-center shrink-0">
+                <Armchair className="w-4 h-4 stroke-[2.5]" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-black text-slate-900">Table {sel.name}</span>
+                  <span
+                    className={`inline-flex items-center px-1.5 py-0.2 rounded-full text-[9px] font-black ${STATUS_CONFIG[sel.status].pillBg} ${STATUS_CONFIG[sel.status].pillText}`}
+                  >
+                    {STATUS_CONFIG[sel.status].label}
+                  </span>
+                </div>
+                <p className="text-[10px] font-bold text-slate-500 truncate">
+                  {sel.order ? `${sel.order.entries.length} items • ${formatINR(sel.order.totalPaise)}` : 'Tap to view details & actions'}
+                </p>
+              </div>
+            </button>
+
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                onClick={() => setMobileDrawerOpen(true)}
+                className="px-2.5 py-1.5 rounded-xl border border-slate-200 text-slate-700 text-xs font-bold bg-white"
+              >
+                Details
+              </button>
+              <button
+                onClick={() => goToPos(sel)}
+                className="px-3 py-1.5 rounded-xl bg-[#00C060] text-white text-xs font-black shadow-sm flex items-center gap-1"
+              >
+                <PlusCircle className="w-3.5 h-3.5" />
+                <span>{sel.order ? 'Add' : 'Order'}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile Bottom Sheet Drawer */}
+          {mobileDrawerOpen && (
+            <div
+              className="lg:hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end justify-center"
+              onClick={(e) => e.target === e.currentTarget && setMobileDrawerOpen(false)}
+            >
+              <div className="w-full bg-white rounded-t-3xl max-h-[85dvh] flex flex-col shadow-2xl border-t border-slate-100 animate-in slide-in-from-bottom duration-300">
+                {/* Drawer handle */}
+                <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto mt-2.5 mb-1" />
+
+                {/* Header */}
+                <div className="px-4 py-2.5 flex items-center justify-between border-b border-slate-100 shrink-0">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-xl bg-[#E7F9F0] text-[#00C060] flex items-center justify-center shrink-0">
+                      <Armchair className="w-4 h-4 stroke-[2.5]" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-black text-slate-900 leading-tight">Table {sel.name}</h3>
+                      <p className="text-[11px] font-semibold text-slate-400">
+                        {sel.seats} Seats {sel.order ? `• ${minutesSince(sel.order.heldAt, now)} min active` : ''}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span
+                      className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black ${STATUS_CONFIG[sel.status].pillBg} ${STATUS_CONFIG[sel.status].pillText}`}
+                    >
+                      <Check className="w-3 h-3 stroke-[3]" />
+                      {STATUS_CONFIG[sel.status].label}
+                    </span>
+                    <button
+                      onClick={() => setMobileDrawerOpen(false)}
+                      className="w-7 h-7 rounded-lg bg-slate-100 text-slate-500 flex items-center justify-center font-bold"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Tabs */}
+                <div className="flex items-center border-b border-slate-100 px-4 pt-1 shrink-0">
+                  <button
+                    onClick={() => setCartTab('current')}
+                    className={`flex-1 py-2 text-xs font-black border-b-2 transition ${
+                      cartTab === 'current'
+                        ? 'border-[#00C060] text-[#00C060]'
+                        : 'border-transparent text-slate-400 hover:text-slate-600'
+                    }`}
+                  >
+                    Current Order {sel.order ? `(${sel.order.entries.length})` : '(0)'}
+                  </button>
+                  <button
+                    onClick={() => setCartTab('history')}
+                    className={`flex-1 py-2 text-xs font-black border-b-2 transition ${
+                      cartTab === 'history'
+                        ? 'border-[#00C060] text-[#00C060]'
+                        : 'border-transparent text-slate-400 hover:text-slate-600'
+                    }`}
+                  >
+                    Order History
+                  </button>
+                </div>
+
+                {/* Items */}
+                <div className="flex-1 min-h-0 overflow-y-auto pos-scroll px-4 divide-y divide-slate-100/70">
+                  {sel.order && sel.order.entries.length > 0 ? (
+                    sel.order.entries.map((e, i) => (
+                      <div key={i} className="py-2.5 flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <img
+                            src={foodThumbnail(e.item.name)}
+                            alt={e.item.name}
+                            className="w-9 h-9 rounded-lg object-contain bg-slate-50 shrink-0"
+                          />
+                          <div className="min-w-0">
+                            <h5 className="text-[11px] font-black text-slate-900 truncate">{e.item.name}</h5>
+                            <p className="text-[10px] font-bold text-slate-400">×{e.quantity}</p>
+                          </div>
+                        </div>
+                        <span className="text-xs font-black text-slate-900 whitespace-nowrap">
+                          {formatINR(e.item.basePricePaise * e.quantity)}
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="py-10 flex flex-col items-center justify-center text-center px-4">
+                      <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-[#00C060] flex items-center justify-center mb-2">
+                        <Armchair className="w-6 h-6 stroke-[2]" />
+                      </div>
+                      <p className="text-xs font-black text-slate-800">
+                        {sel.status === 'available'
+                          ? 'Table is Ready & Available'
+                          : sel.status === 'cleaning'
+                          ? 'Table is Being Cleaned'
+                          : sel.status === 'reserved'
+                          ? 'Table is Reserved'
+                          : 'No Active Order'}
+                      </p>
+                      <p className="text-[11px] font-semibold text-slate-400 mt-1">
+                        {sel.status === 'available'
+                          ? 'Click "Take Order" below to seat guests and start billing.'
+                          : sel.status === 'cleaning'
+                          ? 'Click "Cleaned" below once sanitization is completed.'
+                          : 'Ready for guest seating'}
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Mobile Drawer Footer with Actions */}
+                <div className="p-3.5 border-t border-slate-100 space-y-2 bg-white shrink-0 pb-6">
+                  {/* Total amount bar */}
+                  <div className="flex items-center justify-between rounded-xl bg-slate-50 border border-slate-100 px-4 py-2">
+                    <span className="text-xs font-black text-slate-800">Total Amount</span>
+                    <span className="text-base font-black text-[#00C060]">
+                      {formatINR(sel.order ? sel.order.totalPaise : 0)}
+                    </span>
+                  </div>
+
+                  {/* Primary Action Buttons */}
+                  <div className="grid grid-cols-3 gap-2">
+                    <button
+                      onClick={() => {
+                        setMobileDrawerOpen(false);
+                        goToPos(sel);
+                      }}
+                      className="py-2.5 px-2 rounded-xl bg-[#00C060] text-white text-xs font-black flex items-center justify-center gap-1 shadow-sm"
+                    >
+                      <PlusCircle className="w-3.5 h-3.5" />
+                      <span>{sel.order ? 'Add Items' : 'Take Order'}</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (!sel.order) return notify('error', 'No active order to print KOT');
+                        notify('success', `KOT printed for Table ${sel.name}`);
+                      }}
+                      disabled={!sel.order}
+                      className="py-2.5 px-2 rounded-xl border border-slate-200/90 text-slate-700 text-xs font-black flex items-center justify-center gap-1 bg-white disabled:opacity-40"
+                    >
+                      <Printer className="w-3.5 h-3.5" />
+                      <span>KOT</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setMobileDrawerOpen(false);
+                        goToPos(sel);
+                      }}
+                      disabled={!sel.order}
+                      className="py-2.5 px-2 rounded-xl border border-slate-200/90 text-slate-700 text-xs font-black flex items-center justify-center gap-1 bg-white disabled:opacity-40"
+                    >
+                      <FileText className="w-3.5 h-3.5" />
+                      <span>Settle Bill</span>
+                    </button>
+                  </div>
+
+                  {/* Secondary Actions */}
+                  <div className="grid grid-cols-3 gap-1.5 pt-1">
+                    <button
+                      onClick={() => {
+                        setMobileDrawerOpen(false);
+                        setModal('transfer');
+                      }}
+                      className="py-1.5 px-2 rounded-lg border border-slate-200 text-slate-700 text-[10px] font-bold flex items-center justify-center gap-1"
+                    >
+                      <ArrowLeftRight className="w-3 h-3 text-slate-500" />
+                      <span>Move</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        setMobileDrawerOpen(false);
+                        setModal('merge');
+                      }}
+                      className="py-1.5 px-2 rounded-lg border border-slate-200 text-slate-700 text-[10px] font-bold flex items-center justify-center gap-1"
+                    >
+                      <Combine className="w-3 h-3 text-slate-500" />
+                      <span>Merge</span>
+                    </button>
+                    {sel.status === 'cleaning' ? (
+                      <button
+                        onClick={() => {
+                          setStatus(sel.id, 'available');
+                          notify('success', `${sel.name} is now Cleaned & Available`);
+                        }}
+                        className="py-1.5 px-2 rounded-lg border border-emerald-300 bg-emerald-50 text-[#00C060] text-[10px] font-black flex items-center justify-center gap-1"
+                      >
+                        <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        <span>Cleaned</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => {
+                          setStatus(sel.id, 'cleaning');
+                          notify('success', `${sel.name} sent for cleaning`);
+                        }}
+                        className="py-1.5 px-2 rounded-lg border border-rose-100 text-rose-500 hover:bg-rose-50 text-[10px] font-bold flex items-center justify-center gap-1"
+                      >
+                        <Trash2 className="w-3 h-3 text-rose-500" />
+                        <span>Clear</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
 
       {/* ================= MODALS ================= */}
       {/* Transfer / Move Table */}
