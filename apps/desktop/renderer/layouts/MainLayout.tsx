@@ -23,6 +23,10 @@ import {
   Check,
   Receipt,
   Armchair,
+  MoreHorizontal,
+  X,
+  Package,
+  TrendingUp,
 } from 'lucide-react';
 
 /* =====================================================================
@@ -100,6 +104,7 @@ type SearchHit = { id: string; group: string; title: string; sub?: string; to: s
 export const MainLayout: React.FC<MainLayoutProps> = ({ userName = 'Rohit Sengar', userRole = 'Owner', avatarUrl, onLogout }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLElement>(null);
   const navRef = useRef<HTMLDivElement>(null);
@@ -420,8 +425,8 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ userName = 'Rohit Sengar
         </header>
       )}
 
-      {/* ================= NAV TABS ================= */}
-      <div ref={navRef} className="shrink-0 border-b px-2 sm:px-6 py-2 bg-white border-slate-100 shadow-xs">
+      {/* ================= NAV TABS (DESKTOP / TABLET) ================= */}
+      <div ref={navRef} className="shrink-0 border-b px-2 sm:px-6 py-2 bg-white border-slate-100 shadow-xs hidden md:block">
         <nav className="flex items-center gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" aria-label="Main">
           {NAV_TABS.map((tab) => {
             const Icon = tab.icon;
@@ -451,9 +456,243 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ userName = 'Rohit Sengar
       </div>
 
       {/* ================= CONTENT ================= */}
-      <main className={`flex-1 min-h-0 flex flex-col ${isDashboard ? 'bg-[#F4F7F6] overflow-y-auto px-4 sm:px-6 py-4' : isPos ? 'bg-[#F4F7F6] p-3 overflow-hidden' : 'bg-[#FAF8F9] overflow-y-auto px-2 sm:px-3 py-2.5'}`}>
+      <main className={`flex-1 min-h-0 flex flex-col ${isDashboard ? 'bg-[#F4F7F6] overflow-y-auto px-3 sm:px-6 py-3 sm:py-4 pb-20 md:pb-4' : isPos ? 'bg-[#F4F7F6] p-2 sm:p-3 overflow-hidden pb-16 md:pb-3' : 'bg-[#FAF8F9] overflow-y-auto px-2 sm:px-3 py-2.5 pb-20 md:pb-2.5'}`}>
         <Outlet />
       </main>
+
+      {/* ================= MOBILE BOTTOM NAVIGATION BAR ================= */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200/80 px-2 py-1 shadow-lg flex items-center justify-around select-none">
+        {/* 1. Home / Dashboard */}
+        <NavLink
+          to="/"
+          end
+          className={({ isActive }) =>
+            `flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all ${
+              isActive ? 'text-[#00C060] font-extrabold' : 'text-gray-500 font-medium'
+            }`
+          }
+        >
+          {({ isActive }) => (
+            <>
+              <div className={`p-1 rounded-lg ${isActive ? 'bg-[#E7F9F0]' : ''}`}>
+                <LayoutDashboard className="w-5 h-5" />
+              </div>
+              <span className="text-[10px] mt-0.5">Home</span>
+            </>
+          )}
+        </NavLink>
+
+        {/* 2. POS */}
+        <NavLink
+          to="/pos"
+          className={({ isActive }) =>
+            `flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all ${
+              isActive ? 'text-[#00C060] font-extrabold' : 'text-gray-500 font-medium'
+            }`
+          }
+        >
+          {({ isActive }) => (
+            <>
+              <div className={`p-1 rounded-lg ${isActive ? 'bg-[#E7F9F0]' : ''}`}>
+                <Monitor className="w-5 h-5" />
+              </div>
+              <span className="text-[10px] mt-0.5">POS</span>
+            </>
+          )}
+        </NavLink>
+
+        {/* 3. Tables */}
+        <NavLink
+          to="/tables"
+          className={({ isActive }) =>
+            `flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all ${
+              isActive ? 'text-[#00C060] font-extrabold' : 'text-gray-500 font-medium'
+            }`
+          }
+        >
+          {({ isActive }) => (
+            <>
+              <div className={`p-1 rounded-lg ${isActive ? 'bg-[#E7F9F0]' : ''}`}>
+                <TableIcon className="w-5 h-5" />
+              </div>
+              <span className="text-[10px] mt-0.5">Tables</span>
+            </>
+          )}
+        </NavLink>
+
+        {/* 4. Kitchen KOT */}
+        <NavLink
+          to="/kitchen"
+          className={({ isActive }) =>
+            `flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all ${
+              isActive ? 'text-[#00C060] font-extrabold' : 'text-gray-500 font-medium'
+            }`
+          }
+        >
+          {({ isActive }) => (
+            <>
+              <div className={`p-1 rounded-lg ${isActive ? 'bg-[#E7F9F0]' : ''}`}>
+                <ChefHat className="w-5 h-5" />
+              </div>
+              <span className="text-[10px] mt-0.5">KOT</span>
+            </>
+          )}
+        </NavLink>
+
+        {/* 5. More Button (Triggers Drawer) */}
+        <button
+          onClick={() => setMobileMoreOpen(!mobileMoreOpen)}
+          className={`flex flex-col items-center justify-center py-1 px-2.5 rounded-xl transition-all ${
+            mobileMoreOpen ? 'text-[#00C060] font-extrabold' : 'text-gray-500 font-medium'
+          }`}
+        >
+          <div className={`p-1 rounded-lg ${mobileMoreOpen ? 'bg-[#E7F9F0]' : ''}`}>
+            <MoreHorizontal className="w-5 h-5" />
+          </div>
+          <span className="text-[10px] mt-0.5">More</span>
+        </button>
+      </div>
+
+      {/* ================= MOBILE "MORE" POPUP DRAWER ================= */}
+      {mobileMoreOpen && (
+        <div className="md:hidden fixed inset-0 z-50 flex flex-col justify-end bg-black/40 backdrop-blur-xs animate-fadeIn">
+          <div className="bg-white rounded-t-3xl border-t border-gray-200 p-4 max-h-[80vh] overflow-y-auto shadow-2xl">
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-emerald-50 text-[#00C060] flex items-center justify-center">
+                  <LayoutGrid className="w-4 h-4" />
+                </div>
+                <h3 className="text-sm font-black text-gray-900">All Modules & Tools</h3>
+              </div>
+              <button
+                onClick={() => setMobileMoreOpen(false)}
+                className="p-1 rounded-full text-gray-400 hover:text-gray-700 bg-gray-100"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2.5 pt-4">
+              <button
+                onClick={() => {
+                  setMobileMoreOpen(false);
+                  navigate('/orders');
+                }}
+                className="p-2.5 rounded-2xl bg-gray-50 hover:bg-[#E7F9F0] border border-gray-100 flex flex-col items-center text-center gap-1.5 transition-all"
+              >
+                <div className="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
+                  <ShoppingBasket className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-bold text-gray-800">Orders</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setMobileMoreOpen(false);
+                  navigate('/requests');
+                }}
+                className="p-2.5 rounded-2xl bg-gray-50 hover:bg-[#E7F9F0] border border-gray-100 flex flex-col items-center text-center gap-1.5 transition-all"
+              >
+                <div className="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                  <Bell className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-bold text-gray-800">Requests</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setMobileMoreOpen(false);
+                  navigate('/customers');
+                }}
+                className="p-2.5 rounded-2xl bg-gray-50 hover:bg-[#E7F9F0] border border-gray-100 flex flex-col items-center text-center gap-1.5 transition-all"
+              >
+                <div className="w-10 h-10 rounded-xl bg-emerald-50 text-[#00C060] flex items-center justify-center">
+                  <Users className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-bold text-gray-800">Customers</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setMobileMoreOpen(false);
+                  navigate('/menu');
+                }}
+                className="p-2.5 rounded-2xl bg-gray-50 hover:bg-[#E7F9F0] border border-gray-100 flex flex-col items-center text-center gap-1.5 transition-all"
+              >
+                <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center">
+                  <UtensilsCrossed className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-bold text-gray-800">Item Menu</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setMobileMoreOpen(false);
+                  navigate('/printers');
+                }}
+                className="p-2.5 rounded-2xl bg-gray-50 hover:bg-[#E7F9F0] border border-gray-100 flex flex-col items-center text-center gap-1.5 transition-all"
+              >
+                <div className="w-10 h-10 rounded-xl bg-cyan-50 text-cyan-600 flex items-center justify-center">
+                  <Printer className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-bold text-gray-800">Printers</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setMobileMoreOpen(false);
+                  navigate('/tools');
+                }}
+                className="p-2.5 rounded-2xl bg-gray-50 hover:bg-[#E7F9F0] border border-gray-100 flex flex-col items-center text-center gap-1.5 transition-all"
+              >
+                <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center">
+                  <LayoutGrid className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-bold text-gray-800">More Tools</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setMobileMoreOpen(false);
+                  navigate('/inventory/stock');
+                }}
+                className="p-2.5 rounded-2xl bg-gray-50 hover:bg-[#E7F9F0] border border-gray-100 flex flex-col items-center text-center gap-1.5 transition-all"
+              >
+                <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center">
+                  <Package className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-bold text-gray-800">Inventory</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setMobileMoreOpen(false);
+                  navigate('/reports/sales');
+                }}
+                className="p-2.5 rounded-2xl bg-gray-50 hover:bg-[#E7F9F0] border border-gray-100 flex flex-col items-center text-center gap-1.5 transition-all"
+              >
+                <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                  <TrendingUp className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-bold text-gray-800">Reports</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setMobileMoreOpen(false);
+                  navigate('/settings');
+                }}
+                className="p-2.5 rounded-2xl bg-gray-50 hover:bg-[#E7F9F0] border border-gray-100 flex flex-col items-center text-center gap-1.5 transition-all"
+              >
+                <div className="w-10 h-10 rounded-xl bg-gray-100 text-gray-700 flex items-center justify-center">
+                  <Settings className="w-5 h-5" />
+                </div>
+                <span className="text-xs font-bold text-gray-800">Settings</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
