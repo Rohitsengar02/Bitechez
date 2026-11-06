@@ -27,6 +27,7 @@ import {
   X,
   Package,
   TrendingUp,
+  ArrowLeft,
 } from 'lucide-react';
 
 /* =====================================================================
@@ -105,6 +106,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ userName = 'Rohit Sengar
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMoreOpen, setMobileMoreOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLElement>(null);
   const navRef = useRef<HTMLDivElement>(null);
@@ -256,6 +258,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ userName = 'Rohit Sengar
     navigate(h.to);
     setQuery('');
     searchPop.setOpen(false);
+    setMobileSearchOpen(false);
     inputRef.current?.blur();
   };
 
@@ -268,160 +271,242 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ userName = 'Rohit Sengar
     <div ref={rootRef} className={`flex flex-col h-[100dvh] w-full text-[#191923] overflow-hidden ${showEmeraldHeader ? 'bg-[#F4F7F6]' : 'bg-[#FAF8F9]'}`}>
       {/* ================= HEADER (Clean White & Emerald style) ================= */}
       {showEmeraldHeader && (
-        <header ref={headerRef} className="h-14 shrink-0 z-40 bg-white border-b border-emerald-100/80 px-4 sm:px-6 flex items-center justify-between shadow-[0_2px_12px_rgba(16,185,129,0.04)]">
-          {/* Logo & Outlet */}
-          <div className="flex items-center gap-6">
-            <button onClick={() => navigate('/')} className="flex items-center gap-2 shrink-0 group" aria-label="CyberLim POS home">
-              <div className="w-8 h-8 rounded-xl bg-[#00C060] flex items-center justify-center text-white shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform">
-                <Check className="w-5 h-5" strokeWidth={3.2} />
-              </div>
-              <span className="text-xl font-extrabold tracking-tight text-[#162720] flex items-center gap-1.5">
-                CyberLim <span className="bg-[#E7F9F0] text-[#00B859] px-1.5 py-0.5 rounded text-[10px] font-black tracking-wider uppercase">POS</span>
-              </span>
-            </button>
-
-            <span className="hidden lg:block w-px h-5 bg-gray-200" />
-
-            {/* Outlet */}
-            <div ref={outletPop.ref} className="relative hidden sm:block shrink-0">
-              <button onClick={() => outletPop.setOpen((o) => !o)} className="flex items-center gap-2.5 rounded-xl px-2 py-1 hover:bg-emerald-50/60 transition-colors" aria-haspopup="menu" aria-expanded={outletPop.open}>
-                <span className="w-7 h-7 rounded-lg bg-emerald-50 text-[#00B859] flex items-center justify-center">
-                  <Store className="w-4 h-4" />
-                </span>
-                <span className="text-left">
-                  <span className="block text-xs font-bold text-[#162720] leading-tight">{outlet.name}</span>
-                  <span className="block text-[10px] text-gray-400 font-semibold leading-tight">{outlet.branch}</span>
-                </span>
-                <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform ${outletPop.open ? 'rotate-180' : ''}`} />
-              </button>
-            </div>
-          </div>
-
-          {/* Search Bar - Soft Pill */}
-          <div ref={searchPop.ref} className="relative flex-1 min-w-0 max-w-md mx-4">
-            <div className="flex items-center gap-2 h-9 rounded-full bg-[#F4F7F6] border border-gray-200/60 px-4 focus-within:bg-white focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-400/20 transition-all">
-              <Search className="w-3.5 h-3.5 text-gray-400 shrink-0" />
-              <input
-                ref={inputRef}
-                value={query}
-                onChange={(e) => (setQuery(e.target.value), searchPop.setOpen(true))}
-                onFocus={() => searchPop.setOpen(true)}
-                onKeyDown={(e) => {
-                  if (e.key === 'ArrowDown') (e.preventDefault(), setActive((a) => Math.min(a + 1, hits.length - 1)));
-                  if (e.key === 'ArrowUp') (e.preventDefault(), setActive((a) => Math.max(a - 1, 0)));
-                  if (e.key === 'Enter') go(hits[active]);
+        <header ref={headerRef} className="h-14 shrink-0 z-40 bg-white border-b border-emerald-100/80 px-3 sm:px-6 flex items-center justify-between shadow-[0_2px_12px_rgba(16,185,129,0.04)] relative">
+          {mobileSearchOpen ? (
+            /* Full Width Search Bar on Mobile */
+            <div className="flex sm:hidden items-center gap-2 w-full h-full animate-fadeIn">
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileSearchOpen(false);
+                  setQuery('');
+                  searchPop.setOpen(false);
                 }}
-                placeholder="Search orders, items, customers..."
-                className="flex-1 min-w-0 bg-transparent text-xs text-gray-800 placeholder-gray-400 outline-none"
-                aria-label="Search"
-              />
-              <span className="hidden sm:flex items-center gap-1 shrink-0">
-                <kbd className="px-1.5 py-0.5 rounded bg-white shadow-sm border border-gray-200 text-[9px] font-bold text-gray-500">Ctrl</kbd>
-                <kbd className="px-1.5 py-0.5 rounded bg-white shadow-sm border border-gray-200 text-[9px] font-bold text-gray-500">K</kbd>
-              </span>
-            </div>
-            {searchPop.open && (
-              <div className="absolute left-0 right-0 top-full mt-2 max-h-[60dvh] overflow-y-auto bg-white rounded-2xl shadow-2xl border border-gray-100 p-2 z-50">
-                {hits.length === 0 ? (
-                  <p className="px-3 py-6 text-center text-sm font-semibold text-gray-500">No matches for “{query}”</p>
-                ) : (
-                  hits.map((h, i) => (
-                    <button
-                      key={h.id}
-                      onMouseEnter={() => setActive(i)}
-                      onClick={() => go(h)}
-                      className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left ${i === active ? 'bg-[#F4F7F6]' : ''}`}
-                    >
-                      <span className="w-8 h-8 rounded-lg bg-emerald-50 text-[#00C060] flex items-center justify-center shrink-0">
-                        <h.icon className="w-4 h-4" />
-                      </span>
-                      <span className="flex-1 min-w-0">
-                        <span className="block text-sm font-bold text-[#191923] truncate">{h.title}</span>
-                        {h.sub && <span className="block text-xs text-gray-500 truncate">{h.sub}</span>}
-                      </span>
-                    </button>
-                  ))
+                className="w-8 h-8 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-100 shrink-0"
+                aria-label="Back"
+              >
+                <ArrowLeft className="w-4 h-4" />
+              </button>
+
+              <div className="flex-1 flex items-center gap-2 h-9 rounded-full bg-[#F4F7F6] border border-emerald-300 px-3 focus-within:bg-white focus-within:ring-2 focus-within:ring-emerald-400/20">
+                <Search className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                <input
+                  autoFocus
+                  value={query}
+                  onChange={(e) => {
+                    setQuery(e.target.value);
+                    searchPop.setOpen(true);
+                  }}
+                  placeholder="Search orders, items, customers..."
+                  className="flex-1 min-w-0 bg-transparent text-xs text-gray-800 placeholder-gray-400 outline-none"
+                  aria-label="Search"
+                />
+                {query && (
+                  <button
+                    type="button"
+                    onClick={() => setQuery('')}
+                    className="w-5 h-5 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-[10px]"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
                 )}
               </div>
-            )}
-          </div>
 
-          {/* Right controls */}
-          <div className="flex items-center gap-2 shrink-0">
-            <span className="relative w-8 h-8 rounded-full flex items-center justify-center text-gray-500" title={online ? 'Online' : 'Offline'}>
-              {online ? <Wifi className="w-4 h-4 text-[#00C060]" /> : <WifiOff className="w-4 h-4 text-rose-500" />}
-            </span>
-
-            <div ref={bellPop.ref} className="relative">
-              <button
-                onClick={() => {
-                  bellPop.setOpen((o) => !o);
-                  const latest = notes[0]?.at ?? new Date().toISOString();
-                  setSeenAt(latest);
-                  localStorage.setItem('layout.notifSeen', latest);
-                }}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-emerald-50 hover:text-emerald-600 transition-colors relative"
-                aria-label={`Notifications${unread ? ` (${unread} new)` : ''}`}
-              >
-                <Bell className="w-4 h-4" />
-                {unread > 0 && <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white" />}
-              </button>
-              {bellPop.open && (
-                <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-100 p-2 z-50">
-                  <p className="px-2.5 py-1 text-xs font-black text-gray-800">Notifications</p>
-                  {notes.length === 0 ? (
-                    <p className="px-2.5 py-4 text-center text-xs text-gray-400">All caught up</p>
+              {/* Mobile Search Suggestions Dropdown */}
+              {searchPop.open && (
+                <div className="fixed inset-x-2 top-14 mt-1 max-h-[65dvh] overflow-y-auto bg-white rounded-2xl shadow-2xl border border-gray-100 p-2 z-50 scrollbar-none animate-fadeIn">
+                  {hits.length === 0 ? (
+                    <p className="px-3 py-6 text-center text-xs font-semibold text-gray-500">No matches for “{query}”</p>
                   ) : (
-                    notes.slice(0, 5).map((n) => (
-                      <div key={n.id} className="p-2 text-xs border-b border-gray-50 last:border-0">
-                        <p className="font-bold text-gray-800 truncate">{n.title}</p>
-                        <p className="text-[10px] text-gray-400">{n.sub}</p>
-                      </div>
+                    hits.map((h, i) => (
+                      <button
+                        key={h.id}
+                        onClick={() => go(h)}
+                        className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left ${i === active ? 'bg-[#F4F7F6]' : ''}`}
+                      >
+                        <span className="w-8 h-8 rounded-lg bg-emerald-50 text-[#00C060] flex items-center justify-center shrink-0">
+                          <h.icon className="w-4 h-4" />
+                        </span>
+                        <span className="flex-1 min-w-0">
+                          <span className="block text-xs font-bold text-[#191923] truncate">{h.title}</span>
+                          {h.sub && <span className="block text-[10px] text-gray-500 truncate">{h.sub}</span>}
+                        </span>
+                      </button>
                     ))
                   )}
                 </div>
               )}
             </div>
+          ) : (
+            <>
+              {/* Logo & Outlet */}
+              <div className="flex items-center gap-2 sm:gap-6 shrink-0">
+                <button onClick={() => navigate('/')} className="flex items-center gap-1.5 sm:gap-2 shrink-0 group" aria-label="CyberLim POS home">
+                  <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-[#00C060] flex items-center justify-center text-white shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform">
+                    <Check className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={3.2} />
+                  </div>
+                  <span className="text-base sm:text-xl font-extrabold tracking-tight text-[#162720] flex items-center gap-1">
+                    CyberLim <span className="bg-[#E7F9F0] text-[#00B859] px-1.5 py-0.5 rounded text-[9px] sm:text-[10px] font-black tracking-wider uppercase">POS</span>
+                  </span>
+                </button>
 
-            <button onClick={toggleFull} className="w-8 h-8 rounded-full hidden sm:flex items-center justify-center text-gray-500 hover:bg-emerald-50 hover:text-emerald-600 transition-colors" title="Full screen">
-              {full ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
-            </button>
+                <span className="hidden lg:block w-px h-5 bg-gray-200" />
 
-            <span className="w-px h-5 bg-gray-200 mx-1" />
+                {/* Outlet */}
+                <div ref={outletPop.ref} className="relative hidden sm:block shrink-0">
+                  <button onClick={() => outletPop.setOpen((o) => !o)} className="flex items-center gap-2.5 rounded-xl px-2 py-1 hover:bg-emerald-50/60 transition-colors" aria-haspopup="menu" aria-expanded={outletPop.open}>
+                    <span className="w-7 h-7 rounded-lg bg-emerald-50 text-[#00B859] flex items-center justify-center">
+                      <Store className="w-4 h-4" />
+                    </span>
+                    <span className="text-left">
+                      <span className="block text-xs font-bold text-[#162720] leading-tight">{outlet.name}</span>
+                      <span className="block text-[10px] text-gray-400 font-semibold leading-tight">{outlet.branch}</span>
+                    </span>
+                    <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform ${outletPop.open ? 'rotate-180' : ''}`} />
+                  </button>
+                </div>
+              </div>
 
-            {/* User */}
-            <div ref={userPop.ref} className="relative">
-              <button onClick={() => userPop.setOpen((o) => !o)} className="flex items-center gap-2.5 pl-1" aria-haspopup="menu">
-                <div className="w-8 h-8 rounded-full ring-2 ring-emerald-500/20 overflow-hidden bg-emerald-100 flex items-center justify-center">
-                  {avatarUrl ? (
-                    <img src={avatarUrl} alt={userName} className="w-full h-full object-cover" />
-                  ) : (
-                    <span className="text-xs font-black text-emerald-700">{initials(userName)}</span>
+              {/* Desktop Search Bar - Soft Pill */}
+              <div ref={searchPop.ref} className="relative hidden sm:block flex-1 min-w-0 max-w-md mx-3 lg:mx-6">
+                <div className="flex items-center gap-2 h-9 rounded-full bg-[#F4F7F6] border border-gray-200/60 px-4 focus-within:bg-white focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-400/20 transition-all">
+                  <Search className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                  <input
+                    ref={inputRef}
+                    value={query}
+                    onChange={(e) => (setQuery(e.target.value), searchPop.setOpen(true))}
+                    onFocus={() => searchPop.setOpen(true)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'ArrowDown') (e.preventDefault(), setActive((a) => Math.min(a + 1, hits.length - 1)));
+                      if (e.key === 'ArrowUp') (e.preventDefault(), setActive((a) => Math.max(a - 1, 0)));
+                      if (e.key === 'Enter') go(hits[active]);
+                    }}
+                    placeholder="Search orders, items, customers..."
+                    className="flex-1 min-w-0 bg-transparent text-xs text-gray-800 placeholder-gray-400 outline-none"
+                    aria-label="Search"
+                  />
+                  <span className="hidden sm:flex items-center gap-1 shrink-0">
+                    <kbd className="px-1.5 py-0.5 rounded bg-white shadow-sm border border-gray-200 text-[9px] font-bold text-gray-500">Ctrl</kbd>
+                    <kbd className="px-1.5 py-0.5 rounded bg-white shadow-sm border border-gray-200 text-[9px] font-bold text-gray-500">K</kbd>
+                  </span>
+                </div>
+                {searchPop.open && (
+                  <div className="absolute left-0 right-0 top-full mt-2 max-h-[60dvh] overflow-y-auto bg-white rounded-2xl shadow-2xl border border-gray-100 p-2 z-50">
+                    {hits.length === 0 ? (
+                      <p className="px-3 py-6 text-center text-sm font-semibold text-gray-500">No matches for “{query}”</p>
+                    ) : (
+                      hits.map((h, i) => (
+                        <button
+                          key={h.id}
+                          onMouseEnter={() => setActive(i)}
+                          onClick={() => go(h)}
+                          className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left ${i === active ? 'bg-[#F4F7F6]' : ''}`}
+                        >
+                          <span className="w-8 h-8 rounded-lg bg-emerald-50 text-[#00C060] flex items-center justify-center shrink-0">
+                            <h.icon className="w-4 h-4" />
+                          </span>
+                          <span className="flex-1 min-w-0">
+                            <span className="block text-sm font-bold text-[#191923] truncate">{h.title}</span>
+                            {h.sub && <span className="block text-xs text-gray-500 truncate">{h.sub}</span>}
+                          </span>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Right controls */}
+              <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+                {/* Mobile Search Button */}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileSearchOpen(true);
+                    searchPop.setOpen(true);
+                  }}
+                  className="sm:hidden w-8 h-8 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-100 active:bg-gray-200 transition-colors"
+                  aria-label="Search"
+                >
+                  <Search className="w-4 h-4" />
+                </button>
+
+                <span className="relative w-8 h-8 rounded-full flex items-center justify-center text-gray-500" title={online ? 'Online' : 'Offline'}>
+                  {online ? <Wifi className="w-4 h-4 text-[#00C060]" /> : <WifiOff className="w-4 h-4 text-rose-500" />}
+                </span>
+
+                <div ref={bellPop.ref} className="relative">
+                  <button
+                    onClick={() => {
+                      bellPop.setOpen((o) => !o);
+                      const latest = notes[0]?.at ?? new Date().toISOString();
+                      setSeenAt(latest);
+                      localStorage.setItem('layout.notifSeen', latest);
+                    }}
+                    className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-emerald-50 hover:text-emerald-600 transition-colors relative"
+                    aria-label={`Notifications${unread ? ` (${unread} new)` : ''}`}
+                  >
+                    <Bell className="w-4 h-4" />
+                    {unread > 0 && <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white" />}
+                  </button>
+                  {bellPop.open && (
+                    <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-100 p-2 z-50">
+                      <p className="px-2.5 py-1 text-xs font-black text-gray-800">Notifications</p>
+                      {notes.length === 0 ? (
+                        <p className="px-2.5 py-4 text-center text-xs text-gray-400">All caught up</p>
+                      ) : (
+                        notes.slice(0, 5).map((n) => (
+                          <div key={n.id} className="p-2 text-xs border-b border-gray-50 last:border-0">
+                            <p className="font-bold text-gray-800 truncate">{n.title}</p>
+                            <p className="text-[10px] text-gray-400">{n.sub}</p>
+                          </div>
+                        ))
+                      )}
+                    </div>
                   )}
                 </div>
-                <div className="hidden lg:block text-left leading-none">
-                  <span className="block text-xs font-bold text-[#162720]">{userName}</span>
-                  <span className="block text-[10px] text-gray-400 font-semibold mt-0.5">{userRole}</span>
-                </div>
-                <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
-              </button>
-              {userPop.open && (
-                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 p-1.5 z-50">
-                  <button onClick={() => (userPop.setOpen(false), navigate('/customers'))} className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-gray-700 hover:bg-emerald-50 hover:text-emerald-700">
-                    <UserRound className="w-3.5 h-3.5" /> Customers
+
+                <button onClick={toggleFull} className="w-8 h-8 rounded-full hidden sm:flex items-center justify-center text-gray-500 hover:bg-emerald-50 hover:text-emerald-600 transition-colors" title="Full screen">
+                  {full ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+                </button>
+
+                <span className="hidden sm:block w-px h-5 bg-gray-200 mx-1" />
+
+                {/* User */}
+                <div ref={userPop.ref} className="relative">
+                  <button onClick={() => userPop.setOpen((o) => !o)} className="flex items-center gap-1.5 sm:gap-2.5 pl-0.5 sm:pl-1" aria-haspopup="menu">
+                    <div className="w-8 h-8 rounded-full ring-2 ring-emerald-500/20 overflow-hidden bg-emerald-100 flex items-center justify-center shrink-0">
+                      {avatarUrl ? (
+                        <img src={avatarUrl} alt={userName} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-xs font-black text-emerald-700">{initials(userName)}</span>
+                      )}
+                    </div>
+                    <div className="hidden lg:block text-left leading-none">
+                      <span className="block text-xs font-bold text-[#162720]">{userName}</span>
+                      <span className="block text-[10px] text-gray-400 font-semibold mt-0.5">{userRole}</span>
+                    </div>
+                    <ChevronDown className="hidden sm:block w-3.5 h-3.5 text-gray-400" />
                   </button>
-                  <button onClick={() => (userPop.setOpen(false), navigate('/printers'))} className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-gray-700 hover:bg-emerald-50 hover:text-emerald-700">
-                    <Settings className="w-3.5 h-3.5" /> Settings
-                  </button>
-                  {onLogout && (
-                    <button onClick={() => (userPop.setOpen(false), onLogout())} className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 hover:bg-rose-50 border-t border-gray-100 mt-1">
-                      <LogOut className="w-3.5 h-3.5" /> Log out
-                    </button>
+                  {userPop.open && (
+                    <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 p-1.5 z-50">
+                      <button onClick={() => (userPop.setOpen(false), navigate('/customers'))} className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-gray-700 hover:bg-emerald-50 hover:text-emerald-700">
+                        <UserRound className="w-3.5 h-3.5" /> Customers
+                      </button>
+                      <button onClick={() => (userPop.setOpen(false), navigate('/printers'))} className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-gray-700 hover:bg-emerald-50 hover:text-emerald-700">
+                        <Settings className="w-3.5 h-3.5" /> Settings
+                      </button>
+                      {onLogout && (
+                        <button onClick={() => (userPop.setOpen(false), onLogout())} className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 hover:bg-rose-50 border-t border-gray-100 mt-1">
+                          <LogOut className="w-3.5 h-3.5" /> Log out
+                        </button>
+                      )}
+                    </div>
                   )}
                 </div>
-              )}
-            </div>
-          </div>
+              </div>
+            </>
+          )}
         </header>
       )}
 

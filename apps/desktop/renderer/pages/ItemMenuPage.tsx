@@ -26,6 +26,7 @@ import {
   FolderTree,
   ChevronLeft,
   ChevronRight,
+  X,
 } from 'lucide-react';
 
 // Food Assets
@@ -179,6 +180,7 @@ export const ItemMenuPage: React.FC = () => {
   const [availabilityFilter, setAvailabilityFilter] = useState<'all' | 'available' | 'unavailable'>('all');
   const [typeFilter, setTypeFilter] = useState<'all' | 'veg' | 'non-veg'>('all');
   const [viewMode, setViewMode] = useState<'table' | 'grid'>('table');
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
   // Edit / Form state (linked to selected item in right sidebar)
   const selectedItem = useMemo(() => {
@@ -294,61 +296,61 @@ export const ItemMenuPage: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-3.5 font-sans text-[#191923] select-none pb-2 h-full overflow-hidden">
-      {/* Top Header Metrics Row */}
+      {/* Top Header Metrics Row (Swipeable on mobile) */}
       <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex items-center gap-3 overflow-x-auto max-w-full pb-0.5">
+        <div className="flex items-center gap-2.5 sm:gap-3 overflow-x-auto scrollbar-none snap-x max-w-full pb-0.5">
           {/* Total Items */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-2.5 px-3 shadow-xs flex items-center gap-3 shrink-0 min-w-[130px]">
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#00C060] flex items-center justify-center shrink-0">
+          <div className="shrink-0 snap-start bg-white rounded-2xl border border-gray-100 p-2 sm:p-2.5 px-3 shadow-xs flex items-center gap-2.5 sm:gap-3 min-w-[120px] sm:min-w-[130px]">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-50 text-[#00C060] flex items-center justify-center shrink-0">
               <Utensils className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-lg font-black text-gray-900 leading-none">248</p>
-              <p className="text-[10px] font-semibold text-gray-500 mt-1">Total Items</p>
+              <p className="text-base sm:text-lg font-black text-gray-900 leading-none">248</p>
+              <p className="text-[10px] font-semibold text-gray-500 mt-1 whitespace-nowrap">Total Items</p>
             </div>
           </div>
 
           {/* Categories */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-2.5 px-3 shadow-xs flex items-center gap-3 shrink-0 min-w-[130px]">
-            <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
+          <div className="shrink-0 snap-start bg-white rounded-2xl border border-gray-100 p-2 sm:p-2.5 px-3 shadow-xs flex items-center gap-2.5 sm:gap-3 min-w-[120px] sm:min-w-[130px]">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
               <Package className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-lg font-black text-gray-900 leading-none">12</p>
-              <p className="text-[10px] font-semibold text-gray-500 mt-1">Categories</p>
+              <p className="text-base sm:text-lg font-black text-gray-900 leading-none">12</p>
+              <p className="text-[10px] font-semibold text-gray-500 mt-1 whitespace-nowrap">Categories</p>
             </div>
           </div>
 
           {/* Variants */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-2.5 px-3 shadow-xs flex items-center gap-3 shrink-0 min-w-[130px]">
-            <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
+          <div className="shrink-0 snap-start bg-white rounded-2xl border border-gray-100 p-2 sm:p-2.5 px-3 shadow-xs flex items-center gap-2.5 sm:gap-3 min-w-[120px] sm:min-w-[130px]">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
               <Layers className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-lg font-black text-gray-900 leading-none">18</p>
-              <p className="text-[10px] font-semibold text-gray-500 mt-1">Variants</p>
+              <p className="text-base sm:text-lg font-black text-gray-900 leading-none">18</p>
+              <p className="text-[10px] font-semibold text-gray-500 mt-1 whitespace-nowrap">Variants</p>
             </div>
           </div>
 
           {/* Bestsellers */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-2.5 px-3 shadow-xs flex items-center gap-3 shrink-0 min-w-[130px]">
-            <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#00C060] flex items-center justify-center shrink-0">
+          <div className="shrink-0 snap-start bg-white rounded-2xl border border-gray-100 p-2 sm:p-2.5 px-3 shadow-xs flex items-center gap-2.5 sm:gap-3 min-w-[120px] sm:min-w-[130px]">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-50 text-[#00C060] flex items-center justify-center shrink-0">
               <Star className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-lg font-black text-gray-900 leading-none">36</p>
-              <p className="text-[10px] font-semibold text-gray-500 mt-1">Bestsellers</p>
+              <p className="text-base sm:text-lg font-black text-gray-900 leading-none">36</p>
+              <p className="text-[10px] font-semibold text-gray-500 mt-1 whitespace-nowrap">Bestsellers</p>
             </div>
           </div>
 
           {/* Low Stock */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-2.5 px-3 shadow-xs flex items-center gap-3 shrink-0 min-w-[130px]">
-            <div className="w-9 h-9 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0">
+          <div className="shrink-0 snap-start bg-white rounded-2xl border border-gray-100 p-2 sm:p-2.5 px-3 shadow-xs flex items-center gap-2.5 sm:gap-3 min-w-[120px] sm:min-w-[130px]">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0">
               <AlertTriangle className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-lg font-black text-gray-900 leading-none">6</p>
-              <p className="text-[10px] font-semibold text-gray-500 mt-1">Low Stock</p>
+              <p className="text-base sm:text-lg font-black text-gray-900 leading-none">6</p>
+              <p className="text-[10px] font-semibold text-gray-500 mt-1 whitespace-nowrap">Low Stock</p>
             </div>
           </div>
         </div>
@@ -370,8 +372,9 @@ export const ItemMenuPage: React.FC = () => {
               };
               setItems((prev) => [newItem, ...prev]);
               handleSelectItem(newItem);
+              setMobileDrawerOpen(true);
             }}
-            className="px-4 py-2 rounded-xl bg-[#00C060] text-white text-xs font-black hover:bg-[#00a854] shadow-xs flex items-center gap-1.5 transition-all"
+            className="px-3.5 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-[#00C060] text-white text-xs font-black hover:bg-[#00a854] shadow-xs flex items-center gap-1.5 transition-all"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Add Item</span>
@@ -379,7 +382,7 @@ export const ItemMenuPage: React.FC = () => {
 
           <button
             onClick={() => alert('Import CSV/Excel')}
-            className="px-3.5 py-2 rounded-xl bg-white border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-50 shadow-xs flex items-center gap-1.5 transition-colors"
+            className="hidden sm:flex px-3.5 py-2 rounded-xl bg-white border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-50 shadow-xs items-center gap-1.5 transition-colors"
           >
             <Upload className="w-3.5 h-3.5 text-gray-500" />
             <span>Import</span>
@@ -387,7 +390,7 @@ export const ItemMenuPage: React.FC = () => {
 
           <button
             onClick={() => alert('Export Menu')}
-            className="px-3.5 py-2 rounded-xl bg-white border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-50 shadow-xs flex items-center gap-1.5 transition-colors"
+            className="hidden sm:flex px-3.5 py-2 rounded-xl bg-white border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-50 shadow-xs items-center gap-1.5 transition-colors"
           >
             <Download className="w-3.5 h-3.5 text-gray-500" />
             <span>Export</span>
@@ -397,8 +400,8 @@ export const ItemMenuPage: React.FC = () => {
 
       {/* Main Area: Categories Sidebar (Left) + Items Table (Center) + Edit Item Sidebar (Right) */}
       <div className="flex-1 min-h-0 flex gap-3.5 overflow-hidden">
-        {/* Left Categories Sidebar */}
-        <div className="w-[180px] xl:w-[200px] bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col p-3 shrink-0 h-full overflow-hidden">
+        {/* Left Categories Sidebar (Desktop only) */}
+        <div className="hidden md:flex w-[180px] xl:w-[200px] bg-white rounded-2xl border border-gray-200 shadow-sm flex-col p-3 shrink-0 h-full overflow-hidden">
           <div className="flex items-center justify-between pb-2.5 border-b border-gray-100">
             <span className="text-xs font-black text-gray-900">Categories (12)</span>
             <button
@@ -410,7 +413,7 @@ export const ItemMenuPage: React.FC = () => {
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto py-2 space-y-1">
+          <div className="flex-1 overflow-y-auto scrollbar-none py-2 space-y-1">
             {SEED_CATEGORIES.map((cat) => {
               const isSelected = selectedCategory === cat.id;
               return (
@@ -449,9 +452,33 @@ export const ItemMenuPage: React.FC = () => {
         </div>
 
         {/* Center: Search & Filter bar + Table of Items */}
-        <div className="flex-1 min-w-0 bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col p-3.5 h-full overflow-hidden">
+        <div className="flex-1 min-w-0 bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col p-3 sm:p-3.5 h-full overflow-hidden">
+          {/* Mobile Categories Carousel */}
+          <div className="md:hidden flex items-center gap-1.5 overflow-x-auto scrollbar-none snap-x pb-2.5 border-b border-gray-100 shrink-0">
+            {SEED_CATEGORIES.map((cat) => {
+              const isSelected = selectedCategory === cat.id;
+              return (
+                <button
+                  key={cat.id}
+                  onClick={() => setSelectedCategory(cat.id)}
+                  className={`shrink-0 snap-start flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                    isSelected
+                      ? 'bg-[#00C060] text-white shadow-xs'
+                      : 'bg-gray-50 border border-gray-200 text-gray-600'
+                  }`}
+                >
+                  <cat.icon className="w-3.5 h-3.5" />
+                  <span>{cat.name}</span>
+                  <span className={`text-[10px] ${isSelected ? 'text-white/80' : 'text-gray-400'}`}>
+                    ({cat.count})
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+
           {/* Top Controls: Search + Availability Dropdown + Type Dropdown + Grid/List View */}
-          <div className="flex items-center justify-between gap-3 pb-3 border-b border-gray-100 flex-wrap">
+          <div className="flex items-center justify-between gap-2.5 py-2.5 border-b border-gray-100 flex-wrap shrink-0">
             {/* Search Input */}
             <div className="relative flex-1 min-w-[200px] max-w-sm">
               <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
@@ -540,7 +567,10 @@ export const ItemMenuPage: React.FC = () => {
                     return (
                       <tr
                         key={item.id}
-                        onClick={() => handleSelectItem(item)}
+                        onClick={() => {
+                          handleSelectItem(item);
+                          setMobileDrawerOpen(true);
+                        }}
                         className={`cursor-pointer transition-colors ${
                           isSelected
                             ? 'bg-[#E7F9F0]/60 border-y border-[#00C060]/30'
@@ -647,7 +677,10 @@ export const ItemMenuPage: React.FC = () => {
                   return (
                     <div
                       key={item.id}
-                      onClick={() => handleSelectItem(item)}
+                      onClick={() => {
+                        handleSelectItem(item);
+                        setMobileDrawerOpen(true);
+                      }}
                       className={`p-3 rounded-xl border transition-all cursor-pointer bg-white relative shadow-xs flex flex-col justify-between ${
                         isSelected
                           ? 'border-[#00C060] ring-2 ring-[#00C060]/20'
@@ -719,8 +752,8 @@ export const ItemMenuPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Right Edit Item Sidebar */}
-        <div className="w-[300px] xl:w-[330px] bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col p-4 shrink-0 h-full overflow-hidden">
+        {/* Right Edit Item Sidebar (Desktop only; Mobile uses bottom sheet drawer) */}
+        <div className="hidden lg:flex w-[300px] xl:w-[330px] bg-white rounded-2xl border border-gray-200 shadow-sm flex-col p-4 shrink-0 h-full overflow-hidden">
           {selectedItem ? (
             <div className="flex flex-col h-full min-h-0">
               {/* Header */}
@@ -954,6 +987,201 @@ export const ItemMenuPage: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* ================= MOBILE BOTTOM FLOATING ITEM BAR & SLIDE-UP DRAWER ================= */}
+      {selectedItem && (
+        <>
+          {/* Floating Mobile Bar above bottom navigation */}
+          <div className="lg:hidden fixed bottom-14 left-2 right-2 z-40 bg-white/98 backdrop-blur-lg rounded-2xl border border-slate-200/90 shadow-[0_6px_24px_rgba(0,0,0,0.12)] p-2.5 flex items-center justify-between gap-2.5">
+            <button
+              onClick={() => setMobileDrawerOpen(true)}
+              className="flex items-center gap-2.5 min-w-0 text-left flex-1"
+            >
+              <img
+                src={selectedItem.image}
+                alt="Product"
+                className="w-9 h-9 rounded-xl object-cover bg-gray-50 border border-gray-200 p-0.5 shrink-0"
+              />
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-xs font-black text-gray-900 leading-none">{selectedItem.name}</span>
+                  <span
+                    className={`inline-flex items-center gap-1 px-1.5 py-0.2 rounded-md text-[9px] font-bold ${
+                      selectedItem.type === 'veg'
+                        ? 'text-emerald-700 bg-emerald-50 border border-emerald-200'
+                        : 'text-rose-700 bg-rose-50 border border-rose-200'
+                    }`}
+                  >
+                    {selectedItem.type === 'veg' ? 'Veg' : 'Non-Veg'}
+                  </span>
+                </div>
+                <p className="text-[10px] font-semibold text-gray-500 truncate mt-0.5">
+                  ₹{selectedItem.price.toFixed(2)} • {selectedItem.category} • {selectedItem.status ? 'Available' : 'Unavailable'}
+                </p>
+              </div>
+            </button>
+
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                onClick={() => setMobileDrawerOpen(true)}
+                className="px-2.5 py-1.5 rounded-xl border border-gray-200 text-gray-700 text-xs font-bold bg-white hover:bg-gray-50"
+              >
+                Edit
+              </button>
+              <button
+                onClick={(e) => handleToggleStatus(selectedItem.id, e)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-black shadow-xs flex items-center gap-1 ${
+                  selectedItem.status
+                    ? 'bg-[#00C060] text-white'
+                    : 'bg-gray-200 text-gray-700'
+                }`}
+              >
+                <Check className="w-3.5 h-3.5 stroke-[3]" />
+                <span>{selectedItem.status ? 'Active' : 'Off'}</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile Bottom Sheet Drawer for Item Editing */}
+          {mobileDrawerOpen && (
+            <div
+              className="lg:hidden fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-end justify-center"
+              onClick={(e) => e.target === e.currentTarget && setMobileDrawerOpen(false)}
+            >
+              <div className="w-full bg-white rounded-t-3xl max-h-[85dvh] flex flex-col shadow-2xl border-t border-gray-100 animate-in slide-in-from-bottom duration-300">
+                {/* Drag handle */}
+                <div className="w-10 h-1 bg-gray-200 rounded-full mx-auto mt-2.5 mb-1" />
+
+                {/* Header */}
+                <div className="px-4 py-2.5 flex items-center justify-between border-b border-gray-100 shrink-0">
+                  <div className="flex items-center gap-2">
+                    <Edit2 className="w-4 h-4 text-gray-700" />
+                    <h3 className="text-sm font-black text-gray-900">Edit Dish Details</h3>
+                  </div>
+                  <button
+                    onClick={() => setMobileDrawerOpen(false)}
+                    className="w-7 h-7 rounded-lg bg-gray-100 text-gray-500 flex items-center justify-center font-bold"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Mobile Edit Form */}
+                <div className="p-4 flex-1 min-h-0 overflow-y-auto scrollbar-none space-y-3.5 text-xs">
+                  {/* Photo & Item Name */}
+                  <div className="flex gap-3 items-center">
+                    <div className="relative w-16 h-16 rounded-xl bg-gray-50 border border-gray-200 p-1 shrink-0 flex items-center justify-center">
+                      <img
+                        src={selectedItem.image}
+                        alt="Product"
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <label className="text-[11px] font-bold text-gray-500 block mb-1">Dish Name</label>
+                      <input
+                        type="text"
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        className="w-full px-3 py-1.5 rounded-xl border border-gray-200 font-bold text-xs focus:outline-none focus:border-[#00C060]"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Category & Type */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[11px] font-bold text-gray-500 block mb-1">Category</label>
+                      <select
+                        value={editCategory}
+                        onChange={(e) => setEditCategory(e.target.value)}
+                        className="w-full p-2 rounded-xl border border-gray-200 font-bold text-xs bg-white"
+                      >
+                        {SEED_CATEGORIES.filter((c) => c.id !== 'all').map((c) => (
+                          <option key={c.id} value={c.name}>
+                            {c.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-[11px] font-bold text-gray-500 block mb-1">Food Type</label>
+                      <div className="flex gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => setEditType('veg')}
+                          className={`flex-1 py-1.5 rounded-xl font-bold border transition-all ${
+                            editType === 'veg'
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
+                              : 'border-gray-200 text-gray-600'
+                          }`}
+                        >
+                          Veg
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setEditType('non-veg')}
+                          className={`flex-1 py-1.5 rounded-xl font-bold border transition-all ${
+                            editType === 'non-veg'
+                              ? 'bg-rose-50 text-rose-700 border-rose-300'
+                              : 'border-gray-200 text-gray-600'
+                          }`}
+                        >
+                          Non-Veg
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Base Price & Stock */}
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="text-[11px] font-bold text-gray-500 block mb-1">Base Price (₹)</label>
+                      <input
+                        type="number"
+                        value={editPrice}
+                        onChange={(e) => setEditPrice(Number(e.target.value))}
+                        className="w-full px-3 py-1.5 rounded-xl border border-gray-200 font-black text-xs focus:outline-none focus:border-[#00C060]"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-[11px] font-bold text-gray-500 block mb-1">Stock Count</label>
+                      <input
+                        type="number"
+                        disabled={editUnlimitedStock}
+                        value={editStock}
+                        onChange={(e) => setEditStock(Number(e.target.value))}
+                        className="w-full px-3 py-1.5 rounded-xl border border-gray-200 font-bold text-xs disabled:bg-gray-100"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="p-4 border-t border-gray-100 grid grid-cols-2 gap-2 bg-white shrink-0 pb-6">
+                  <button
+                    onClick={() => setMobileDrawerOpen(false)}
+                    className="py-2.5 rounded-xl border border-gray-200 text-xs font-bold text-gray-700"
+                  >
+                    Close
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleSaveChanges();
+                      setMobileDrawerOpen(false);
+                    }}
+                    className="py-2.5 rounded-xl bg-[#00C060] text-white text-xs font-black shadow-sm flex items-center justify-center gap-1"
+                  >
+                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                    <span>Save</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </>
+      )}
     </div>
   );
 };

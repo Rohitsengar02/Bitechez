@@ -29,6 +29,7 @@ import {
   RefreshCw,
   Info,
   Wrench,
+  X,
 } from 'lucide-react';
 
 export type ToolCategory = 'all' | 'operations' | 'inventory' | 'reports' | 'marketing' | 'settings' | 'integrations';
@@ -202,6 +203,7 @@ export const MoreToolsPage: React.FC = () => {
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState<ToolCategory>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [quickActionsOpen, setQuickActionsOpen] = useState(false);
 
   // Counts for left sidebar
   const counts = useMemo(() => {
@@ -258,8 +260,8 @@ export const MoreToolsPage: React.FC = () => {
 
   return (
     <div className="flex gap-4 font-sans text-[#191923] select-none pb-2 h-full overflow-hidden">
-      {/* Left Sidebar: Categories Navigation + Mascot Box */}
-      <div className="w-[180px] xl:w-[200px] bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col p-3 shrink-0 h-full overflow-hidden">
+      {/* Left Sidebar: Categories Navigation + Mascot Box (Desktop) */}
+      <div className="hidden md:flex w-[180px] xl:w-[200px] bg-white rounded-2xl border border-gray-200 shadow-sm flex-col p-3 shrink-0 h-full overflow-hidden">
         <div className="space-y-1">
           <button
             onClick={() => setActiveCategory('all')}
@@ -416,8 +418,41 @@ export const MoreToolsPage: React.FC = () => {
           </div>
         </div>
 
+        {/* Mobile Categories Selector Bar */}
+        <div className="md:hidden flex items-center gap-1.5 overflow-x-auto scrollbar-none snap-x py-1.5 shrink-0 border-b border-gray-100">
+          {[
+            { id: 'all', label: 'All Tools', icon: LayoutGrid, count: counts.all },
+            { id: 'operations', label: 'Operations', icon: ConciergeBell, count: counts.operations },
+            { id: 'inventory', label: 'Inventory', icon: Package, count: counts.inventory },
+            { id: 'reports', label: 'Reports', icon: BarChart2, count: counts.reports },
+            { id: 'marketing', label: 'Marketing', icon: Percent, count: counts.marketing },
+            { id: 'settings', label: 'Settings', icon: Store, count: counts.settings },
+            { id: 'integrations', label: 'Integrations', icon: Share2, count: counts.integrations },
+          ].map((cat) => {
+            const Icon = cat.icon;
+            const isActive = activeCategory === cat.id;
+            return (
+              <button
+                key={cat.id}
+                onClick={() => setActiveCategory(cat.id as ToolCategory)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all snap-start shrink-0 ${
+                  isActive
+                    ? 'bg-[#00C060] text-white shadow-xs'
+                    : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+                }`}
+              >
+                <Icon className="w-3.5 h-3.5" />
+                <span>{cat.label}</span>
+                <span className={`text-[10px] ${isActive ? 'text-white/80' : 'text-gray-400'}`}>
+                  ({cat.count})
+                </span>
+              </button>
+            );
+          })}
+        </div>
+
         {/* Tools Scrollable Container */}
-        <div className="flex-1 overflow-y-auto pt-3 space-y-5">
+        <div className="flex-1 overflow-y-auto pt-3 space-y-5 scrollbar-none pb-24">
           {/* Section 1: Operations */}
           {operationsTools.length > 0 && (
             <div className="bg-white rounded-2xl border border-gray-100 p-3.5 shadow-2xs">
@@ -433,7 +468,7 @@ export const MoreToolsPage: React.FC = () => {
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
                 {operationsTools.map((t) => (
                   <div
                     key={t.id}
@@ -475,7 +510,7 @@ export const MoreToolsPage: React.FC = () => {
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-2.5 sm:gap-3">
                 {inventoryTools.map((t) => (
                   <div
                     key={t.id}
@@ -517,7 +552,7 @@ export const MoreToolsPage: React.FC = () => {
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-2.5 sm:gap-3">
                 {reportsTools.map((t) => (
                   <div
                     key={t.id}
@@ -559,7 +594,7 @@ export const MoreToolsPage: React.FC = () => {
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
                 {marketingTools.map((t) => (
                   <div
                     key={t.id}
@@ -601,7 +636,7 @@ export const MoreToolsPage: React.FC = () => {
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3">
                 {settingsTools.map((t) => (
                   <div
                     key={t.id}
@@ -630,8 +665,8 @@ export const MoreToolsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Right Sidebar: Quick Actions & System Info */}
-      <div className="w-[240px] xl:w-[260px] flex flex-col gap-3.5 shrink-0 h-full overflow-hidden">
+      {/* Right Sidebar: Quick Actions & System Info (Desktop) */}
+      <div className="hidden lg:flex w-[240px] xl:w-[260px] flex-col gap-3.5 shrink-0 h-full overflow-hidden">
         {/* Quick Actions Card */}
         <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 shrink-0">
           <div className="flex items-center gap-2 mb-3">
@@ -689,7 +724,7 @@ export const MoreToolsPage: React.FC = () => {
         </div>
 
         {/* System Info Card */}
-        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 flex-1 overflow-y-auto">
+        <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-4 flex-1 overflow-y-auto scrollbar-none">
           <div className="flex items-center gap-2 mb-3">
             <div className="w-5 h-5 rounded-md bg-emerald-50 text-[#00C060] flex items-center justify-center">
               <Info className="w-3.5 h-3.5" />
@@ -722,6 +757,161 @@ export const MoreToolsPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* Mobile Floating Quick Bar */}
+      <div className="lg:hidden fixed bottom-14 left-2.5 right-2.5 z-40 bg-white/95 backdrop-blur-md rounded-2xl p-2.5 px-3.5 border border-emerald-500/25 shadow-xl flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="w-8 h-8 rounded-xl bg-emerald-50 text-[#00C060] flex items-center justify-center shrink-0 shadow-xs">
+            <Wrench className="w-4 h-4" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-black text-gray-900 truncate">
+              {filteredTools.length} Tools Available
+            </p>
+            <p className="text-[10px] text-gray-500 font-bold truncate">
+              v2.4.0 • System Ready
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button
+            type="button"
+            onClick={handleBackup}
+            className="px-2.5 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-black hover:bg-emerald-100 flex items-center gap-1 shadow-2xs"
+          >
+            <Database className="w-3 h-3 text-emerald-600" />
+            <span>Backup</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setQuickActionsOpen(true)}
+            className="px-3 py-1.5 rounded-xl bg-[#00C060] text-white text-xs font-black shadow-xs flex items-center gap-1"
+          >
+            <span>Actions</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Slide-Up Drawer for Quick Actions & System Info */}
+      {quickActionsOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 flex flex-col justify-end bg-black/50 backdrop-blur-xs animate-in fade-in">
+          <div
+            className="fixed inset-0"
+            onClick={() => setQuickActionsOpen(false)}
+          />
+          <div className="relative bg-white rounded-t-3xl shadow-2xl border-t border-gray-200 max-h-[85vh] flex flex-col p-4 z-10 animate-in slide-in-from-bottom">
+            <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-3" />
+
+            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-emerald-50 text-[#00C060] flex items-center justify-center">
+                  <span className="text-xs font-black">⚡</span>
+                </div>
+                <h3 className="text-sm font-black text-gray-900">Quick Actions & System</h3>
+              </div>
+              <button
+                onClick={() => setQuickActionsOpen(false)}
+                className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="py-3 overflow-y-auto scrollbar-none space-y-4">
+              <div className="space-y-2">
+                <button
+                  onClick={() => {
+                    handleBackup();
+                    setQuickActionsOpen(false);
+                  }}
+                  className="w-full flex items-center justify-between p-3 rounded-xl border border-gray-100 bg-gray-50 hover:bg-emerald-50 text-xs font-bold text-gray-800 transition-all text-left"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Database className="w-4 h-4 text-[#00C060]" />
+                    <span>Create Database Backup</span>
+                  </div>
+                  <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                </button>
+
+                <button
+                  onClick={() => {
+                    alert('Import Data wizard');
+                    setQuickActionsOpen(false);
+                  }}
+                  className="w-full flex items-center justify-between p-3 rounded-xl border border-gray-100 bg-gray-50 hover:bg-emerald-50 text-xs font-bold text-gray-800 transition-all text-left"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Download className="w-4 h-4 text-emerald-600" />
+                    <span>Import Data</span>
+                  </div>
+                  <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                </button>
+
+                <button
+                  onClick={() => {
+                    alert('Exporting all sales & inventory reports...');
+                    setQuickActionsOpen(false);
+                  }}
+                  className="w-full flex items-center justify-between p-3 rounded-xl border border-gray-100 bg-gray-50 hover:bg-emerald-50 text-xs font-bold text-gray-800 transition-all text-left"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Upload className="w-4 h-4 text-emerald-600" />
+                    <span>Export Reports</span>
+                  </div>
+                  <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                </button>
+
+                <button
+                  onClick={() => {
+                    setQuickActionsOpen(false);
+                    handleResetPos();
+                  }}
+                  className="w-full flex items-center justify-between p-3 rounded-xl border border-gray-100 bg-gray-50 hover:bg-emerald-50 text-xs font-bold text-gray-800 transition-all text-left"
+                >
+                  <div className="flex items-center gap-2.5">
+                    <RefreshCw className="w-4 h-4 text-[#00C060]" />
+                    <span>Reset POS Cache</span>
+                  </div>
+                  <ChevronRight className="w-3.5 h-3.5 text-gray-400" />
+                </button>
+              </div>
+
+              {/* System Info inside drawer */}
+              <div className="bg-gray-50 rounded-2xl p-3 border border-gray-100 text-xs space-y-2">
+                <div className="flex items-center justify-between pb-1.5 border-b border-gray-200/60">
+                  <span className="text-gray-500 font-semibold">POS Version</span>
+                  <span className="px-2 py-0.5 rounded-full text-[11px] font-black bg-emerald-50 text-emerald-700 border border-emerald-200">
+                    v2.4.0
+                  </span>
+                </div>
+                <div className="flex items-center justify-between pb-1.5 border-b border-gray-200/60">
+                  <span className="text-gray-500 font-semibold">Last Backup</span>
+                  <span className="text-gray-900 font-bold">Today, 10:24 AM</span>
+                </div>
+                <div className="flex items-center justify-between pb-1.5 border-b border-gray-200/60">
+                  <span className="text-gray-500 font-semibold">Database Size</span>
+                  <span className="text-gray-900 font-bold">256 MB</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-gray-500 font-semibold">Active Users</span>
+                  <span className="text-gray-900 font-bold">6</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-2 border-t border-gray-100 mt-auto">
+              <button
+                type="button"
+                onClick={() => setQuickActionsOpen(false)}
+                className="w-full py-2.5 rounded-xl border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-50 text-center"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

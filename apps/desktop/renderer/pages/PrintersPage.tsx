@@ -17,6 +17,7 @@ import {
   Check,
   X,
   Share2,
+  ChevronRight,
 } from 'lucide-react';
 
 export type PrinterType = 'kitchen' | 'billing' | 'bar' | 'other';
@@ -123,6 +124,7 @@ export const PrintersPage: React.FC = () => {
   const [autoPrint, setAutoPrint] = useState(selectedPrinter?.autoPrintNewOrders ?? true);
   const [printModifiers, setPrintModifiers] = useState(selectedPrinter?.printModifiers ?? true);
   const [cutPaper, setCutPaper] = useState(selectedPrinter?.cutPaperAfterPrint ?? true);
+  const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
 
   // Add Printer Modal
   const [addPrinterModal, setAddPrinterModal] = useState(false);
@@ -278,9 +280,9 @@ export const PrintersPage: React.FC = () => {
   return (
     <div className="flex flex-col gap-3.5 font-sans text-[#191923] select-none pb-2 h-full overflow-hidden">
       {/* Top Header Metrics Row */}
-      <div className="flex items-center gap-3 overflow-x-auto max-w-full pb-0.5 shrink-0">
+      <div className="flex items-center gap-2.5 sm:gap-3 overflow-x-auto max-w-full pb-0.5 shrink-0 scrollbar-none snap-x">
         {/* Total Printers */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-2.5 px-3.5 shadow-xs flex items-center gap-3 shrink-0 min-w-[140px]">
+        <div className="bg-white rounded-2xl border border-gray-100 p-2.5 px-3.5 shadow-xs flex items-center gap-3 shrink-0 min-w-[130px] snap-start">
           <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#00C060] flex items-center justify-center shrink-0">
             <Printer className="w-4 h-4" />
           </div>
@@ -291,7 +293,7 @@ export const PrintersPage: React.FC = () => {
         </div>
 
         {/* Online */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-2.5 px-3.5 shadow-xs flex items-center gap-3 shrink-0 min-w-[140px]">
+        <div className="bg-white rounded-2xl border border-gray-100 p-2.5 px-3.5 shadow-xs flex items-center gap-3 shrink-0 min-w-[130px] snap-start">
           <div className="w-9 h-9 rounded-xl bg-emerald-50 text-[#00C060] flex items-center justify-center shrink-0">
             <CheckCircle2 className="w-4 h-4" />
           </div>
@@ -302,7 +304,7 @@ export const PrintersPage: React.FC = () => {
         </div>
 
         {/* Offline */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-2.5 px-3.5 shadow-xs flex items-center gap-3 shrink-0 min-w-[140px]">
+        <div className="bg-white rounded-2xl border border-gray-100 p-2.5 px-3.5 shadow-xs flex items-center gap-3 shrink-0 min-w-[130px] snap-start">
           <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
             <RefreshCw className="w-4 h-4" />
           </div>
@@ -313,7 +315,7 @@ export const PrintersPage: React.FC = () => {
         </div>
 
         {/* Error */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-2.5 px-3.5 shadow-xs flex items-center gap-3 shrink-0 min-w-[140px]">
+        <div className="bg-white rounded-2xl border border-gray-100 p-2.5 px-3.5 shadow-xs flex items-center gap-3 shrink-0 min-w-[130px] snap-start">
           <div className="w-9 h-9 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0">
             <AlertTriangle className="w-4 h-4" />
           </div>
@@ -324,7 +326,7 @@ export const PrintersPage: React.FC = () => {
         </div>
 
         {/* Mapped Areas */}
-        <div className="bg-white rounded-2xl border border-gray-100 p-2.5 px-3.5 shadow-xs flex items-center gap-3 shrink-0 min-w-[140px]">
+        <div className="bg-white rounded-2xl border border-gray-100 p-2.5 px-3.5 shadow-xs flex items-center gap-3 shrink-0 min-w-[130px] snap-start">
           <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
             <Layers className="w-4 h-4" />
           </div>
@@ -335,10 +337,41 @@ export const PrintersPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Mobile Categories Selector Bar */}
+      <div className="md:hidden flex items-center gap-1.5 overflow-x-auto scrollbar-none snap-x py-1 shrink-0">
+        {[
+          { id: 'all', label: 'All Printers', icon: Printer, count: counts.total },
+          { id: 'kitchen', label: 'Kitchen (KOT)', icon: Home, count: counts.kitchen },
+          { id: 'billing', label: 'Billing / Counter', icon: Monitor, count: counts.billing },
+          { id: 'bar', label: 'Bar', icon: Wine, count: counts.bar },
+          { id: 'other', label: 'Others', icon: Layers, count: counts.other },
+        ].map((cat) => {
+          const Icon = cat.icon;
+          const isActive = activeCategory === cat.id;
+          return (
+            <button
+              key={cat.id}
+              onClick={() => setActiveCategory(cat.id as PrinterType | 'all')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all snap-start shrink-0 ${
+                isActive
+                  ? 'bg-[#00C060] text-white shadow-xs'
+                  : 'bg-white text-gray-700 border border-gray-200 hover:bg-gray-50'
+              }`}
+            >
+              <Icon className="w-3.5 h-3.5" />
+              <span>{cat.label}</span>
+              <span className={`text-[10px] ${isActive ? 'text-white/80' : 'text-gray-400'}`}>
+                ({cat.count})
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
       {/* Main 3-Column Layout: Categories Sidebar (Left) + Printers Table (Center) + Printer Settings (Right) */}
       <div className="flex-1 min-h-0 flex gap-3.5 overflow-hidden">
-        {/* Left Categories Sidebar */}
-        <div className="w-[180px] xl:w-[200px] bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col p-3 shrink-0 h-full overflow-hidden">
+        {/* Left Categories Sidebar (Desktop) */}
+        <div className="hidden md:flex w-[180px] xl:w-[200px] bg-white rounded-2xl border border-gray-200 shadow-sm flex-col p-3 shrink-0 h-full overflow-hidden">
           <div className="flex-1 space-y-1">
             <button
               onClick={() => setActiveCategory('all')}
@@ -442,8 +475,8 @@ export const PrintersPage: React.FC = () => {
               </button>
             </div>
 
-            {/* Table */}
-            <div className="flex-1 overflow-y-auto pt-2">
+            {/* Desktop Table */}
+            <div className="hidden md:block flex-1 overflow-y-auto scrollbar-none pt-2">
               <table className="w-full text-left text-xs border-collapse">
                 <thead className="sticky top-0 bg-white border-b border-gray-100 z-10 text-gray-400 font-bold">
                   <tr>
@@ -518,10 +551,66 @@ export const PrintersPage: React.FC = () => {
                 </tbody>
               </table>
             </div>
+
+            {/* Mobile Printer Cards */}
+            <div className="md:hidden flex-1 overflow-y-auto scrollbar-none pt-2 space-y-2.5 pb-24">
+              {filteredPrinters.length === 0 ? (
+                <div className="p-8 text-center text-gray-400">
+                  <Printer className="w-8 h-8 mx-auto text-gray-300 mb-2" />
+                  <p className="text-xs font-bold text-gray-600">No printers found</p>
+                </div>
+              ) : (
+                filteredPrinters.map((p) => {
+                  const isSelected = selectedPrinter?.id === p.id;
+                  return (
+                    <div
+                      key={p.id}
+                      onClick={() => {
+                        handleSelectPrinter(p);
+                        setMobileDrawerOpen(true);
+                      }}
+                      className={`p-3 rounded-2xl border transition-all cursor-pointer ${
+                        isSelected
+                          ? 'bg-[#E7F9F0]/60 border-[#00C060] shadow-xs'
+                          : 'bg-white border-gray-100 hover:border-gray-200 shadow-2xs'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex items-center gap-2.5 min-w-0">
+                          <div className="w-9 h-9 rounded-xl bg-gray-900 text-white flex items-center justify-center p-1 shrink-0 shadow-xs">
+                            <Printer className="w-4.5 h-4.5 text-gray-200" />
+                          </div>
+                          <div className="min-w-0">
+                            <h4 className="font-black text-xs text-gray-900 truncate">{p.name}</h4>
+                            <p className="text-[10px] text-gray-400 font-medium truncate">{p.model}</p>
+                          </div>
+                        </div>
+                        <div className="shrink-0">{getStatusBadge(p.status)}</div>
+                      </div>
+
+                      <div className="mt-2.5 pt-2 border-t border-gray-100 flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-2 text-[11px] font-semibold text-gray-600">
+                          {getTypeBadge(p.type)}
+                          <span className="flex items-center gap-1 text-[11px] text-gray-500">
+                            {p.connection === 'wifi' ? (
+                              <Wifi className="w-3 h-3 text-emerald-500" />
+                            ) : (
+                              <Usb className="w-3 h-3 text-gray-500" />
+                            )}
+                            <span className="truncate max-w-[100px]">{p.endpoint}</span>
+                          </span>
+                        </div>
+                        <span className="text-[11px] font-bold text-gray-800">{p.assignedTo}</span>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
           </div>
 
           {/* Bottom Printer Mapping Banner */}
-          <div className="bg-[#E7F9F0]/70 border border-[#00C060]/30 rounded-2xl p-3 px-4 flex items-center justify-between shrink-0">
+          <div className="hidden sm:flex bg-[#E7F9F0]/70 border border-[#00C060]/30 rounded-2xl p-3 px-4 items-center justify-between shrink-0">
             <div className="flex items-center gap-2.5">
               <div className="w-7 h-7 rounded-full bg-[#00C060] text-white flex items-center justify-center shrink-0 text-xs font-bold">
                 i
@@ -545,7 +634,7 @@ export const PrintersPage: React.FC = () => {
         </div>
 
         {/* Right Detail Sidebar: Printer Settings */}
-        <div className="w-[300px] xl:w-[330px] bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col p-4 shrink-0 h-full overflow-hidden">
+        <div className="hidden lg:flex w-[300px] xl:w-[330px] bg-white rounded-2xl border border-gray-200 shadow-sm flex-col p-4 shrink-0 h-full overflow-hidden">
           {selectedPrinter ? (
             <div className="flex flex-col h-full min-h-0">
               {/* Profile Card Header */}
@@ -743,6 +832,256 @@ export const PrintersPage: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Mobile Floating Printer Quick Bar */}
+      <div className="md:hidden fixed bottom-14 left-2.5 right-2.5 z-40 bg-white/95 backdrop-blur-md rounded-2xl p-2.5 px-3.5 border border-emerald-500/25 shadow-xl flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 rounded-xl bg-gray-900 text-white flex items-center justify-center shrink-0 shadow-xs">
+            <Printer className="w-4 h-4 text-emerald-400" />
+          </div>
+          <div className="min-w-0">
+            <p className="text-xs font-black text-gray-900 truncate">
+              {selectedPrinter ? selectedPrinter.name : `${printers.length} Printers`}
+            </p>
+            <p className="text-[10px] text-gray-500 font-bold truncate">
+              {selectedPrinter ? `Assigned: ${selectedPrinter.assignedTo}` : 'Tap printer to edit'}
+            </p>
+          </div>
+        </div>
+        <div className="flex items-center gap-1.5 shrink-0">
+          {selectedPrinter && (
+            <button
+              type="button"
+              onClick={handleTestPrint}
+              className="px-2.5 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-black hover:bg-emerald-100 flex items-center gap-1 shadow-2xs"
+            >
+              <Printer className="w-3 h-3 text-emerald-600" />
+              <span>Test</span>
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => {
+              if (selectedPrinter) {
+                setMobileDrawerOpen(true);
+              } else if (filteredPrinters[0]) {
+                handleSelectPrinter(filteredPrinters[0]);
+                setMobileDrawerOpen(true);
+              } else {
+                setAddPrinterModal(true);
+              }
+            }}
+            className="px-3 py-1.5 rounded-xl bg-[#00C060] text-white text-xs font-black shadow-xs flex items-center gap-1"
+          >
+            <span>{selectedPrinter ? 'Configure' : 'Add'}</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Slide-Up Drawer for Printer Settings */}
+      {mobileDrawerOpen && selectedPrinter && (
+        <div className="lg:hidden fixed inset-0 z-50 flex flex-col justify-end bg-black/50 backdrop-blur-xs animate-in fade-in">
+          <div
+            className="fixed inset-0"
+            onClick={() => setMobileDrawerOpen(false)}
+          />
+          <div className="relative bg-white rounded-t-3xl shadow-2xl border-t border-gray-200 max-h-[88vh] flex flex-col p-4 z-10 animate-in slide-in-from-bottom">
+            <div className="w-12 h-1 bg-gray-300 rounded-full mx-auto mb-3" />
+
+            <div className="flex items-start justify-between pb-3 border-b border-gray-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-xl bg-gray-900 text-white flex items-center justify-center shrink-0 p-1.5 shadow-xs">
+                  <Printer className="w-5 h-5 text-gray-200" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-black text-gray-900 leading-tight">
+                    {selectedPrinter.name}
+                  </h3>
+                  <p className="text-[11px] text-gray-400 font-medium mt-0.5">
+                    {selectedPrinter.model}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {getStatusBadge(selectedPrinter.status)}
+                <button
+                  onClick={() => setMobileDrawerOpen(false)}
+                  className="w-7 h-7 rounded-full bg-gray-100 flex items-center justify-center text-gray-500 hover:bg-gray-200"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Info Grid */}
+            <div className="py-2.5 border-b border-gray-100 grid grid-cols-3 gap-1.5 text-center">
+              <div className="bg-gray-50/80 rounded-xl p-1.5 border border-gray-100 flex flex-col items-center">
+                <Home className="w-3 h-3 text-amber-500 mb-0.5" />
+                <span className="text-[9px] text-gray-400 font-bold">Type</span>
+                <span className="text-[11px] font-black text-gray-800 truncate">
+                  {selectedPrinter.typeLabel}
+                </span>
+              </div>
+              <div className="bg-gray-50/80 rounded-xl p-1.5 border border-gray-100 flex flex-col items-center">
+                <Wifi className="w-3 h-3 text-emerald-500 mb-0.5" />
+                <span className="text-[9px] text-gray-400 font-bold">Connection</span>
+                <span className="text-[11px] font-black text-gray-800 capitalize">
+                  {selectedPrinter.connection}
+                </span>
+              </div>
+              <div className="bg-gray-50/80 rounded-xl p-1.5 border border-gray-100 flex flex-col items-center">
+                <Monitor className="w-3 h-3 text-gray-400 mb-0.5" />
+                <span className="text-[9px] text-gray-400 font-bold">IP Address</span>
+                <span className="text-[10px] font-black text-gray-800 truncate">
+                  {selectedPrinter.endpoint}
+                </span>
+              </div>
+            </div>
+
+            {/* Settings Form inside Drawer */}
+            <div className="py-2.5 flex-1 min-h-0 overflow-y-auto scrollbar-none space-y-3 text-xs">
+              <h4 className="font-black text-gray-900 text-xs">Printer Settings</h4>
+
+              <div>
+                <label className="text-[11px] font-bold text-gray-700 block mb-1">
+                  Assigned To <span className="text-rose-500">*</span>
+                </label>
+                <div className="relative">
+                  <select
+                    value={assignedTo}
+                    onChange={(e) => setAssignedTo(e.target.value)}
+                    className="w-full appearance-none p-2 pr-7 rounded-xl border border-gray-200 text-xs font-semibold focus:outline-none bg-white cursor-pointer"
+                  >
+                    <option>Kitchen KOT</option>
+                    <option>POS / Bills</option>
+                    <option>Beverages</option>
+                    <option>Not Assigned</option>
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-gray-700 block mb-1">Paper Size</label>
+                <div className="relative">
+                  <select
+                    value={paperSize}
+                    onChange={(e) => setPaperSize(e.target.value)}
+                    className="w-full appearance-none p-2 pr-7 rounded-xl border border-gray-200 text-xs font-semibold focus:outline-none bg-white cursor-pointer"
+                  >
+                    <option>80 mm (Thermal)</option>
+                    <option>58 mm (Thermal)</option>
+                    <option>A4</option>
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[11px] font-bold text-gray-700 block mb-1">Print Format</label>
+                <div className="relative">
+                  <select
+                    value={printFormat}
+                    onChange={(e) => setPrintFormat(e.target.value)}
+                    className="w-full appearance-none p-2 pr-7 rounded-xl border border-gray-200 text-xs font-semibold focus:outline-none bg-white cursor-pointer"
+                  >
+                    <option>KOT (Kitchen Order Ticket)</option>
+                    <option>Tax Invoice (Bill)</option>
+                    <option>Bar KOT</option>
+                    <option>Standard Bill</option>
+                  </select>
+                  <ChevronDown className="w-3.5 h-3.5 text-gray-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                </div>
+              </div>
+
+              <div className="space-y-2 pt-1 border-t border-gray-100">
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-gray-700">Auto Print New Orders</span>
+                  <button
+                    onClick={() => setAutoPrint(!autoPrint)}
+                    className={`w-8 h-4.5 rounded-full p-0.5 transition-colors relative ${
+                      autoPrint ? 'bg-[#00C060]' : 'bg-gray-300'
+                    }`}
+                  >
+                    <div
+                      className={`w-3.5 h-3.5 rounded-full bg-white transition-transform ${
+                        autoPrint ? 'translate-x-3.5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-gray-700">Print Modifiers & Notes</span>
+                  <button
+                    onClick={() => setPrintModifiers(!printModifiers)}
+                    className={`w-8 h-4.5 rounded-full p-0.5 transition-colors relative ${
+                      printModifiers ? 'bg-[#00C060]' : 'bg-gray-300'
+                    }`}
+                  >
+                    <div
+                      className={`w-3.5 h-3.5 rounded-full bg-white transition-transform ${
+                        printModifiers ? 'translate-x-3.5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+
+                <div className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-gray-700">Cut Paper After Print</span>
+                  <button
+                    onClick={() => setCutPaper(!cutPaper)}
+                    className={`w-8 h-4.5 rounded-full p-0.5 transition-colors relative ${
+                      cutPaper ? 'bg-[#00C060]' : 'bg-gray-300'
+                    }`}
+                  >
+                    <div
+                      className={`w-3.5 h-3.5 rounded-full bg-white transition-transform ${
+                        cutPaper ? 'translate-x-3.5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom Actions inside Drawer */}
+            <div className="pt-3 border-t border-gray-100 space-y-2 mt-auto">
+              <button
+                type="button"
+                onClick={handleTestPrint}
+                className="w-full py-2 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl text-xs font-black hover:bg-emerald-100 flex items-center justify-center gap-1.5 transition-all"
+              >
+                <Printer className="w-3.5 h-3.5 text-emerald-600" />
+                <span>Test Print</span>
+              </button>
+
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setMobileDrawerOpen(false)}
+                  className="py-2.5 rounded-xl border border-gray-200 text-xs font-bold text-gray-700 hover:bg-gray-50 text-center"
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleSaveChanges();
+                    setMobileDrawerOpen(false);
+                  }}
+                  className="py-2.5 rounded-xl bg-[#00C060] text-white text-xs font-black hover:bg-[#00a854] shadow-xs flex items-center justify-center gap-1.5"
+                >
+                  <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Add Printer Modal */}
       {addPrinterModal && (
