@@ -1891,7 +1891,7 @@ const OrderTypePicker = ({
       </button>
 
       {open && (
-        <div className="pos-pop absolute left-0 top-full mt-1.5 w-44 bg-white rounded-xl border border-slate-100 shadow-xl p-1 z-40 space-y-0.5">
+        <div className="pos-pop fixed sm:absolute left-3 right-3 sm:left-0 sm:right-auto top-28 sm:top-full mt-1.5 sm:w-44 bg-white rounded-xl border border-slate-100 shadow-2xl p-1 z-50 space-y-0.5">
           {options.map((opt) => {
             const active = opt.id === orderType;
             const Icon = opt.icon;
@@ -1951,7 +1951,7 @@ const TablePicker = ({ tables, tableId, tableName, disabled, onPick }: { tables:
         <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${open ? 'rotate-180 text-emerald-600' : ''}`} />
       </button>
       {open && (
-        <div className="pos-pop fixed sm:absolute left-3 right-3 sm:left-0 sm:right-auto top-auto sm:top-full mt-1.5 sm:w-[340px] max-h-[60dvh] overflow-y-auto pos-scroll bg-white rounded-xl border border-slate-100 shadow-2xl p-2.5 z-40">
+        <div className="pos-pop fixed sm:absolute left-3 right-3 sm:left-0 sm:right-auto top-28 sm:top-full mt-1.5 sm:w-[340px] max-h-[60dvh] overflow-y-auto pos-scroll bg-white rounded-xl border border-slate-100 shadow-2xl p-2.5 z-50">
           {tables.length === 0 && <p className="text-xs text-slate-400 p-2">No tables configured.</p>}
           {Object.entries(sections).map(([sec, list]) => (
             <div key={sec} className="mb-2 last:mb-0">
@@ -2010,20 +2010,23 @@ const GuestPicker = ({ guests, setGuests }: { guests: number; setGuests: (n: num
         <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${open ? 'rotate-180 text-emerald-600' : ''}`} />
       </button>
       {open && (
-        <div className="pos-pop absolute left-0 sm:right-0 sm:left-auto top-full mt-1.5 w-52 bg-white rounded-xl border border-slate-100 shadow-2xl p-2.5 z-40">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[11px] font-bold text-slate-500">Guests</span>
+        <div className="pos-pop fixed sm:absolute left-3 right-3 sm:left-auto sm:right-0 top-28 sm:top-full mt-1.5 sm:w-56 bg-white rounded-xl border border-slate-100 shadow-2xl p-3 z-50">
+          <div className="flex items-center justify-between mb-2.5">
+            <span className="text-xs font-black text-slate-700">Number of Guests</span>
             <Stepper qty={guests} onDec={() => setGuests(Math.max(1, guests - 1))} onInc={() => setGuests(Math.min(50, guests + 1))} size="xs" />
           </div>
-          <div className="grid grid-cols-5 gap-1">
+          <div className="grid grid-cols-5 gap-1.5">
             {[1, 2, 3, 4, 5, 6, 8, 10, 12, 15].map((n) => (
               <button
                 key={n}
-                onClick={() => (setGuests(n), setOpen(false))}
-                className={`py-1 rounded-md text-[11px] font-black border transition ${
+                onClick={() => {
+                  setGuests(n);
+                  setOpen(false);
+                }}
+                className={`py-1.5 rounded-lg text-xs font-black border transition ${
                   n === guests
                     ? 'bg-[#00C060] text-white border-[#00C060] shadow-xs'
-                    : 'border-slate-200/80 text-slate-700 hover:border-emerald-300 hover:text-[#00C060]'
+                    : 'border-slate-200/80 text-slate-700 hover:border-emerald-300 hover:text-[#00C060] hover:bg-emerald-50/50'
                 }`}
               >
                 {n}
