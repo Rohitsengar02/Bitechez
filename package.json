@@ -6,6 +6,14 @@
   "author": "CyberLim Solutions",
   "license": "UNLICENSED",
   "packageManager": "pnpm@12.16.1",
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "better-sqlite3",
+      "core-js",
+      "electron",
+      "esbuild"
+    ]
+  },
   "scripts": {
     "dev": "turbo run dev",
     "dev:desktop": "turbo run dev --filter=@bitechez/desktop",
