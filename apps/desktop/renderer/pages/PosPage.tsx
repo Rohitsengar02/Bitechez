@@ -1184,22 +1184,72 @@ export const PosPage: React.FC = () => {
 
         {/* Right side of the left sidebar: Top controls + Menu items grid */}
         <div className="flex-1 min-w-0 flex flex-col gap-2.5 h-full overflow-hidden">
-          {/* Top Controls Row matching reference image: just to the right of the categories sidebar */}
-          <div className="flex items-center gap-2.5 shrink-0 py-0.5">
-            {/* Order Type Dropdown */}
-            <OrderTypePicker orderType={orderType as OrderTypeKey} onChange={(t) => setOrderType(t)} />
+          {/* Top Controls Row matching reference image: Order Type, Table, Guests, Search, Category carousel on mobile */}
+          <div className="flex flex-col gap-2 shrink-0 py-0.5">
+            {/* Top selectors row (Carousel on small screens) */}
+            <div className="flex items-center gap-2 overflow-x-auto scrollbar-none snap-x snap-mandatory py-1">
+              {/* Order Type Dropdown */}
+              <div className="shrink-0 snap-start">
+                <OrderTypePicker orderType={orderType as OrderTypeKey} onChange={(t) => setOrderType(t)} />
+              </div>
 
-            {/* Table Picker */}
-            <TablePicker tables={tables} tableId={tableId} tableName={tableName} disabled={orderType !== 'dine_in'} onPick={(t) => setTable(t?.id, t?.name)} />
+              {/* Table Picker */}
+              <div className="shrink-0 snap-start">
+                <TablePicker tables={tables} tableId={tableId} tableName={tableName} disabled={orderType !== 'dine_in'} onPick={(t) => setTable(t?.id, t?.name)} />
+              </div>
 
-            {/* Guests Picker */}
-            <GuestPicker guests={guests} setGuests={setGuests} />
+              {/* Guests Picker */}
+              <div className="shrink-0 snap-start">
+                <GuestPicker guests={guests} setGuests={setGuests} />
+              </div>
+
+              {/* Search bar on mobile / compact */}
+              <div className="relative shrink-0 w-36 sm:w-48 snap-start">
+                <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <input
+                  ref={searchRef}
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search item..."
+                  className="w-full pl-7 pr-2 py-1.5 rounded-xl border border-slate-200/90 text-xs focus:outline-none focus:border-[#00C060] bg-white"
+                />
+              </div>
+            </div>
+
+            {/* Mobile Categories Carousel (Visible on mobile/tablet when sidebar is hidden) */}
+            <div className="md:hidden flex items-center gap-1.5 overflow-x-auto scrollbar-none snap-x snap-mandatory pb-1">
+              {[
+                { id: 'all', name: 'All Items', count: menuItems.length, Icon: LayoutGrid },
+                { id: 'fav', name: 'Favourites', count: favorites.length, Icon: Heart },
+                ...categories.map((c) => ({ id: c.id, name: c.name, count: catCount[c.id] ?? 0, Icon: catIcon(c.name) })),
+              ].map((c) => {
+                const active = selectedCategory === c.id;
+                return (
+                  <button
+                    key={c.id}
+                    onClick={() => setSelectedCategory(c.id)}
+                    className={`shrink-0 snap-start flex items-center gap-1 px-3 py-1.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap ${
+                      active
+                        ? 'bg-[#00C060] text-white shadow-xs'
+                        : 'bg-white border border-slate-200/80 text-slate-600 hover:border-emerald-200'
+                    }`}
+                  >
+                    <c.Icon className={`w-3.5 h-3.5 ${active ? 'text-white' : 'text-slate-400'}`} />
+                    <span>{c.name}</span>
+                    <span className={`text-[10px] ${active ? 'text-white/80' : 'text-slate-400'}`}>
+                      ({c.count})
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
 
           {/* Items Section */}
           <section className="flex-1 min-w-0 flex flex-col gap-2 h-full overflow-hidden">
             {/* Optimized compact cards grid: 4 to 5 cards per row */}
-            <div className="flex-1 min-h-0 overflow-y-auto pos-scroll pr-1 pb-4">
+            <div className="flex-1 min-h-0 overflow-y-auto pos-scroll pr-1 pb-28 md:pb-4">
               {loading ? (
                 <div className="grid gap-2.5 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5">
                   {Array.from({ length: 10 }).map((_, i) => (
@@ -1272,7 +1322,7 @@ export const PosPage: React.FC = () => {
         </div>
 
         {/* Cart lines (scrollable) */}
-        <div className="flex-1 min-h-0 overflow-y-auto pos-scroll px-2.5 divide-y divide-slate-100/70">
+        <div className="flex-1 min-h-0 overflow-y-auto pos-scroll px-2.5 divide-y divide-slate-100/70 pb-20 lg:pb-0">
           {cart.length === 0 ? (
             <Empty icon={<Utensils className="w-6 h-6" />} title="Cart is empty" sub="Tap any item to start billing" />
           ) : (
@@ -1380,6 +1430,35 @@ export const PosPage: React.FC = () => {
           </div>
         </div>
       </aside>
+
+      {/* ================= MOBILE FLOATING ORDER BAR (Above bottom navbar) ================= */}
+      {cart.length > 0 && !cartOpen && (
+        <div className="lg:hidden fixed bottom-14 left-3 right-3 z-40 animate-bounce-short">
+          <button
+            onClick={() => setCartOpen(true)}
+            className="w-full bg-[#00C060] text-white p-3 rounded-2xl shadow-xl flex items-center justify-between active:scale-[0.99] transition-all border border-emerald-400"
+          >
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center font-black text-xs">
+                {cartCount}
+              </div>
+              <div className="text-left">
+                <span className="text-xs font-black block leading-tight">View Current Order</span>
+                <span className="text-[10px] text-emerald-100 font-semibold block leading-none">
+                  {orderType.toUpperCase()} {tableName ? `• T-${tableName}` : ''}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-black tracking-tight">{formatINR(total)}</span>
+              <span className="px-2.5 py-1 bg-white text-[#00C060] text-xs font-black rounded-xl shadow-xs">
+                Checkout →
+              </span>
+            </div>
+          </button>
+        </div>
+      )}
 
       {/* ================= MODALS ================= */}
 
