@@ -12,6 +12,7 @@
     "dev:server": "turbo run dev --filter=@bitechez/local-server",
     "dev:cloud": "turbo run dev --filter=@bitechez/cloud-api",
     "build": "turbo run build",
+    "build:web": "pnpm --filter @bitechez/desktop run build:web",
     "test": "turbo run test",
     "lint": "turbo run lint",
     "check-types": "turbo run check-types",

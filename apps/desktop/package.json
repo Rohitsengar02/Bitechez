@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build && electron-builder --dir",
+    "build:web": "tsc && vite build",
     "build:win": "tsc && vite build && electron-builder --win",
     "check-types": "tsc --noEmit"
   },

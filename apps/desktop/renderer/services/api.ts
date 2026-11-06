@@ -12,29 +12,28 @@ const MOCK_CATEGORIES: Category[] = [
 ];
 
 const MOCK_ITEMS: MenuItem[] = [
-  { id: 'item-1', outletId: OUTLET_ID, categoryId: 'cat-1', name: 'Paneer Tikka Charcoal Grilled', shortCode: 'PTK', basePricePaise: 28000, isVeg: true, isAvailable: true, gstRate: 5, createdAt: '', updatedAt: '' },
-  { id: 'item-2', outletId: OUTLET_ID, categoryId: 'cat-1', name: 'Crispy Corn & Water Chestnut', shortCode: 'CRN', basePricePaise: 24000, isVeg: true, isAvailable: true, gstRate: 5, createdAt: '', updatedAt: '' },
-  { id: 'item-3', outletId: OUTLET_ID, categoryId: 'cat-1', name: 'Chicken Seekh Kebab Melt', shortCode: 'CSK', basePricePaise: 34000, isVeg: false, isAvailable: true, gstRate: 5, createdAt: '', updatedAt: '' },
-  { id: 'item-4', outletId: OUTLET_ID, categoryId: 'cat-2', name: 'Paneer Butter Masala Royal', shortCode: 'PBM', basePricePaise: 32000, isVeg: true, isAvailable: true, gstRate: 5, createdAt: '', updatedAt: '' },
-  { id: 'item-5', outletId: OUTLET_ID, categoryId: 'cat-2', name: 'Dal Makhani Bukhara Style', shortCode: 'DMK', basePricePaise: 29000, isVeg: true, isAvailable: true, gstRate: 5, createdAt: '', updatedAt: '' },
-  { id: 'item-6', outletId: OUTLET_ID, categoryId: 'cat-2', name: 'Butter Chicken Delhi Special', shortCode: 'BCK', basePricePaise: 39000, isVeg: false, isAvailable: true, gstRate: 5, createdAt: '', updatedAt: '' },
-  { id: 'item-7', outletId: OUTLET_ID, categoryId: 'cat-2', name: 'Hyderabadi Dum Biryani', shortCode: 'HDB', basePricePaise: 36000, isVeg: false, isAvailable: true, gstRate: 5, createdAt: '', updatedAt: '' },
-  { id: 'item-8', outletId: OUTLET_ID, categoryId: 'cat-3', name: 'Butter Garlic Naan', shortCode: 'BGN', basePricePaise: 9000, isVeg: true, isAvailable: true, gstRate: 5, createdAt: '', updatedAt: '' },
-  { id: 'item-9', outletId: OUTLET_ID, categoryId: 'cat-3', name: 'Amritsari Kulcha', shortCode: 'AMK', basePricePaise: 12000, isVeg: true, isAvailable: true, gstRate: 5, createdAt: '', updatedAt: '' },
-  { id: 'item-10', outletId: OUTLET_ID, categoryId: 'cat-4', name: 'Fresh Lime Soda (Sweet/Salt)', shortCode: 'FLS', basePricePaise: 11000, isVeg: true, isAvailable: true, gstRate: 12, createdAt: '', updatedAt: '' },
-  { id: 'item-11', outletId: OUTLET_ID, categoryId: 'cat-4', name: 'Masala Cold Brew Cooler', shortCode: 'MCB', basePricePaise: 16000, isVeg: true, isAvailable: true, gstRate: 12, createdAt: '', updatedAt: '' },
-  { id: 'item-12', outletId: OUTLET_ID, categoryId: 'cat-5', name: 'Gulab Jamun with Rabri', shortCode: 'GJR', basePricePaise: 15000, isVeg: true, isAvailable: true, gstRate: 5, createdAt: '', updatedAt: '' },
+  { id: 'item-1', outletId: OUTLET_ID, categoryId: 'cat-1', name: 'Paneer Tikka Charcoal Grilled', shortCode: 'PTK', basePricePaise: 28000, isVeg: true, isAvailable: true, gstRate: 5, imageUrl: 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=500&auto=format&fit=crop&q=80', createdAt: '', updatedAt: '' },
+  { id: 'item-2', outletId: OUTLET_ID, categoryId: 'cat-1', name: 'Crispy Corn & Water Chestnut', shortCode: 'CRN', basePricePaise: 24000, isVeg: true, isAvailable: true, gstRate: 5, imageUrl: 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=500&auto=format&fit=crop&q=80', createdAt: '', updatedAt: '' },
+  { id: 'item-3', outletId: OUTLET_ID, categoryId: 'cat-1', name: 'Chicken Seekh Kebab Melt', shortCode: 'CSK', basePricePaise: 34000, isVeg: false, isAvailable: true, gstRate: 5, imageUrl: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=500&auto=format&fit=crop&q=80', createdAt: '', updatedAt: '' },
+  { id: 'item-4', outletId: OUTLET_ID, categoryId: 'cat-2', name: 'Paneer Butter Masala Royal', shortCode: 'PBM', basePricePaise: 32000, isVeg: true, isAvailable: true, gstRate: 5, imageUrl: 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=500&auto=format&fit=crop&q=80', createdAt: '', updatedAt: '' },
+  { id: 'item-5', outletId: OUTLET_ID, categoryId: 'cat-2', name: 'Dal Makhani Bukhara Style', shortCode: 'DMK', basePricePaise: 29000, isVeg: true, isAvailable: true, gstRate: 5, imageUrl: 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500&auto=format&fit=crop&q=80', createdAt: '', updatedAt: '' },
+  { id: 'item-6', outletId: OUTLET_ID, categoryId: 'cat-2', name: 'Butter Chicken Delhi Special', shortCode: 'BCK', basePricePaise: 39000, isVeg: false, isAvailable: true, gstRate: 5, imageUrl: 'https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?w=500&auto=format&fit=crop&q=80', createdAt: '', updatedAt: '' },
+  { id: 'item-7', outletId: OUTLET_ID, categoryId: 'cat-2', name: 'Hyderabadi Dum Biryani', shortCode: 'HDB', basePricePaise: 36000, isVeg: false, isAvailable: true, gstRate: 5, imageUrl: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=500&auto=format&fit=crop&q=80', createdAt: '', updatedAt: '' },
+  { id: 'item-8', outletId: OUTLET_ID, categoryId: 'cat-3', name: 'Butter Garlic Naan', shortCode: 'BGN', basePricePaise: 9000, isVeg: true, isAvailable: true, gstRate: 5, imageUrl: 'https://images.unsplash.com/photo-1626074353765-517a681e40be?w=500&auto=format&fit=crop&q=80', createdAt: '', updatedAt: '' },
+  { id: 'item-9', outletId: OUTLET_ID, categoryId: 'cat-3', name: 'Amritsari Kulcha', shortCode: 'AMK', basePricePaise: 12000, isVeg: true, isAvailable: true, gstRate: 5, imageUrl: 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=500&auto=format&fit=crop&q=80', createdAt: '', updatedAt: '' },
+  { id: 'item-10', outletId: OUTLET_ID, categoryId: 'cat-4', name: 'Fresh Lime Soda (Sweet/Salt)', shortCode: 'FLS', basePricePaise: 11000, isVeg: true, isAvailable: true, gstRate: 12, imageUrl: 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=500&auto=format&fit=crop&q=80', createdAt: '', updatedAt: '' },
+  { id: 'item-11', outletId: OUTLET_ID, categoryId: 'cat-4', name: 'Masala Cold Brew Cooler', shortCode: 'MCB', basePricePaise: 16000, isVeg: true, isAvailable: true, gstRate: 12, imageUrl: 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=500&auto=format&fit=crop&q=80', createdAt: '', updatedAt: '' },
+  { id: 'item-12', outletId: OUTLET_ID, categoryId: 'cat-5', name: 'Gulab Jamun with Rabri', shortCode: 'GJR', basePricePaise: 15000, isVeg: true, isAvailable: true, gstRate: 5, imageUrl: 'https://images.unsplash.com/photo-1589119908995-c6837fa14848?w=500&auto=format&fit=crop&q=80', createdAt: '', updatedAt: '' },
 ];
 
 let localTables: RestaurantTable[] = [
-  { id: 'tbl-1', outletId: OUTLET_ID, name: 'T-01', section: 'AC Hall', capacity: 4, status: 'available', updatedAt: '' },
-  { id: 'tbl-2', outletId: OUTLET_ID, name: 'T-02', section: 'AC Hall', capacity: 2, status: 'available', updatedAt: '' },
-  { id: 'tbl-3', outletId: OUTLET_ID, name: 'T-03', section: 'AC Hall', capacity: 6, status: 'available', updatedAt: '' },
-  { id: 'tbl-4', outletId: OUTLET_ID, name: 'T-04', section: 'AC Hall', capacity: 4, status: 'available', updatedAt: '' },
-  { id: 'tbl-5', outletId: OUTLET_ID, name: 'T-05', section: 'Rooftop Terrace', capacity: 4, status: 'available', updatedAt: '' },
-  { id: 'tbl-6', outletId: OUTLET_ID, name: 'T-06', section: 'Rooftop Terrace', capacity: 8, status: 'available', updatedAt: '' },
-  { id: 'tbl-7', outletId: OUTLET_ID, name: 'T-07', section: 'Family Lounge', capacity: 6, status: 'available', updatedAt: '' },
-  { id: 'tbl-8', outletId: OUTLET_ID, name: 'T-08', section: 'Family Lounge', capacity: 4, status: 'available', updatedAt: '' },
+  { id: 'tbl-1', outletId: OUTLET_ID, name: 'T-01', section: 'Floor 1', capacity: 2, status: 'available', updatedAt: '' },
+  { id: 'tbl-2', outletId: OUTLET_ID, name: 'T-02', section: 'Floor 1', capacity: 4, status: 'available', updatedAt: '' },
+  { id: 'tbl-3', outletId: OUTLET_ID, name: 'T-03', section: 'Floor 1', capacity: 2, status: 'available', updatedAt: '' },
+  { id: 'tbl-4', outletId: OUTLET_ID, name: 'T-04', section: 'Floor 1', capacity: 6, status: 'available', updatedAt: '' },
+  { id: 'tbl-5', outletId: OUTLET_ID, name: 'T-05', section: 'Floor 1', capacity: 4, status: 'available', updatedAt: '' },
+  { id: 'tbl-6', outletId: OUTLET_ID, name: 'T-06', section: 'Floor 1', capacity: 2, status: 'available', updatedAt: '' },
+  { id: 'tbl-7', outletId: OUTLET_ID, name: 'T-07', section: 'Floor 1', capacity: 4, status: 'available', updatedAt: '' },
 ];
 
 let localOrders: Order[] = [];

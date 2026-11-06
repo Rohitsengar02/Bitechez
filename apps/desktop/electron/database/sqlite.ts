@@ -236,24 +236,24 @@ function seedDefaultData(db: Database.Database) {
   insertCat.run(catBeverages, outletId, 'Beverages & Mocktails', 4, 1);
   insertCat.run(catDesserts, outletId, 'Desserts', 5, 1);
 
-  // Items
+  // Items with high quality food images
   const insertItem = db.prepare(`
-    INSERT INTO items (id, outlet_id, category_id, name, short_code, base_price_paise, is_veg, is_available, gst_rate, created_at, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    INSERT INTO items (id, outlet_id, category_id, name, short_code, base_price_paise, is_veg, is_available, gst_rate, image_url, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `);
 
-  insertItem.run('item-1', outletId, catStarters, 'Paneer Tikka Charcoal Grilled', 'PTK', 28000, 1, 1, 5, now, now);
-  insertItem.run('item-2', outletId, catStarters, 'Crispy Corn & Water Chestnut', 'CRN', 24000, 1, 1, 5, now, now);
-  insertItem.run('item-3', outletId, catStarters, 'Chicken Seekh Kebab Melt', 'CSK', 34000, 0, 1, 5, now, now);
-  insertItem.run('item-4', outletId, catMains, 'Paneer Butter Masala Royal', 'PBM', 32000, 1, 1, 5, now, now);
-  insertItem.run('item-5', outletId, catMains, 'Dal Makhani Bukhara Style', 'DMK', 29000, 1, 1, 5, now, now);
-  insertItem.run('item-6', outletId, catMains, 'Butter Chicken Delhi Special', 'BCK', 39000, 0, 1, 5, now, now);
-  insertItem.run('item-7', outletId, catMains, 'Hyderabadi Dum Biryani', 'HDB', 36000, 0, 1, 5, now, now);
-  insertItem.run('item-8', outletId, catBreads, 'Butter Garlic Naan', 'BGN', 9000, 1, 1, 5, now, now);
-  insertItem.run('item-9', outletId, catBreads, 'Amritsari Kulcha', 'AMK', 12000, 1, 1, 5, now, now);
-  insertItem.run('item-10', outletId, catBeverages, 'Fresh Lime Soda (Sweet/Salt)', 'FLS', 11000, 1, 1, 12, now, now);
-  insertItem.run('item-11', outletId, catBeverages, 'Masala Cold Brew Cooler', 'MCB', 16000, 1, 1, 12, now, now);
-  insertItem.run('item-12', outletId, catDesserts, 'Gulab Jamun with Rabri', 'GJR', 15000, 1, 1, 5, now, now);
+  insertItem.run('item-1', outletId, catStarters, 'Paneer Tikka Charcoal Grilled', 'PTK', 28000, 1, 1, 5, 'https://images.unsplash.com/photo-1599488615731-7e5c2823ff28?w=500&auto=format&fit=crop&q=80', now, now);
+  insertItem.run('item-2', outletId, catStarters, 'Crispy Corn & Water Chestnut', 'CRN', 24000, 1, 1, 5, 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=500&auto=format&fit=crop&q=80', now, now);
+  insertItem.run('item-3', outletId, catStarters, 'Chicken Seekh Kebab Melt', 'CSK', 34000, 0, 1, 5, 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=500&auto=format&fit=crop&q=80', now, now);
+  insertItem.run('item-4', outletId, catMains, 'Paneer Butter Masala Royal', 'PBM', 32000, 1, 1, 5, 'https://images.unsplash.com/photo-1631452180519-c014fe946bc7?w=500&auto=format&fit=crop&q=80', now, now);
+  insertItem.run('item-5', outletId, catMains, 'Dal Makhani Bukhara Style', 'DMK', 29000, 1, 1, 5, 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=500&auto=format&fit=crop&q=80', now, now);
+  insertItem.run('item-6', outletId, catMains, 'Butter Chicken Delhi Special', 'BCK', 39000, 0, 1, 5, 'https://images.unsplash.com/photo-1588166524941-3bf61a9c41db?w=500&auto=format&fit=crop&q=80', now, now);
+  insertItem.run('item-7', outletId, catMains, 'Hyderabadi Dum Biryani', 'HDB', 36000, 0, 1, 5, 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=500&auto=format&fit=crop&q=80', now, now);
+  insertItem.run('item-8', outletId, catBreads, 'Butter Garlic Naan', 'BGN', 9000, 1, 1, 5, 'https://images.unsplash.com/photo-1626074353765-517a681e40be?w=500&auto=format&fit=crop&q=80', now, now);
+  insertItem.run('item-9', outletId, catBreads, 'Amritsari Kulcha', 'AMK', 12000, 1, 1, 5, 'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=500&auto=format&fit=crop&q=80', now, now);
+  insertItem.run('item-10', outletId, catBeverages, 'Fresh Lime Soda (Sweet/Salt)', 'FLS', 11000, 1, 1, 12, 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=500&auto=format&fit=crop&q=80', now, now);
+  insertItem.run('item-11', outletId, catBeverages, 'Masala Cold Brew Cooler', 'MCB', 16000, 1, 1, 12, 'https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=500&auto=format&fit=crop&q=80', now, now);
+  insertItem.run('item-12', outletId, catDesserts, 'Gulab Jamun with Rabri', 'GJR', 15000, 1, 1, 5, 'https://images.unsplash.com/photo-1589119908995-c6837fa14848?w=500&auto=format&fit=crop&q=80', now, now);
 
   // Tables
   const insertTable = db.prepare(`
@@ -261,14 +261,13 @@ function seedDefaultData(db: Database.Database) {
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `);
 
-  insertTable.run('tbl-1', outletId, 'T-01', 'AC Hall', 4, 'available', now);
-  insertTable.run('tbl-2', outletId, 'T-02', 'AC Hall', 2, 'available', now);
-  insertTable.run('tbl-3', outletId, 'T-03', 'AC Hall', 6, 'available', now);
-  insertTable.run('tbl-4', outletId, 'T-04', 'AC Hall', 4, 'available', now);
-  insertTable.run('tbl-5', outletId, 'T-05', 'Rooftop Terrace', 4, 'available', now);
-  insertTable.run('tbl-6', outletId, 'T-06', 'Rooftop Terrace', 8, 'available', now);
-  insertTable.run('tbl-7', outletId, 'T-07', 'Family Lounge', 6, 'available', now);
-  insertTable.run('tbl-8', outletId, 'T-08', 'Family Lounge', 4, 'available', now);
+  insertTable.run('tbl-1', outletId, 'T-01', 'Floor 1', 2, 'available', now);
+  insertTable.run('tbl-2', outletId, 'T-02', 'Floor 1', 4, 'available', now);
+  insertTable.run('tbl-3', outletId, 'T-03', 'Floor 1', 2, 'available', now);
+  insertTable.run('tbl-4', outletId, 'T-04', 'Floor 1', 6, 'available', now);
+  insertTable.run('tbl-5', outletId, 'T-05', 'Floor 1', 4, 'available', now);
+  insertTable.run('tbl-6', outletId, 'T-06', 'Floor 1', 2, 'available', now);
+  insertTable.run('tbl-7', outletId, 'T-07', 'Floor 1', 4, 'available', now);
 
   // Default Printer
   const insertPrinter = db.prepare(`

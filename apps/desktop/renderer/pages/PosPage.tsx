@@ -16,19 +16,16 @@ import {
   History,
   FileText,
   ChefHat,
-  Bike,
   CalendarDays,
   Armchair,
   Users,
   ChevronDown,
   LayoutGrid,
-  List,
   Heart,
   MoreHorizontal,
   PencilLine,
   BadgePercent,
   Split,
-  ArrowRight,
   Download,
   Eye,
   X,
@@ -49,13 +46,26 @@ import {
   RotateCcw,
   Play,
   Receipt,
-  Monitor,
   Loader2,
+  Bike,
+  Check,
 } from 'lucide-react';
 import { MenuItem, Category, RestaurantTable } from '@bitechez/shared-types';
 import { formatINR, paiseToRupees } from '@bitechez/business-logic';
 import { useCartStore } from '../stores/cartStore';
 import { apiService, OUTLET_ID } from '../services/api';
+
+// 3D Cartoon Assets
+import pepperoniPizza3d from '../assets/3d/pepperoni_pizza.png';
+import berryCheesecake3d from '../assets/3d/berry_cheesecake.png';
+import sushiPlatter3d from '../assets/3d/sushi_platter.png';
+import chickenRiceBowl3d from '../assets/3d/chicken_rice_bowl.png';
+import classicBurger3d from '../assets/3d/classic_burger.png';
+import paneerTikka3d from '../assets/3d/paneer_tikka.png';
+import butterChicken3d from '../assets/3d/butter_chicken.png';
+import garlicNaan3d from '../assets/3d/garlic_naan.png';
+import chefSide3d from '../assets/3d/chef_side.png';
+import recentDrink3d from '../assets/3d/recent_drink.png';
 import {
   buildBillPdf,
   buildInvoicePdf,
@@ -74,8 +84,6 @@ import {
    CONFIG
    ===================================================================== */
 const CASHIER = { id: '00000000-0000-0000-0000-000000000001', name: 'Rohit Sengar' };
-/** Height of header + top nav. The POS fills the rest of the screen and never scrolls the page. */
-const POS_OFFSET = '9.75rem';
 
 const OFFERS = [
   { code: 'WELCOME10', pct: 10, desc: '10% off for first-time guests' },
@@ -215,6 +223,16 @@ const itemEmoji = (name = '', cat = '') => {
 };
 
 const itemImage = (item: MenuItem): string | undefined => {
+  const n = (item.name || '').toLowerCase();
+  if (/pepperoni|pizza/.test(n)) return pepperoniPizza3d;
+  if (/cheesecake|berry/.test(n)) return berryCheesecake3d;
+  if (/sushi/.test(n)) return sushiPlatter3d;
+  if (/rice.*bowl|chicken.*rice|bowl/.test(n)) return chickenRiceBowl3d;
+  if (/classic.*burger|burger/.test(n)) return classicBurger3d;
+  if (/paneer.*tikka|tikka/.test(n)) return paneerTikka3d;
+  if (/butter.*chicken|chicken/.test(n)) return butterChicken3d;
+  if (/garlic.*naan|naan|roti|bread/.test(n)) return garlicNaan3d;
+  if (/chocolate|shake|drink|beverage/.test(n)) return recentDrink3d;
   const a = item as unknown as Record<string, unknown>;
   return (a.imageUrl || a.image || a.thumbnailUrl) as string | undefined;
 };
@@ -223,13 +241,15 @@ const itemImage = (item: MenuItem): string | undefined => {
    CSS
    ===================================================================== */
 const CSS = `
-.pos-scroll{scrollbar-width:thin;scrollbar-color:#ECC7D3 transparent}
-.pos-scroll::-webkit-scrollbar{width:6px;height:6px}
-.pos-scroll::-webkit-scrollbar-thumb{background:#ECC7D3;border-radius:9999px}
+.pos-scroll{scrollbar-width:thin;scrollbar-color:#A7F3D0 transparent}
+.pos-scroll::-webkit-scrollbar{width:5px;height:5px}
+.pos-scroll::-webkit-scrollbar-thumb{background:#A7F3D0;border-radius:9999px}
 .pos-scroll::-webkit-scrollbar-track{background:transparent}
 .pos-noscroll{scrollbar-width:none}.pos-noscroll::-webkit-scrollbar{display:none}
-@keyframes pos-bump{35%{transform:scale(1.2)}}.pos-bump{animation:pos-bump .25s ease}
+@keyframes pos-bump{35%{transform:scale(1.15)}}.pos-bump{animation:pos-bump .22s ease}
 @keyframes pos-toast{from{opacity:0;transform:translateY(-8px)}}.pos-toast{animation:pos-toast .25s ease both}
+@keyframes floatSlow{0%,100%{transform:translateY(0px)}50%{transform:translateY(-3px)}}
+.anim-float{animation:floatSlow 4s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){.pos-root *{animation:none!important;transition:none!important}}
 `;
 
@@ -249,9 +269,16 @@ const Thumb = memo(({ item, catName, className = '', emojiCls = 'text-3xl' }: { 
   const [broken, setBroken] = useState(false);
   const src = itemImage(item);
   return (
-    <div className={`bg-gradient-to-b from-[#FFF0F4] to-[#FFF9FB] flex items-center justify-center overflow-hidden ${className}`}>
+    <div className={`bg-[#F9ECEF] flex items-center justify-center overflow-hidden relative ${className}`}>
       {src && !broken ? (
-        <img src={src} alt={item.name} loading="lazy" decoding="async" onError={() => setBroken(true)} className="w-[82%] h-[86%] object-contain drop-shadow-sm transition-transform duration-300 group-hover:scale-105" />
+        <img
+          src={src}
+          alt={item.name}
+          loading="lazy"
+          decoding="async"
+          onError={() => setBroken(true)}
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+        />
       ) : (
         <span className={`${emojiCls} leading-none select-none transition-transform duration-300 group-hover:scale-110`}>{itemEmoji(item.name, catName)}</span>
       )}
@@ -259,18 +286,22 @@ const Thumb = memo(({ item, catName, className = '', emojiCls = 'text-3xl' }: { 
   );
 });
 
-const Stepper = ({ qty, onDec, onInc, size = 'md' }: { qty: number; onDec: () => void; onInc: () => void; size?: 'sm' | 'md' }) => {
-  const b = size === 'sm' ? 'w-6 h-6' : 'w-7 h-7';
+const Stepper = ({ qty, onDec, onInc, size = 'md' }: { qty: number; onDec: () => void; onInc: () => void; size?: 'xs' | 'sm' | 'md' }) => {
+  const b = size === 'xs' ? 'w-3.5 h-3.5' : size === 'sm' ? 'w-4 h-4' : 'w-5 h-5';
+  const iconCls = size === 'xs' ? 'w-2 h-2 stroke-[3]' : size === 'sm' ? 'w-2.5 h-2.5 stroke-[3]' : 'w-3 h-3 stroke-[3]';
+  const textCls = size === 'xs' ? 'text-[9px] min-w-[12px]' : size === 'sm' ? 'text-[10px] min-w-[14px]' : 'text-xs min-w-[18px]';
+  const padding = size === 'xs' ? 'px-0.5 py-0.2' : size === 'sm' ? 'px-1 py-0.5' : 'px-1.5 py-0.5';
+
   return (
-    <div className="inline-flex items-center rounded-lg border border-[#F3C3D2] bg-white overflow-hidden" onClick={(e) => e.stopPropagation()}>
-      <button onClick={onDec} className={`${b} flex items-center justify-center text-[#800D32] hover:bg-[#FDEBF1] active:scale-90 transition`} aria-label="Decrease">
-        <Minus className="w-3.5 h-3.5" />
+    <div className={`inline-flex items-center gap-0.5 bg-[#E7F9F0] ${padding} rounded-md border border-emerald-200/60`} onClick={(e) => e.stopPropagation()}>
+      <button onClick={onDec} className={`${b} flex items-center justify-center text-[#00C060] hover:bg-emerald-100 rounded active:scale-90 transition font-black`} aria-label="Decrease">
+        <Minus className={iconCls} />
       </button>
-      <span key={qty} className="pos-bump min-w-[22px] text-center text-xs font-black text-[#191923]">
+      <span key={qty} className={`pos-bump text-center font-black text-slate-800 ${textCls}`}>
         {qty}
       </span>
-      <button onClick={onInc} className={`${b} flex items-center justify-center text-[#800D32] hover:bg-[#FDEBF1] active:scale-90 transition`} aria-label="Increase">
-        <Plus className="w-3.5 h-3.5" />
+      <button onClick={onInc} className={`${b} flex items-center justify-center text-[#00C060] hover:bg-emerald-100 rounded active:scale-90 transition font-black`} aria-label="Increase">
+        <Plus className={iconCls} />
       </button>
     </div>
   );
@@ -328,24 +359,24 @@ const DocButton: React.FC<{
   useOutside(ref, close, open);
   return (
     <div ref={ref} className="relative">
-      <div className={`flex items-stretch rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden transition ${disabled ? 'opacity-50' : 'hover:border-[#F3C3D2]'}`}>
-        <button disabled={disabled || busy} onClick={() => onAction('print')} className="flex-1 flex flex-col items-center justify-center gap-0.5 py-2 px-1 text-[#800D32] hover:bg-[#FFF5F8] disabled:cursor-not-allowed" title={`Print ${label}`}>
-          {busy ? <Loader2 className="w-5 h-5 animate-spin" /> : icon}
-          <span className="text-[11px] font-black leading-tight">
+      <div className={`flex items-stretch rounded-lg border border-slate-200/90 bg-white shadow-xs overflow-hidden transition ${disabled ? 'opacity-50' : 'hover:border-slate-300'}`}>
+        <button disabled={disabled || busy} onClick={() => onAction('print')} className="flex-1 flex items-center justify-center gap-1 py-1.5 px-1.5 text-slate-700 hover:text-slate-900 hover:bg-slate-50 disabled:cursor-not-allowed" title={`Print ${label}`}>
+          {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <span className="[&>svg]:w-3.5 [&>svg]:h-3.5 text-slate-600">{icon}</span>}
+          <span className="text-[10px] font-black leading-none">
             {label}
-            {sub && <span className="text-[8px] font-semibold text-gray-500"> {sub}</span>}
+            {sub && <span className="text-[8px] font-semibold text-slate-400"> {sub}</span>}
           </span>
         </button>
-        <button disabled={disabled || busy} onClick={() => setOpen((o) => !o)} className="px-1.5 border-l border-gray-100 text-gray-500 hover:bg-[#FFF5F8] hover:text-[#800D32] disabled:cursor-not-allowed" aria-label={`${label} options`}>
-          <ChevronDown className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`} />
+        <button disabled={disabled || busy} onClick={() => setOpen((o) => !o)} className="px-1 border-l border-slate-100 text-slate-400 hover:bg-slate-50 hover:text-slate-700 disabled:cursor-not-allowed" aria-label={`${label} options`}>
+          <ChevronDown className={`w-3 h-3 transition-transform ${open ? 'rotate-180' : ''}`} />
         </button>
       </div>
       {open && (
-        <div className="pos-pop absolute bottom-full mb-2 left-0 right-0 min-w-[150px] bg-white rounded-xl border border-gray-100 shadow-xl p-1 z-30">
+        <div className="pos-pop absolute bottom-full mb-1.5 left-0 right-0 min-w-[140px] bg-white rounded-xl border border-slate-100 shadow-xl p-1 z-30">
           {[
-            { m: 'print' as PdfMode, l: 'Print', i: <Printer className="w-3.5 h-3.5" /> },
-            { m: 'download' as PdfMode, l: 'Download PDF', i: <Download className="w-3.5 h-3.5" /> },
-            { m: 'preview' as PdfMode, l: 'Preview', i: <Eye className="w-3.5 h-3.5" /> },
+            { m: 'print' as PdfMode, l: 'Print', i: <Printer className="w-3 h-3" /> },
+            { m: 'download' as PdfMode, l: 'Download PDF', i: <Download className="w-3 h-3" /> },
+            { m: 'preview' as PdfMode, l: 'Preview', i: <Eye className="w-3 h-3" /> },
           ].map((o) => (
             <button
               key={o.m}
@@ -353,7 +384,7 @@ const DocButton: React.FC<{
                 setOpen(false);
                 onAction(o.m);
               }}
-              className="w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs font-bold text-gray-700 hover:bg-[#FDEBF1] hover:text-[#800D32]"
+              className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg text-xs font-bold text-slate-700 hover:bg-slate-50 hover:text-slate-900"
             >
               {o.i}
               {o.l}
@@ -379,85 +410,124 @@ type ItemProps = {
   onDec: (i: MenuItem) => void;
   onFav: (id: string) => void;
 };
-const BADGE_CLS = { Bestseller: 'bg-[#800D32] text-white', Popular: 'bg-[#F0508A] text-white', New: 'bg-emerald-500 text-white' };
 
-const ItemCard = memo(({ item, catName, qty, badge, fav, index, onAdd, onDec, onFav }: ItemProps) => (
-  <div
-    onClick={() => onAdd(item)}
-    style={{ animationDelay: `${Math.min(index, 14) * 22}ms` }}
-    className={`pos-card group relative bg-white rounded-2xl border shadow-[0_1px_3px_rgba(16,24,40,0.06)] hover:shadow-[0_10px_24px_-10px_rgba(128,13,50,0.3)] hover:-translate-y-0.5 transition-[box-shadow,transform,border-color] duration-300 cursor-pointer overflow-hidden flex flex-col active:scale-[0.98] ${qty ? 'border-[#E9A3BA]' : 'border-gray-100 hover:border-[#F3C3D2]'
+const ItemCard = memo(({ item, catName, qty, badge, fav, index, onAdd, onDec, onFav }: ItemProps) => {
+  const imgSrc = itemImage(item);
+  return (
+    <div
+      onClick={() => onAdd(item)}
+      style={{ animationDelay: `${Math.min(index, 14) * 15}ms` }}
+      className={`pos-card group relative bg-white rounded-lg border transition-all duration-200 cursor-pointer overflow-hidden flex flex-col p-2 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98] ${
+        qty
+          ? 'border-emerald-400 ring-1 ring-emerald-400/20 shadow-xs'
+          : 'border-slate-100 hover:border-emerald-200 shadow-xs'
       }`}
-  >
-    <div className="relative">
-      <Thumb item={item} catName={catName} className="aspect-[4/3]" emojiCls="text-5xl" />
-      {badge && <span className={`absolute top-2 left-2 text-[10px] font-extrabold px-2 py-0.5 rounded-md shadow-sm ${BADGE_CLS[badge]}`}>{badge}</span>}
+    >
+      {/* Top action row: badge or heart */}
+      <div className="flex items-center justify-between w-full h-3.5 mb-0.5">
+        {badge ? (
+          <span className="text-[7.5px] font-black px-1 py-0.2 rounded bg-emerald-50 text-[#00C060]">
+            {badge}
+          </span>
+        ) : <span />}
+
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onFav(item.id);
+          }}
+          className="w-4 h-4 rounded-full flex items-center justify-center text-slate-300 hover:text-rose-500 transition active:scale-90 ml-auto"
+          aria-label="Favourite"
+        >
+          <Heart className={`w-2.5 h-2.5 transition ${fav ? 'fill-[#E11D48] text-[#E11D48]' : 'text-slate-300 hover:text-rose-400'}`} />
+        </button>
+      </div>
+
+      {/* 3D Food Cartoon Sticker */}
+      <div className="w-full h-14 sm:h-16 flex items-center justify-center my-0.5">
+        {imgSrc ? (
+          <img
+            src={imgSrc}
+            alt={item.name}
+            className="max-h-full max-w-full object-contain filter drop-shadow-sm group-hover:scale-105 transition-transform duration-300"
+            loading="lazy"
+          />
+        ) : (
+          <span className="text-2xl select-none group-hover:scale-110 transition-transform">
+            {itemEmoji(item.name, catName)}
+          </span>
+        )}
+      </div>
+
+      {/* Item info */}
+      <div className="mt-0.5 flex flex-col justify-between flex-1">
+        <h4 className="text-[10px] font-black text-slate-850 truncate leading-tight" title={item.name}>
+          {item.name}
+        </h4>
+        <div className="flex items-center justify-between mt-1 pt-1 border-t border-slate-50/80">
+          <span className="text-[10px] font-black text-[#00C060] tracking-tight">
+            {formatINR(item.basePricePaise)}
+          </span>
+          {qty ? (
+            <Stepper qty={qty} onDec={() => onDec(item)} onInc={() => onAdd(item)} size="xs" />
+          ) : (
+            <span className="w-4 h-4 rounded-full border border-emerald-300 text-[#00C060] flex items-center justify-center group-hover:bg-[#00C060] group-hover:text-white transition shadow-xs active:scale-90">
+              <Plus className="w-2.5 h-2.5 stroke-[3]" />
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+});
+
+const ItemRow = memo(({ item, catName, qty, badge, fav, index, onAdd, onDec, onFav }: ItemProps) => {
+  const imgSrc = itemImage(item);
+  return (
+    <div
+      onClick={() => onAdd(item)}
+      style={{ animationDelay: `${Math.min(index, 14) * 18}ms` }}
+      className={`pos-card group flex items-center gap-3 bg-white rounded-xl border p-2.5 pr-3 cursor-pointer hover:shadow-md transition ${
+        qty ? 'border-emerald-300' : 'border-slate-100 hover:border-emerald-200'
+      }`}
+    >
+      <div className="w-12 h-12 rounded-lg bg-slate-50 flex items-center justify-center shrink-0">
+        {imgSrc ? (
+          <img src={imgSrc} alt={item.name} className="w-10 h-10 object-contain" />
+        ) : (
+          <span className="text-2xl">{itemEmoji(item.name, catName)}</span>
+        )}
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-1.5">
+          <VegMark veg={item.isVeg} />
+          <h4 className="text-xs font-black text-slate-900 truncate">{item.name}</h4>
+          {badge && <span className="text-[9px] font-black px-1.5 py-0.5 rounded bg-emerald-50 text-[#00C060]">{badge}</span>}
+        </div>
+        <p className="text-[10px] text-slate-400 font-semibold mt-0.5">
+          {item.shortCode ? `${item.shortCode} · ` : ''}+{item.gstRate}% GST
+        </p>
+      </div>
       <button
         onClick={(e) => {
           e.stopPropagation();
           onFav(item.id);
         }}
-        className="absolute top-1.5 right-1.5 w-7 h-7 rounded-full flex items-center justify-center hover:bg-white/80 transition"
         aria-label="Favourite"
       >
-        <Heart className={`w-[18px] h-[18px] transition ${fav ? 'fill-[#E11D48] text-[#E11D48] scale-110' : 'text-[#C2185B]'}`} />
+        <Heart className={`w-3.5 h-3.5 ${fav ? 'fill-[#E11D48] text-[#E11D48]' : 'text-slate-300 hover:text-rose-400'}`} />
       </button>
-      <div className="absolute bottom-1.5 left-2.5 flex items-center gap-1.5">
-        <VegMark veg={item.isVeg} />
-        {item.shortCode && <span className="text-[9px] font-mono font-bold text-gray-500 bg-white/80 rounded px-1">{item.shortCode}</span>}
-      </div>
+      <span className="w-18 text-right text-xs font-black text-slate-900">{formatINR(item.basePricePaise)}</span>
+      {qty ? (
+        <Stepper qty={qty} onDec={() => onDec(item)} onInc={() => onAdd(item)} size="sm" />
+      ) : (
+        <span className="w-6 h-6 rounded-full border border-emerald-300 text-[#00C060] flex items-center justify-center group-hover:bg-[#00C060] group-hover:text-white transition">
+          <Plus className="w-3.5 h-3.5 stroke-[3]" />
+        </span>
+      )}
     </div>
-    <div className="px-3 pt-1.5 pb-3 flex flex-col gap-1.5">
-      <h4 className="text-[13px] font-bold text-[#191923] leading-snug line-clamp-1 group-hover:text-[#800D32] transition-colors">{item.name}</h4>
-      <div className="flex items-center justify-between gap-1">
-        <span className="text-[15px] font-black text-[#191923]">{formatINR(item.basePricePaise)}</span>
-        {qty ? (
-          <Stepper qty={qty} onDec={() => onDec(item)} onInc={() => onAdd(item)} size="sm" />
-        ) : (
-          <span className="w-7 h-7 rounded-lg border border-[#F3C3D2] text-[#800D32] flex items-center justify-center group-hover:bg-[#800D32] group-hover:text-white group-hover:border-[#800D32] transition">
-            <Plus className="w-4 h-4" />
-          </span>
-        )}
-      </div>
-    </div>
-  </div>
-));
-
-const ItemRow = memo(({ item, catName, qty, badge, fav, index, onAdd, onDec, onFav }: ItemProps) => (
-  <div
-    onClick={() => onAdd(item)}
-    style={{ animationDelay: `${Math.min(index, 14) * 18}ms` }}
-    className={`pos-card group flex items-center gap-3 bg-white rounded-xl border p-2 pr-3 cursor-pointer hover:shadow-md transition ${qty ? 'border-[#E9A3BA]' : 'border-gray-100 hover:border-[#F3C3D2]'}`}
-  >
-    <Thumb item={item} catName={catName} className="w-14 h-12 rounded-lg shrink-0" emojiCls="text-2xl" />
-    <div className="flex-1 min-w-0">
-      <div className="flex items-center gap-1.5">
-        <VegMark veg={item.isVeg} />
-        <h4 className="text-[13px] font-bold text-[#191923] truncate">{item.name}</h4>
-        {badge && <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded ${BADGE_CLS[badge]}`}>{badge}</span>}
-      </div>
-      <p className="text-[10px] text-gray-400 font-semibold mt-0.5">
-        {item.shortCode ? `${item.shortCode} · ` : ''}+{item.gstRate}% GST
-      </p>
-    </div>
-    <button
-      onClick={(e) => {
-        e.stopPropagation();
-        onFav(item.id);
-      }}
-      aria-label="Favourite"
-    >
-      <Heart className={`w-4 h-4 ${fav ? 'fill-[#E11D48] text-[#E11D48]' : 'text-gray-300 hover:text-[#C2185B]'}`} />
-    </button>
-    <span className="w-20 text-right text-sm font-black text-[#191923]">{formatINR(item.basePricePaise)}</span>
-    {qty ? (
-      <Stepper qty={qty} onDec={() => onDec(item)} onInc={() => onAdd(item)} size="sm" />
-    ) : (
-      <span className="w-7 h-7 rounded-lg border border-[#F3C3D2] text-[#800D32] flex items-center justify-center group-hover:bg-[#800D32] group-hover:text-white transition">
-        <Plus className="w-4 h-4" />
-      </span>
-    )}
-  </div>
-));
+  );
+});
 
 /* =====================================================================
    PAGE
@@ -513,6 +583,10 @@ export const PosPage: React.FC = () => {
   const [sort, setSort] = usePersisted<SortKey>('pos.sort', 'bestseller');
   const [favorites, setFavorites] = usePersisted<string[]>('pos.favorites', []);
   const searchRef = useRef<HTMLInputElement>(null);
+  void setSearchQuery;
+  void setVegOnly;
+  void setView;
+  void setSort;
 
   /* ---------- order state ---------- */
   const [orderNo, setOrderNo] = useState(newOrderNumber);
@@ -532,6 +606,7 @@ export const PosPage: React.FC = () => {
   /* ---------- ui state ---------- */
   const [modal, setModal] = useState<ModalKind>(null);
   const [historyMode, setHistoryMode] = useState<'recent' | 'bills'>('recent');
+  void setHistoryMode;
   const [noteTarget, setNoteTarget] = useState<MenuItem | null>(null);
   const [cartOpen, setCartOpen] = useState(false);
   const [pdfBusy, setPdfBusy] = useState<string | null>(null);
@@ -784,6 +859,7 @@ export const PosPage: React.FC = () => {
 
   /* ---------- new order ---------- */
   const startNewOrder = () => (cart.length ? setModal('newOrder') : (resetOrder(), notify('info', 'New order started')));
+  void startNewOrder;
 
   /* ---------- payment ---------- */
   const tenderedPaise = toPaise(tenderedRupees);
@@ -808,6 +884,104 @@ export const PosPage: React.FC = () => {
     setPayTab(tab);
     setModal('pay');
     setCartOpen(false);
+  };
+
+  /* ---------- place order without immediate payment (Dine & Pay Later) ---------- */
+  const handlePlaceOrderLater = async () => {
+    if (!cart.length) return notify('error', 'Cart is empty');
+    if (orderType === 'dine_in' && !tableId) return notify('error', 'Please select a table');
+    setIsProcessing(true);
+    try {
+      const orderNumber = orderNo;
+      const orderPayload = {
+        outletId: OUTLET_ID,
+        orderNumber,
+        orderType,
+        tableId: orderType === 'dine_in' ? tableId : undefined,
+        tableName: orderType === 'dine_in' ? tableName : undefined,
+        status: 'placed',
+        paymentStatus: 'pending',
+        guestCount: guests,
+        notes: orderNote || undefined,
+        customerName: customer.name || undefined,
+        customerPhone: customer.phone || undefined,
+        deliveryAddress: orderType === 'delivery' ? customer.address : undefined,
+        subtotalPaise: calculations.subtotalPaise,
+        discountPaise: calculations.discountPaise,
+        discountPercentage: discountPercentage > 0 ? discountPercentage : undefined,
+        cgstPaise: calculations.cgstPaise,
+        sgstPaise: calculations.sgstPaise,
+        totalGstPaise: calculations.totalGstPaise,
+        roundingPaise: calculations.roundingPaise,
+        grandTotalPaise: calculations.grandTotalPaise,
+        cashierId: CASHIER.id,
+        items: cart.map((entry) => ({
+          itemId: entry.item.id,
+          name: entry.item.name,
+          quantity: entry.quantity,
+          unitPricePaise: entry.item.basePricePaise,
+          totalPricePaise: entry.item.basePricePaise * entry.quantity,
+          gstRate: entry.item.gstRate,
+          gstAmountPaise: Math.round((entry.item.basePricePaise * entry.quantity * entry.item.gstRate) / 100),
+          notes: itemNotes[entry.item.id] || entry.notes,
+          kotStatus: 'pending' as const,
+        })),
+      };
+
+      const createdOrder = await apiService.createOrder(orderPayload as any);
+
+      // Create KOT for kitchen
+      await apiService.createKot({
+        outletId: OUTLET_ID,
+        orderId: createdOrder.id,
+        orderNumber,
+        kotNumber: nextKotNumber(),
+        tableId: orderPayload.tableId,
+        tableName: orderPayload.tableName,
+        orderType,
+        station: 'Main Kitchen',
+        items: orderPayload.items.map((it) => ({
+          orderItemId: it.itemId,
+          itemName: it.name,
+          quantity: it.quantity,
+          notes: it.notes,
+          status: 'pending' as const,
+        })),
+      } as any);
+
+      // Save to held orders for real-time table syncing
+      const h: HeldOrder = {
+        id: createdOrder.id || uid(),
+        orderNumber,
+        heldAt: new Date().toISOString(),
+        orderType: orderType as OrderTypeKey,
+        tableId,
+        tableName,
+        guests,
+        discountPercentage,
+        offerCode,
+        orderNote,
+        itemNotes,
+        customer,
+        sentQty: Object.fromEntries(cart.map((e) => [e.item.id, e.quantity])),
+        entries: cart.map((e) => ({ item: e.item, quantity: e.quantity })),
+        totalPaise: total,
+      };
+      setHeld((l) => [h, ...l.filter((x) => x.tableId !== tableId)]);
+
+      // Realtime table update
+      if (tableId) {
+        await apiService.updateTableStatus(tableId, 'occupied', createdOrder.id, guests);
+      }
+
+      notify('success', `Order ${orderNumber} placed (Pay Later). Table is now Occupied.`);
+      resetOrder();
+    } catch (err) {
+      console.error('Failed to place order:', err);
+      notify('error', 'Failed to place order');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const canSettle =
@@ -905,7 +1079,11 @@ export const PosPage: React.FC = () => {
         } as any);
       }
 
-      // 4. Local history + receipt
+      // Realtime table update: free table or mark for cleaning
+      if (orderPayload.tableId) {
+        await apiService.updateTableStatus(orderPayload.tableId, 'cleaning');
+        setHeld((l) => l.filter((x) => x.tableId !== orderPayload.tableId));
+      }
       const doc = buildBillDoc(payments);
       setRecent((r) => [{ ...doc, id: createdOrder?.id ?? uid(), itemIds: cart.map((e) => ({ id: e.item.id, qty: e.quantity })) }, ...r].slice(0, 300));
       if (afterPay !== 'none') runPdf('bill', () => buildBillPdf(doc), `Bill-${orderNumber}.pdf`, afterPay);
@@ -951,208 +1129,107 @@ export const PosPage: React.FC = () => {
   /* =====================================================================
      RENDER
      ===================================================================== */
-  const headerBtn =
-    'shrink-0 inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-white border border-gray-200 text-xs xl:text-[13px] font-bold text-[#191923] shadow-sm hover:border-[#F3C3D2] hover:text-[#800D32] active:scale-95 transition';
-
   return (
-    <div className="pos-root flex gap-4 overflow-hidden" style={{ height: `calc(100dvh - var(--pos-offset, ${POS_OFFSET}))` }}>
+    <div className="pos-root flex gap-3 h-full w-full overflow-hidden bg-[#FAF8F9]">
       <style>{CSS}</style>
 
       {/* Toast */}
       {toast && (
         <div
           key={toast.id}
-          className={`pos-toast fixed top-5 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-5 z-[80] px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2.5 text-sm font-bold border ${toast.type === 'success' ? 'bg-[#800D32] text-white border-rose-400' : toast.type === 'error' ? 'bg-white text-rose-700 border-rose-200' : 'bg-white text-[#191923] border-gray-200'
+          className={`pos-toast fixed top-5 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-5 z-[80] px-4 py-2.5 rounded-2xl shadow-xl flex items-center gap-2 text-xs sm:text-sm font-bold border ${toast.type === 'success' ? 'bg-[#800D32] text-white border-rose-400' : toast.type === 'error' ? 'bg-white text-rose-700 border-rose-200' : 'bg-white text-[#191923] border-gray-200'
             }`}
         >
-          {toast.type === 'success' ? <CheckCircle2 className="w-5 h-5 text-emerald-300" /> : <AlertCircle className={`w-5 h-5 ${toast.type === 'error' ? 'text-rose-500' : 'text-[#800D32]'}`} />}
+          {toast.type === 'success' ? <CheckCircle2 className="w-4 h-4 text-emerald-300" /> : <AlertCircle className={`w-4 h-4 ${toast.type === 'error' ? 'text-rose-500' : 'text-[#800D32]'}`} />}
           {toast.text}
         </div>
       )}
 
       {/* ================= LEFT: MENU ================= */}
-      <div className="flex-1 min-w-0 flex flex-col gap-3">
-        {/* Title + actions */}
-        <div className="flex items-center gap-3 flex-wrap xl:flex-nowrap">
-          <div className="flex items-center gap-3 mr-auto">
-            <div className="w-12 h-12 rounded-2xl bg-[#FDEBF1] text-[#800D32] flex items-center justify-center shrink-0">
-              <Monitor className="w-6 h-6" />
-            </div>
-            <div>
-              <h1 className="text-xl xl:text-2xl font-black text-[#191923] leading-tight">Point Of Sale</h1>
-              <p className="text-xs text-gray-500 font-medium hidden sm:block">Take orders, manage items and generate bills</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-2 overflow-x-auto pos-noscroll max-w-full py-1 -my-1">
-            <button onClick={startNewOrder} className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-[#800D32] text-white text-xs xl:text-[13px] font-black shadow-md shadow-rose-900/20 hover:bg-[#6a0a29] active:scale-95 transition">
-              <Plus className="w-4 h-4" /> New Order
-            </button>
-            <button onClick={() => setModal('held')} className={`${headerBtn} relative`}>
-              <Pause className="w-4 h-4" /> Hold Orders
-              {held.length > 0 && <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-amber-500 text-white text-[10px] font-black flex items-center justify-center">{held.length}</span>}
-            </button>
-            <button onClick={() => (setHistoryMode('recent'), setModal('history'))} className={headerBtn}>
-              <History className="w-4 h-4" /> Recent Orders
-            </button>
-            <button onClick={() => (setHistoryMode('bills'), setModal('history'))} className={headerBtn}>
-              <FileText className="w-4 h-4" /> Bills (PDF)
-            </button>
-            <button onClick={() => setModal('kot')} className={`${headerBtn} relative`}>
-              <ChefHat className="w-4 h-4" /> KOT Queue
-              {activeKots > 0 && <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-[#E11D48] text-white text-[10px] font-black flex items-center justify-center">{activeKots}</span>}
-            </button>
-          </div>
-        </div>
-
-        {/* Order type + table + guests */}
-        <div className="flex items-center gap-2 overflow-x-auto pos-noscroll py-1 -my-1">
-          {(
-            [
-              { k: 'dine_in', l: 'Dine In', i: Utensils },
-              { k: 'takeaway', l: 'Takeaway', i: ShoppingBag },
-              { k: 'delivery', l: 'Delivery', i: Bike },
-            ] as const
-          ).map((t) => (
-            <button
-              key={t.k}
-              onClick={() => setOrderType(t.k)}
-              className={`shrink-0 inline-flex items-center gap-2 px-4 xl:px-6 py-2.5 rounded-xl text-xs xl:text-sm font-black border transition active:scale-95 ${orderType === t.k ? 'bg-[#800D32] text-white border-[#800D32] shadow-md shadow-rose-900/20' : 'bg-white text-[#191923] border-gray-200 hover:border-[#F3C3D2]'
-                }`}
-            >
-              <t.i className="w-4 h-4" /> {t.l}
-            </button>
-          ))}
-          <button onClick={() => setModal('reservation')} className="shrink-0 inline-flex items-center gap-2 px-4 xl:px-5 py-2.5 rounded-xl text-xs xl:text-sm font-black border bg-white text-[#191923] border-gray-200 hover:border-[#F3C3D2] transition active:scale-95 relative">
-            <CalendarDays className="w-4 h-4 text-[#800D32]" /> Reservation
-            {reservations.length > 0 && <span className="min-w-[18px] h-[18px] px-1 rounded-full bg-[#FDEBF1] text-[#800D32] text-[10px] font-black flex items-center justify-center">{reservations.length}</span>}
-          </button>
-          <span className="w-px h-8 bg-gray-200 mx-1 shrink-0" />
-          <TablePicker tables={tables} tableId={tableId} tableName={tableName} disabled={orderType !== 'dine_in'} onPick={(t) => setTable(t?.id, t?.name)} />
-          <GuestPicker guests={guests} setGuests={setGuests} />
-        </div>
-
-        {/* Body: categories + items */}
-        <div className="flex-1 min-h-0 flex gap-3">
-          {/* Categories sidebar (scrollable) */}
-          <aside className="hidden md:flex w-48 xl:w-56 shrink-0 flex-col bg-white rounded-2xl border border-gray-100 shadow-sm p-2">
-            <div className="flex-1 min-h-0 overflow-y-auto pos-scroll space-y-1.5 pr-0.5">
-              {[
-                { id: 'all', name: 'All Items', count: menuItems.length, Icon: LayoutGrid },
-                { id: 'fav', name: 'Favourites', count: favorites.length, Icon: Heart },
-                ...categories.map((c) => ({ id: c.id, name: c.name, count: catCount[c.id] ?? 0, Icon: catIcon(c.name) })),
-              ].map((c) => {
-                const active = selectedCategory === c.id;
-                return (
-                  <button
-                    key={c.id}
-                    onClick={() => setSelectedCategory(c.id)}
-                    className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-[13px] font-bold transition-all ${active ? 'bg-[#800D32] text-white shadow-md shadow-rose-900/20' : 'text-[#191923] hover:bg-[#FFF5F8] border border-transparent hover:border-[#F8D5E0]'
-                      }`}
-                  >
-                    <c.Icon className={`w-5 h-5 shrink-0 ${active ? 'text-white' : 'text-[#800D32]'}`} />
-                    <span className="flex-1 text-left truncate">{c.name}</span>
-                    <span className={`text-[11px] font-semibold ${active ? 'text-rose-100' : 'text-gray-400'}`}>({c.count})</span>
-                  </button>
-                );
-              })}
-            </div>
-          </aside>
-
-          {/* Items */}
-          <section className="flex-1 min-w-0 flex flex-col gap-2.5">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h2 className="text-lg xl:text-xl font-black text-[#191923]">
-                {selectedCategory === 'all' ? 'All Items' : selectedCategory === 'fav' ? 'Favourites' : catName[selectedCategory] ?? 'Items'}
-              </h2>
-              <span className="text-xs font-semibold text-gray-500">{filteredItems.length} Items</span>
-              <div className="relative flex-1 min-w-[160px] max-w-[340px] ml-auto">
-                <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                <input
-                  ref={searchRef}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search name or code…  ( / )"
-                  className="w-full pl-9 pr-8 py-2 bg-white border border-gray-200 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#800D32]/40 focus:border-[#800D32] transition"
-                />
-                {searchQuery && (
-                  <button onClick={() => setSearchQuery('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-700" aria-label="Clear search">
-                    <X className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-              <button
-                onClick={() => setVegOnly((v) => !v)}
-                className={`inline-flex items-center gap-1.5 px-3 py-2 rounded-xl border text-xs font-bold transition ${vegOnly ? 'bg-emerald-50 border-emerald-300 text-emerald-700' : 'bg-white border-gray-200 text-gray-600'}`}
-              >
-                <VegMark veg /> Veg
-              </button>
-              <div className="inline-flex rounded-xl bg-white border border-gray-200 p-0.5">
-                {(['grid', 'list'] as const).map((v) => (
-                  <button key={v} onClick={() => setView(v)} className={`w-9 h-8 rounded-lg flex items-center justify-center transition ${view === v ? 'bg-[#800D32] text-white' : 'text-gray-500 hover:text-[#800D32]'}`} aria-label={`${v} view`}>
-                    {v === 'grid' ? <LayoutGrid className="w-4 h-4" /> : <List className="w-4 h-4" />}
-                  </button>
-                ))}
-              </div>
-              <div className="relative">
-                <select
-                  value={sort}
-                  onChange={(e) => setSort(e.target.value as SortKey)}
-                  className="appearance-none pl-3 pr-8 py-2 rounded-xl bg-white border border-gray-200 text-xs xl:text-sm font-bold text-[#191923] focus:outline-none focus:ring-2 focus:ring-[#800D32]/40 cursor-pointer"
-                >
-                  <option value="bestseller">Bestseller</option>
-                  <option value="priceAsc">Price: Low → High</option>
-                  <option value="priceDesc">Price: High → Low</option>
-                  <option value="name">Name A–Z</option>
-                </select>
-                <ChevronDown className="w-4 h-4 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500" />
-              </div>
-            </div>
-
-            {/* Mobile category chips */}
-            <div className="md:hidden flex gap-2 overflow-x-auto pos-noscroll pb-0.5">
-              {[{ id: 'all', name: 'All' }, { id: 'fav', name: '♥ Favourites' }, ...categories].map((c) => (
+      <div className="flex-1 min-w-0 flex gap-3 h-full overflow-hidden">
+        {/* Categories sidebar (soft white card with chef illustration at bottom) */}
+        <aside className="hidden md:flex w-44 xl:w-48 shrink-0 flex-col bg-white rounded-2xl border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] p-2 h-full overflow-hidden justify-between">
+          <div className="flex-1 min-h-0 overflow-y-auto pos-scroll space-y-1.5 pr-0.5">
+            {[
+              { id: 'all', name: 'All Items', count: menuItems.length, Icon: LayoutGrid },
+              { id: 'fav', name: 'Favourites', count: favorites.length, Icon: Heart },
+              ...categories.map((c) => ({ id: c.id, name: c.name, count: catCount[c.id] ?? 0, Icon: catIcon(c.name) })),
+            ].map((c) => {
+              const active = selectedCategory === c.id;
+              return (
                 <button
                   key={c.id}
                   onClick={() => setSelectedCategory(c.id)}
-                  className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold border transition ${selectedCategory === c.id ? 'bg-[#800D32] text-white border-[#800D32]' : 'bg-white text-gray-600 border-gray-200'}`}
+                  className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-bold transition-all ${
+                    active
+                      ? 'bg-[#E7F9F0] text-[#00C060] font-black shadow-sm'
+                      : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
+                  }`}
                 >
-                  {c.name}
+                  <c.Icon className={`w-4 h-4 shrink-0 ${active ? 'text-[#00C060]' : 'text-slate-400'}`} />
+                  <span className="flex-1 text-left truncate">{c.name}</span>
+                  <span className={`text-[11px] font-semibold ${active ? 'text-[#00C060]' : 'text-slate-400'}`}>
+                    ({c.count})
+                  </span>
                 </button>
-              ))}
-            </div>
+              );
+            })}
+          </div>
 
-            {/* Items grid (scrollable) */}
-            <div className="flex-1 min-h-0 overflow-y-auto pos-scroll pr-1 pb-20 lg:pb-2">
+          {/* Bottom 3D Chef mascot badge */}
+          <div className="pt-2 shrink-0 border-t border-slate-50 flex items-center justify-center">
+            <img src={chefSide3d} alt="Chef" className="w-24 h-24 object-contain filter drop-shadow-md anim-float" />
+          </div>
+        </aside>
+
+        {/* Right side of the left sidebar: Top controls + Menu items grid */}
+        <div className="flex-1 min-w-0 flex flex-col gap-2.5 h-full overflow-hidden">
+          {/* Top Controls Row matching reference image: just to the right of the categories sidebar */}
+          <div className="flex items-center gap-2.5 shrink-0 py-0.5">
+            {/* Order Type Dropdown */}
+            <OrderTypePicker orderType={orderType as OrderTypeKey} onChange={(t) => setOrderType(t)} />
+
+            {/* Table Picker */}
+            <TablePicker tables={tables} tableId={tableId} tableName={tableName} disabled={orderType !== 'dine_in'} onPick={(t) => setTable(t?.id, t?.name)} />
+
+            {/* Guests Picker */}
+            <GuestPicker guests={guests} setGuests={setGuests} />
+          </div>
+
+          {/* Items Section */}
+          <section className="flex-1 min-w-0 flex flex-col gap-2 h-full overflow-hidden">
+            {/* Optimized compact cards grid: 4 to 5 cards per row */}
+            <div className="flex-1 min-h-0 overflow-y-auto pos-scroll pr-1 pb-4">
               {loading ? (
-                <div className="grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(150px,1fr))]">
+                <div className="grid gap-2.5 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5">
                   {Array.from({ length: 10 }).map((_, i) => (
-                    <div key={i} className="rounded-2xl bg-white border border-gray-100 p-3 space-y-2.5">
-                      <div className="aspect-[4/3] rounded-xl bg-gray-50 flex items-center justify-center">
-                        <Loader2 className="w-5 h-5 text-gray-300 animate-spin" />
+                    <div key={i} className="rounded-xl bg-white border border-slate-100 p-3 space-y-2 shadow-xs">
+                      <div className="h-20 rounded-lg bg-slate-50 flex items-center justify-center">
+                        <Loader2 className="w-4 h-4 text-slate-300 animate-spin" />
                       </div>
-                      <div className="h-3.5 w-3/4 rounded bg-gray-100" />
-                      <div className="h-3.5 w-1/3 rounded bg-gray-100" />
+                      <div className="h-2.5 w-3/4 rounded bg-slate-100" />
+                      <div className="h-2.5 w-1/3 rounded bg-slate-100" />
                     </div>
                   ))}
                 </div>
               ) : loadError ? (
-                <div className="flex flex-col items-center py-12 text-center">
-                  <AlertCircle className="w-10 h-10 text-rose-400 mb-2" />
-                  <p className="text-sm font-bold text-gray-700">{loadError}</p>
-                  <button onClick={loadPosData} className="mt-3 inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-[#800D32] text-white text-xs font-bold">
+                <div className="flex flex-col items-center py-10 text-center">
+                  <AlertCircle className="w-8 h-8 text-rose-400 mb-2" />
+                  <p className="text-xs font-bold text-slate-700">{loadError}</p>
+                  <button onClick={loadPosData} className="mt-2.5 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#00C060] text-white text-xs font-bold shadow-md">
                     <RotateCcw className="w-3.5 h-3.5" /> Retry
                   </button>
                 </div>
               ) : filteredItems.length === 0 ? (
                 <Empty icon={<Search className="w-6 h-6" />} title="No items found" sub="Try another category or search term" />
               ) : view === 'grid' ? (
-                <div key={selectedCategory + sort} className="grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(150px,1fr))] xl:[grid-template-columns:repeat(auto-fill,minmax(160px,1fr))]">
+                <div key={selectedCategory + sort} className="grid gap-2.5 grid-cols-2 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5">
                   {filteredItems.map((item, i) => (
                     <ItemCard key={item.id} item={item} catName={catName[item.categoryId]} qty={qtyMap[item.id] ?? 0} badge={badges[item.id]} fav={favSet.has(item.id)} index={i} onAdd={onAdd} onDec={onDec} onFav={toggleFav} />
                   ))}
                 </div>
               ) : (
-                <div key={selectedCategory + sort + 'l'} className="space-y-2">
+                <div key={selectedCategory + sort + 'l'} className="space-y-1.5">
                   {filteredItems.map((item, i) => (
                     <ItemRow key={item.id} item={item} catName={catName[item.categoryId]} qty={qtyMap[item.id] ?? 0} badge={badges[item.id]} fav={favSet.has(item.id)} index={i} onAdd={onAdd} onDec={onDec} onFav={toggleFav} />
                   ))}
@@ -1163,50 +1240,39 @@ export const PosPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Mobile cart bar */}
-      <button
-        onClick={() => setCartOpen(true)}
-        className="lg:hidden fixed bottom-4 left-4 right-4 z-30 flex items-center justify-between px-5 py-3.5 rounded-2xl bg-[#800D32] text-white shadow-2xl shadow-rose-900/40 active:scale-[0.98] transition"
-      >
-        <span className="flex items-center gap-2 font-black text-sm">
-          <ShoppingBag className="w-5 h-5" /> {cartCount} item{cartCount === 1 ? '' : 's'}
-        </span>
-        <span className="flex items-center gap-2 font-black">
-          {formatINR(total)} <ArrowRight className="w-4 h-4" />
-        </span>
-      </button>
-      {cartOpen && <div className="lg:hidden fixed inset-0 z-40 bg-black/40 pos-fade" onClick={() => setCartOpen(false)} />}
-
-      {/* ================= RIGHT: CART ================= */}
+      {/* ================= RIGHT: CART (Soft UI) ================= */}
       <aside
-        className={`fixed lg:static inset-y-0 right-0 z-50 lg:z-auto w-[92vw] max-w-[400px] lg:w-[360px] xl:w-[400px] lg:max-w-none shrink-0 bg-white lg:rounded-2xl border border-gray-100 shadow-2xl lg:shadow-sm flex flex-col overflow-hidden transition-transform duration-300 ${cartOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'
+        className={`fixed lg:static inset-y-0 right-0 z-50 lg:z-auto w-[90vw] max-w-[360px] lg:w-[320px] xl:w-[350px] lg:max-w-none shrink-0 bg-white lg:rounded-2xl border border-slate-100 shadow-[0_4px_24px_rgba(15,23,42,0.05)] flex flex-col h-full overflow-hidden transition-transform duration-300 ${cartOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'
           }`}
       >
         {/* Cart header */}
-        <div className="px-4 py-3.5 flex items-center gap-3 bg-gradient-to-r from-[#FFF3F7] to-white border-b border-gray-100">
-          <div className="w-12 h-12 rounded-full bg-[#800D32] text-white flex items-center justify-center shrink-0 shadow-md shadow-rose-900/20">
-            <ShoppingBag className="w-6 h-6" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <h3 className="text-lg font-black text-[#191923] leading-tight">Current Order</h3>
-            <p className="text-xs font-semibold text-gray-500 truncate">
-              {orderType === 'dine_in' && <span className="text-[#800D32] font-bold">{tableName ?? 'No table'} • </span>}
-              {ORDER_TYPE_LABEL[orderType as OrderTypeKey]} • {guests} Guests
-            </p>
-            <p className="text-[10px] font-mono text-gray-400">{orderNo}</p>
+        <div className="px-3.5 py-2.5 flex items-center justify-between border-b border-slate-100 shrink-0">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className="w-7 h-7 rounded-lg bg-[#E7F9F0] text-[#00C060] flex items-center justify-center shrink-0">
+              <ShoppingBag className="w-3.5 h-3.5 stroke-[2.5]" />
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-xs font-black text-slate-900 leading-tight">Current Order</h3>
+              <p className="text-[10px] font-semibold text-slate-400 truncate">
+                {ORDER_TYPE_LABEL[orderType as OrderTypeKey]} {orderType === 'dine_in' && tableName ? `• Table ${tableName}` : ''} • {guests} Guests
+              </p>
+            </div>
           </div>
           {cart.length > 0 && (
-            <button onClick={() => (clearCart(), setSentQty({}), setItemNotes({}))} className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-rose-200 text-rose-600 text-xs font-bold hover:bg-rose-50 transition">
-              <Trash2 className="w-3.5 h-3.5" /> Clear All
+            <button
+              onClick={() => (clearCart(), setSentQty({}), setItemNotes({}))}
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg border border-rose-100 text-rose-500 text-[10px] font-bold hover:bg-rose-50 hover:border-rose-200 transition"
+            >
+              <Trash2 className="w-2.5 h-2.5" /> Clear
             </button>
           )}
-          <button onClick={() => setCartOpen(false)} className="lg:hidden w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center" aria-label="Close cart">
-            <X className="w-4 h-4" />
+          <button onClick={() => setCartOpen(false)} className="lg:hidden w-6 h-6 rounded-lg hover:bg-slate-100 flex items-center justify-center text-slate-400" aria-label="Close cart">
+            <X className="w-3.5 h-3.5" />
           </button>
         </div>
 
         {/* Cart lines (scrollable) */}
-        <div className="flex-1 min-h-0 overflow-y-auto pos-scroll px-4 divide-y divide-gray-100">
+        <div className="flex-1 min-h-0 overflow-y-auto pos-scroll px-2.5 divide-y divide-slate-100/70">
           {cart.length === 0 ? (
             <Empty icon={<Utensils className="w-6 h-6" />} title="Cart is empty" sub="Tap any item to start billing" />
           ) : (
@@ -1226,20 +1292,24 @@ export const PosPage: React.FC = () => {
           )}
         </div>
 
-        {/* Summary */}
-        <div className="px-4 pt-3 pb-4 border-t border-gray-100 space-y-2.5 bg-white">
-          <div className="grid grid-cols-3 gap-2">
+        {/* Summary (compact space-optimized) */}
+        <div className="p-2.5 border-t border-slate-100 space-y-1.5 bg-white shrink-0">
+          {/* Quick buttons: Add Note, Offer, Split Bill */}
+          <div className="grid grid-cols-3 gap-1.5">
             {[
-              { l: orderNote ? 'Edit Note' : 'Add Note', i: <PencilLine className="w-3.5 h-3.5" />, on: () => setModal('note'), active: !!orderNote },
-              { l: offerCode || discountPercentage ? `${discountPercentage}% Off` : 'Apply Offer', i: <BadgePercent className="w-3.5 h-3.5" />, on: () => setModal('offer'), active: discountPercentage > 0 },
-              { l: 'Split Bill', i: <Split className="w-3.5 h-3.5" />, on: () => openPay('split'), active: false },
+              { l: orderNote ? 'Note ✓' : 'Add Note', i: <PencilLine className="w-3 h-3" />, on: () => setModal('note'), active: !!orderNote },
+              { l: offerCode || discountPercentage ? `${discountPercentage}% Off` : 'Offer', i: <BadgePercent className="w-3 h-3" />, on: () => setModal('offer'), active: discountPercentage > 0 },
+              { l: 'Split Bill', i: <Split className="w-3 h-3" />, on: () => openPay('split'), active: false },
             ].map((b) => (
               <button
                 key={b.l}
                 onClick={b.on}
                 disabled={!cart.length}
-                className={`inline-flex items-center justify-center gap-1.5 py-2 rounded-xl border text-[11px] xl:text-xs font-bold transition disabled:opacity-40 ${b.active ? 'bg-[#FDEBF1] border-[#F3C3D2] text-[#800D32]' : 'bg-white border-gray-200 text-[#191923] hover:border-[#F3C3D2] hover:text-[#800D32]'
-                  }`}
+                className={`inline-flex items-center justify-center gap-1 py-1.5 rounded-lg border text-[10px] font-bold transition disabled:opacity-40 shadow-xs ${
+                  b.active
+                    ? 'bg-[#E7F9F0] border-emerald-300 text-[#00C060]'
+                    : 'bg-white border-slate-200/80 text-slate-700 hover:border-emerald-300 hover:text-[#00C060]'
+                }`}
               >
                 {b.i}
                 <span className="truncate">{b.l}</span>
@@ -1247,54 +1317,66 @@ export const PosPage: React.FC = () => {
             ))}
           </div>
 
-          <div className="space-y-1.5 text-[13px] px-0.5">
-            <div className="flex justify-between font-semibold text-gray-600">
+          {/* Pricing calculations (compact) */}
+          <div className="space-y-1 text-[11px] px-0.5 pt-0.5">
+            <div className="flex justify-between font-medium text-slate-500">
               <span>Subtotal</span>
-              <span className="text-[#191923] font-bold">{formatINR(calculations.subtotalPaise)}</span>
+              <span className="text-slate-800 font-bold">{formatINR(calculations.subtotalPaise)}</span>
             </div>
             {calculations.discountPaise > 0 && (
-              <div className="flex justify-between font-semibold text-emerald-700">
+              <div className="flex justify-between font-medium text-[#00C060] text-[10px]">
                 <span className="flex items-center gap-1">
-                  Discount {offerCode && <span className="text-[10px] font-black bg-emerald-50 border border-emerald-200 rounded px-1">{offerCode}</span>} ({discountPercentage}%)
+                  Discount {offerCode && <span className="text-[8px] font-black bg-emerald-50 border border-emerald-200 rounded px-1">{offerCode}</span>} ({discountPercentage}%)
                 </span>
                 <span>-{formatINR(calculations.discountPaise)}</span>
               </div>
             )}
-            <div className="flex justify-between font-semibold text-gray-600" title={`CGST ${formatINR(calculations.cgstPaise)} + SGST ${formatINR(calculations.sgstPaise)}`}>
-              <span>GST (CGST + SGST)</span>
-              <span className="text-[#191923] font-bold">{formatINR(calculations.totalGstPaise)}</span>
+            <div className="flex justify-between font-medium text-slate-500 text-[10px]">
+              <span>GST (5%)</span>
+              <span className="text-slate-800 font-bold">{formatINR(calculations.totalGstPaise)}</span>
             </div>
             {calculations.roundingPaise !== 0 && (
-              <div className="flex justify-between text-[11px] text-gray-400">
+              <div className="flex justify-between text-[9px] text-slate-400">
                 <span>Round off</span>
                 <span>{formatINR(calculations.roundingPaise)}</span>
               </div>
             )}
           </div>
 
-          <div className="flex items-center justify-between rounded-xl bg-[#FDEBF1] px-4 py-2.5">
-            <span className="text-base font-black text-[#800D32]">Total Amount</span>
-            <span key={total} className="pos-bump text-xl xl:text-2xl font-black text-[#800D32]">
+          {/* Total Amount in emerald accent as in reference */}
+          <div className="flex items-center justify-between rounded-lg bg-slate-50 border border-slate-100 px-3 py-1.5">
+            <span className="text-[11px] font-black text-slate-800 tracking-wide">Total Amount</span>
+            <span key={total} className="pos-bump text-base font-black text-[#00C060]">
               {formatINR(total)}
             </span>
           </div>
 
-          <button
-            onClick={() => openPay()}
-            disabled={!cart.length}
-            className="group w-full flex items-center justify-between gap-2 px-5 py-3.5 rounded-xl bg-gradient-to-r from-[#800D32] to-[#9E1340] text-white shadow-lg shadow-rose-900/25 hover:shadow-xl active:scale-[0.98] transition disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <span className="flex items-center gap-2.5 text-base font-black">
-              <CreditCard className="w-5 h-5" /> Proceed to Pay
-            </span>
-            <span className="text-[10px] font-bold text-rose-200 hidden xl:inline">F10</span>
-            <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-          </button>
+          {/* Action Buttons: Place Order (Pay Later) & Pay Now */}
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={handlePlaceOrderLater}
+              disabled={!cart.length || isProcessing}
+              className="w-full flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-lg border-2 border-emerald-500 text-[#00C060] bg-emerald-50/50 hover:bg-emerald-100/70 text-xs font-black shadow-xs active:scale-[0.98] transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <ChefHat className="w-3.5 h-3.5" /> Place Order
+            </button>
+            <button
+              onClick={() => openPay()}
+              disabled={!cart.length || isProcessing}
+              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg bg-[#00C060] hover:bg-[#00A850] text-white shadow-xs shadow-emerald-500/20 active:scale-[0.98] transition disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <span className="flex items-center gap-1.5 text-xs font-black">
+                <CreditCard className="w-3.5 h-3.5" /> Pay Now
+              </span>
+              <span className="text-[10px] font-bold text-emerald-100 hidden xl:inline">F10</span>
+            </button>
+          </div>
 
-          <div className="grid grid-cols-3 gap-2">
-            <DocButton icon={<ChefHat className="w-5 h-5" />} label="KOT" sub="(F8)" busy={pdfBusy === 'kot'} disabled={!cart.length} onAction={handleKot} />
-            <DocButton icon={<Receipt className="w-5 h-5" />} label="Bill PDF" busy={pdfBusy === 'bill'} disabled={!cart.length} onAction={handleBill} />
-            <DocButton icon={<FileText className="w-5 h-5" />} label="Invoice PDF" busy={pdfBusy === 'invoice'} disabled={!cart.length} onAction={handleInvoice} />
+          {/* Printable Docs (Compact) */}
+          <div className="grid grid-cols-3 gap-1">
+            <DocButton icon={<ChefHat className="w-3.5 h-3.5" />} label="KOT" sub="(F8)" busy={pdfBusy === 'kot'} disabled={!cart.length} onAction={handleKot} />
+            <DocButton icon={<Receipt className="w-3.5 h-3.5" />} label="Bill PDF" busy={pdfBusy === 'bill'} disabled={!cart.length} onAction={handleBill} />
+            <DocButton icon={<FileText className="w-3.5 h-3.5" />} label="Invoice PDF" busy={pdfBusy === 'invoice'} disabled={!cart.length} onAction={handleInvoice} />
           </div>
         </div>
       </aside>
@@ -1647,38 +1729,39 @@ const CartLine = memo(
     const close = useCallback(() => setMenu(false), []);
     useOutside(ref, close, menu);
     return (
-      <div className="pos-in group flex items-center gap-3 py-2.5">
-        <Thumb item={entry.item} catName={catName} className="w-14 h-14 rounded-xl shrink-0" emojiCls="text-3xl" />
+      <div className="pos-in group flex items-center gap-2.5 py-1.5 px-0.5 hover:bg-slate-50/60 rounded-lg transition-colors">
+        <Thumb item={entry.item} catName={catName} className="w-9 h-9 rounded-lg shrink-0 bg-slate-50" emojiCls="text-xl" />
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-1.5">
-            <VegMark veg={entry.item.isVeg} />
-            <h5 className="text-[13px] font-bold text-[#191923] truncate">{entry.item.name}</h5>
+          <div className="flex items-center justify-between gap-1">
+            <h5 className="text-[11px] font-black text-slate-800 truncate" title={entry.item.name}>{entry.item.name}</h5>
+            <span className="text-[11px] font-black text-slate-900 whitespace-nowrap">{formatINR(entry.item.basePricePaise * entry.quantity)}</span>
           </div>
-          {note && <p className="text-[10px] italic text-[#800D32] truncate mt-0.5">“{note}”</p>}
-          <div className="flex items-center gap-2 mt-1">
-            <Stepper qty={entry.quantity} onDec={onDec} onInc={onInc} size="sm" />
-            {sent > 0 && (
-              <span className={`text-[9px] font-black px-1.5 py-0.5 rounded ${sent >= entry.quantity ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
-                {sent >= entry.quantity ? 'KOT ✓' : `+${entry.quantity - sent} new`}
-              </span>
-            )}
-          </div>
-        </div>
-        <span className="text-sm font-black text-[#191923] whitespace-nowrap">{formatINR(entry.item.basePricePaise * entry.quantity)}</span>
-        <div ref={ref} className="relative">
-          <button onClick={() => setMenu((m) => !m)} className="w-7 h-7 rounded-lg text-gray-500 hover:bg-gray-100 flex items-center justify-center" aria-label="Item options">
-            <MoreHorizontal className="w-4 h-4" />
-          </button>
-          {menu && (
-            <div className="pos-pop absolute right-0 top-full mt-1 w-40 bg-white rounded-xl border border-gray-100 shadow-xl p-1 z-20">
-              <button onClick={() => (setMenu(false), onNote())} className="w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs font-bold text-gray-700 hover:bg-[#FDEBF1] hover:text-[#800D32]">
-                <PencilLine className="w-3.5 h-3.5" /> {note ? 'Edit note' : 'Add note'}
-              </button>
-              <button onClick={() => (setMenu(false), onRemove())} className="w-full flex items-center gap-2 px-2.5 py-2 rounded-lg text-xs font-bold text-rose-600 hover:bg-rose-50">
-                <Trash2 className="w-3.5 h-3.5" /> Remove item
-              </button>
+          {note && <p className="text-[9px] italic text-[#00C060] truncate -mt-0.5">“{note}”</p>}
+          <div className="flex items-center justify-between gap-1 mt-1">
+            <div className="flex items-center gap-1.5">
+              <Stepper qty={entry.quantity} onDec={onDec} onInc={onInc} size="sm" />
+              {sent > 0 && (
+                <span className={`text-[8px] font-black px-1 py-0.2 rounded ${sent >= entry.quantity ? 'bg-emerald-50 text-[#00C060]' : 'bg-amber-50 text-amber-700'}`}>
+                  {sent >= entry.quantity ? 'KOT ✓' : `+${entry.quantity - sent}`}
+                </span>
+              )}
             </div>
-          )}
+            <div ref={ref} className="relative">
+              <button onClick={() => setMenu((m) => !m)} className="w-5 h-5 rounded hover:bg-slate-200/60 text-slate-400 hover:text-slate-600 flex items-center justify-center transition" aria-label="Item options">
+                <MoreHorizontal className="w-3 h-3" />
+              </button>
+              {menu && (
+                <div className="pos-pop absolute right-0 top-full mt-1 w-32 bg-white rounded-xl border border-slate-100 shadow-xl p-1 z-20">
+                  <button onClick={() => (setMenu(false), onNote())} className="w-full flex items-center gap-1.5 px-2 py-1 rounded-lg text-[10px] font-bold text-slate-700 hover:bg-emerald-50 hover:text-[#00C060]">
+                    <PencilLine className="w-3 h-3" /> {note ? 'Edit note' : 'Add note'}
+                  </button>
+                  <button onClick={() => (setMenu(false), onRemove())} className="w-full flex items-center gap-1.5 px-2 py-1 rounded-lg text-[10px] font-bold text-rose-500 hover:bg-rose-50">
+                    <Trash2 className="w-3 h-3" /> Remove
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -1686,10 +1769,78 @@ const CartLine = memo(
 );
 
 const TABLE_STATUS_CLS: Record<string, string> = {
-  available: 'border-emerald-200 bg-emerald-50 text-emerald-700',
-  occupied: 'border-rose-200 bg-rose-50 text-[#800D32]',
-  reserved: 'border-amber-200 bg-amber-50 text-amber-700',
-  cleaning: 'border-sky-200 bg-sky-50 text-sky-700',
+  available: 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-300',
+  occupied: 'border-rose-200 bg-rose-50 text-rose-700 hover:border-rose-300',
+  reserved: 'border-amber-200 bg-amber-50 text-amber-700 hover:border-amber-300',
+  cleaning: 'border-sky-200 bg-sky-50 text-sky-700 hover:border-sky-300',
+};
+
+const OrderTypePicker = ({
+  orderType,
+  onChange,
+}: {
+  orderType: OrderTypeKey;
+  onChange: (t: OrderTypeKey) => void;
+}) => {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const close = useCallback(() => setOpen(false), []);
+  useOutside(ref, close, open);
+
+  const options: { id: OrderTypeKey; label: string; icon: React.FC<{ className?: string }> }[] = [
+    { id: 'dine_in', label: 'Dine In', icon: Utensils },
+    { id: 'takeaway', label: 'Takeaway', icon: ShoppingBag },
+    { id: 'delivery', label: 'Delivery', icon: Bike },
+  ];
+
+  const current = options.find((o) => o.id === orderType) || options[0];
+  const CurrentIcon = current.icon;
+
+  return (
+    <div ref={ref} className="relative shrink-0">
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white border border-slate-200/90 text-xs font-black text-slate-800 shadow-xs hover:border-emerald-300 hover:shadow-sm transition"
+      >
+        <span className="w-5 h-5 rounded-lg bg-emerald-50 text-[#00C060] flex items-center justify-center shrink-0">
+          <CurrentIcon className="w-3 h-3 stroke-[2.5]" />
+        </span>
+        <span className="text-slate-600 font-bold">
+          Order Type: <span className="text-[#00C060] font-black">{current.label}</span>
+        </span>
+        <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${open ? 'rotate-180 text-emerald-600' : ''}`} />
+      </button>
+
+      {open && (
+        <div className="pos-pop absolute left-0 top-full mt-1.5 w-44 bg-white rounded-xl border border-slate-100 shadow-xl p-1 z-40 space-y-0.5">
+          {options.map((opt) => {
+            const active = opt.id === orderType;
+            const Icon = opt.icon;
+            return (
+              <button
+                key={opt.id}
+                onClick={() => {
+                  onChange(opt.id);
+                  setOpen(false);
+                }}
+                className={`w-full flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-bold transition ${
+                  active
+                    ? 'bg-[#E7F9F0] text-[#00C060] font-black'
+                    : 'text-slate-700 hover:bg-slate-50 hover:text-slate-900'
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Icon className={`w-3.5 h-3.5 ${active ? 'text-[#00C060]' : 'text-slate-400'}`} />
+                  <span>{opt.label}</span>
+                </div>
+                {active && <Check className="w-3.5 h-3.5 text-[#00C060] stroke-[3]" />}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
 };
 
 const TablePicker = ({ tables, tableId, tableName, disabled, onPick }: { tables: RestaurantTable[]; tableId?: string; tableName?: string; disabled: boolean; onPick: (t?: RestaurantTable) => void }) => {
@@ -1710,19 +1861,22 @@ const TablePicker = ({ tables, tableId, tableName, disabled, onPick }: { tables:
       <button
         disabled={disabled}
         onClick={() => setOpen((o) => !o)}
-        className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border bg-white text-xs xl:text-sm font-black transition disabled:opacity-40 disabled:cursor-not-allowed ${!tableId && !disabled ? 'border-amber-300 text-amber-700' : 'border-gray-200 text-[#191923] hover:border-[#F3C3D2]'
-          }`}
+        className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border bg-white text-xs font-black transition disabled:opacity-40 disabled:cursor-not-allowed shadow-xs ${
+          !tableId && !disabled ? 'border-amber-300 text-amber-700' : 'border-slate-200/90 text-slate-800 hover:border-emerald-300 hover:shadow-sm'
+        }`}
       >
-        <Armchair className="w-4 h-4 text-[#800D32]" />
-        {tableName ?? 'Select Table'}
-        <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${open ? 'rotate-180' : ''}`} />
+        <span className="w-5 h-5 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
+          <Armchair className="w-3 h-3 stroke-[2.5]" />
+        </span>
+        <span className="font-black text-slate-900">{tableName ?? 'Select Table'}</span>
+        <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${open ? 'rotate-180 text-emerald-600' : ''}`} />
       </button>
       {open && (
-        <div className="pos-pop fixed sm:absolute left-3 right-3 sm:left-0 sm:right-auto top-auto sm:top-full mt-2 sm:w-[360px] max-h-[60dvh] overflow-y-auto pos-scroll bg-white rounded-2xl border border-gray-100 shadow-2xl p-3 z-40">
-          {tables.length === 0 && <p className="text-xs text-gray-500 p-2">No tables configured.</p>}
+        <div className="pos-pop fixed sm:absolute left-3 right-3 sm:left-0 sm:right-auto top-auto sm:top-full mt-1.5 sm:w-[340px] max-h-[60dvh] overflow-y-auto pos-scroll bg-white rounded-xl border border-slate-100 shadow-2xl p-2.5 z-40">
+          {tables.length === 0 && <p className="text-xs text-slate-400 p-2">No tables configured.</p>}
           {Object.entries(sections).map(([sec, list]) => (
             <div key={sec} className="mb-2 last:mb-0">
-              <p className="text-[10px] font-black uppercase tracking-wider text-gray-400 mb-1.5">{sec}</p>
+              <p className="text-[9px] font-black uppercase tracking-wider text-slate-400 mb-1 px-1">{sec}</p>
               <div className="grid grid-cols-4 gap-1.5">
                 {list.map((t) => {
                   const st = String((t as unknown as { status?: string }).status ?? 'available').toLowerCase();
@@ -1730,7 +1884,7 @@ const TablePicker = ({ tables, tableId, tableName, disabled, onPick }: { tables:
                     <button
                       key={t.id}
                       onClick={() => (onPick(t), setOpen(false))}
-                      className={`py-2 rounded-lg border text-xs font-black transition hover:scale-105 ${TABLE_STATUS_CLS[st] ?? TABLE_STATUS_CLS.available} ${t.id === tableId ? 'ring-2 ring-[#800D32] ring-offset-1' : ''}`}
+                      className={`py-1.5 rounded-lg border text-xs font-black transition hover:scale-105 ${TABLE_STATUS_CLS[st] ?? TABLE_STATUS_CLS.available} ${t.id === tableId ? 'ring-2 ring-[#00C060] ring-offset-1 border-[#00C060]' : ''}`}
                       title={st}
                     >
                       {t.name}
@@ -1740,15 +1894,15 @@ const TablePicker = ({ tables, tableId, tableName, disabled, onPick }: { tables:
               </div>
             </div>
           ))}
-          <div className="flex flex-wrap gap-3 pt-2 mt-1 border-t border-gray-100 text-[10px] font-bold text-gray-500">
+          <div className="flex flex-wrap gap-2.5 pt-2 mt-1 border-t border-slate-100 text-[9px] font-bold text-slate-400">
             {Object.keys(TABLE_STATUS_CLS).map((s) => (
               <span key={s} className="flex items-center gap-1 capitalize">
-                <span className={`w-2.5 h-2.5 rounded border ${TABLE_STATUS_CLS[s]}`} />
+                <span className={`w-2 h-2 rounded border ${TABLE_STATUS_CLS[s]}`} />
                 {s}
               </span>
             ))}
             {tableId && (
-              <button onClick={() => (onPick(undefined), setOpen(false))} className="ml-auto text-rose-600">
+              <button onClick={() => (onPick(undefined), setOpen(false))} className="ml-auto text-rose-500 font-bold hover:underline">
                 Clear
               </button>
             )}
@@ -1766,18 +1920,33 @@ const GuestPicker = ({ guests, setGuests }: { guests: number; setGuests: (n: num
   useOutside(ref, close, open);
   return (
     <div ref={ref} className="relative shrink-0">
-      <button onClick={() => setOpen((o) => !o)} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-gray-200 bg-white text-xs xl:text-sm font-bold text-[#191923] hover:border-[#F3C3D2] transition">
-        <Users className="w-4 h-4 text-[#800D32]" /> {guests} Guests
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200/90 bg-white text-xs font-bold text-slate-800 shadow-xs hover:border-emerald-300 hover:shadow-sm transition"
+      >
+        <span className="w-5 h-5 rounded-lg bg-emerald-50 text-[#00C060] flex items-center justify-center shrink-0">
+          <Users className="w-3 h-3 stroke-[2.5]" />
+        </span>
+        <span className="font-black text-slate-900">{guests} Guests</span>
+        <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${open ? 'rotate-180 text-emerald-600' : ''}`} />
       </button>
       {open && (
-        <div className="pos-pop absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl border border-gray-100 shadow-2xl p-3 z-40">
-          <div className="flex items-center justify-between mb-2.5">
-            <span className="text-xs font-bold text-gray-600">Guests</span>
-            <Stepper qty={guests} onDec={() => setGuests(Math.max(1, guests - 1))} onInc={() => setGuests(Math.min(50, guests + 1))} />
+        <div className="pos-pop absolute left-0 sm:right-0 sm:left-auto top-full mt-1.5 w-52 bg-white rounded-xl border border-slate-100 shadow-2xl p-2.5 z-40">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[11px] font-bold text-slate-500">Guests</span>
+            <Stepper qty={guests} onDec={() => setGuests(Math.max(1, guests - 1))} onInc={() => setGuests(Math.min(50, guests + 1))} size="xs" />
           </div>
-          <div className="grid grid-cols-5 gap-1.5">
+          <div className="grid grid-cols-5 gap-1">
             {[1, 2, 3, 4, 5, 6, 8, 10, 12, 15].map((n) => (
-              <button key={n} onClick={() => (setGuests(n), setOpen(false))} className={`py-1.5 rounded-lg text-xs font-black border transition ${n === guests ? 'bg-[#800D32] text-white border-[#800D32]' : 'border-gray-200 text-gray-700 hover:border-[#F3C3D2]'}`}>
+              <button
+                key={n}
+                onClick={() => (setGuests(n), setOpen(false))}
+                className={`py-1 rounded-md text-[11px] font-black border transition ${
+                  n === guests
+                    ? 'bg-[#00C060] text-white border-[#00C060] shadow-xs'
+                    : 'border-slate-200/80 text-slate-700 hover:border-emerald-300 hover:text-[#00C060]'
+                }`}
+              >
                 {n}
               </button>
             ))}

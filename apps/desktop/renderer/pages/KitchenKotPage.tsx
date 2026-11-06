@@ -1,53 +1,41 @@
-import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   ChefHat,
-  ClipboardList,
   Clock,
   BellRing,
-  Hourglass,
-  Settings,
-  ChevronDown,
-  ChevronRight,
-  ChevronLeft,
-  LayoutGrid,
-  List,
-  Search,
+  CheckCircle2,
+  Check,
+  MoreHorizontal,
+  Armchair,
+  Users,
+  Maximize2,
+  Minimize2,
   Utensils,
   ShoppingBag,
   Bike,
-  Armchair,
-  Users,
-  CheckCircle2,
-  Check,
-  PencilLine,
-  Eye,
+  Edit2,
   X,
-  Printer,
-  Download,
   FileText,
-  Wine,
-  CakeSlice,
-  StickyNote,
-  AlertCircle,
-  RotateCcw,
-  Trash2,
 } from 'lucide-react';
-import { buildKotPdf, outputPdf, type KotDoc, type OrderTypeKey, type PdfMode } from '../utils/posPdf';
+import { type KotDoc, type OrderTypeKey } from '../utils/posPdf';
 
-/* =====================================================================
-   CONFIG + TYPES
-   ===================================================================== */
-const PAGE_OFFSET = '9.75rem';
-const QUEUE_KEY = 'pos.kotQueue'; // shared with PosPage
+// Food images map
+import butterChickenImg from '../assets/3d/butter_chicken.png';
+import garlicNaanImg from '../assets/3d/garlic_naan.png';
+import classicBurgerImg from '../assets/3d/classic_burger.png';
+import paneerTikkaImg from '../assets/3d/paneer_tikka.png';
+import chickenRiceBowlImg from '../assets/3d/chicken_rice_bowl.png';
+import pepperoniPizzaImg from '../assets/3d/pepperoni_pizza.png';
+import berryCheesecakeImg from '../assets/3d/berry_cheesecake.png';
+import recentDrinkImg from '../assets/3d/recent_drink.png';
+
+const QUEUE_KEY = 'pos.kotQueue';
 const SETTINGS_KEY = 'kot.settings';
 
 type KotStatus = 'pending' | 'preparing' | 'ready' | 'served';
-type Station = 'Main Kitchen' | 'Bar' | 'Desserts';
-type StationFilter = 'all' | Station;
+type OrderFilter = 'all' | OrderTypeKey;
 
-/** KotDoc (from POS) + kitchen tracking fields. Extra fields are optional so old tickets still load. */
-type KotEntry = KotDoc & {
+export type KotEntry = KotDoc & {
   id: string;
   status: KotStatus;
   startedAt?: string;
@@ -55,46 +43,268 @@ type KotEntry = KotDoc & {
   servedAt?: string;
   doneItems?: number[];
   kitchenNote?: string;
+  estMinutes?: number;
 };
 
 interface KotSettings {
   sound: boolean;
   targetMins: number;
-  showCompleted: number; // how many completed tickets to keep visible
-  collapsed: KotStatus[];
+  autoRefresh: boolean;
 }
-const DEFAULT_SETTINGS: KotSettings = { sound: true, targetMins: 20, showCompleted: 20, collapsed: [] };
 
-const COLUMNS: { status: KotStatus; title: string; icon: React.ElementType; head: string; accent: string }[] = [
-  { status: 'pending', title: 'New Orders', icon: ClipboardList, head: 'bg-[#FDECF1]', accent: 'text-[#800D32]' },
-  { status: 'preparing', title: 'Preparing', icon: ChefHat, head: 'bg-[#FFF3E2]', accent: 'text-orange-600' },
-  { status: 'ready', title: 'Ready', icon: BellRing, head: 'bg-[#EAF8EE]', accent: 'text-emerald-600' },
-  { status: 'served', title: 'Completed', icon: CheckCircle2, head: 'bg-[#EEF1FF]', accent: 'text-indigo-600' },
+const DEFAULT_SETTINGS: KotSettings = {
+  sound: true,
+  targetMins: 20,
+  autoRefresh: true,
+};
+
+// Image resolver for order items
+const getItemThumbnail = (name: string): string => {
+  const n = name.toLowerCase();
+  if (/butter chicken/.test(n)) return butterChickenImg;
+  if (/naan|roti|paratha/.test(n)) return garlicNaanImg;
+  if (/burger/.test(n)) return classicBurgerImg;
+  if (/paneer|tikka|kebab/.test(n)) return paneerTikkaImg;
+  if (/rice|biryani|bowl|pulao/.test(n)) return chickenRiceBowlImg;
+  if (/pizza/.test(n)) return pepperoniPizzaImg;
+  if (/cake|cheesecake|dessert|sweet/.test(n)) return berryCheesecakeImg;
+  if (/drink|coke|shake|mojito|tea|coffee|lassi|water|beverage/.test(n)) return recentDrinkImg;
+  return chickenRiceBowlImg;
+};
+
+// Initial Seed KOTs if queue is empty so the UI looks active and populated exactly like the mockup
+const SEED_KOTS: KotEntry[] = [
+  {
+    id: 'kot-1028',
+    kotNumber: 1028,
+    orderNumber: 'ORD-1028',
+    status: 'pending',
+    orderType: 'dine_in',
+    tableName: 'T-06',
+    guests: 2,
+    createdAt: new Date(Date.now() - 2 * 60 * 1000).toISOString(),
+    kitchenNote: 'Medium spicy, extra dip',
+    estMinutes: 15,
+    items: [
+      { name: 'Butter Chicken', qty: 1 },
+      { name: 'Garlic Naan', qty: 2 },
+      { name: 'Masala Coke', qty: 1 },
+    ],
+  },
+  {
+    id: 'kot-1029',
+    kotNumber: 1029,
+    orderNumber: 'ORD-1029',
+    status: 'pending',
+    orderType: 'dine_in',
+    tableName: 'T-03',
+    guests: 3,
+    createdAt: new Date(Date.now() - 3 * 60 * 1000).toISOString(),
+    kitchenNote: '',
+    estMinutes: 18,
+    items: [
+      { name: 'Paneer Tikka', qty: 2 },
+      { name: 'Veg Biryani', qty: 1 },
+    ],
+  },
+  {
+    id: 'kot-1030',
+    kotNumber: 1030,
+    orderNumber: 'ORD-1030',
+    status: 'pending',
+    orderType: 'takeaway',
+    tableName: '',
+    guests: 1,
+    createdAt: new Date(Date.now() - 4 * 60 * 1000).toISOString(),
+    kitchenNote: 'Pack extra cutlery',
+    estMinutes: 12,
+    items: [
+      { name: 'Chicken Seekh Kebab', qty: 1 },
+      { name: 'Mint Raita', qty: 1 },
+    ],
+  },
+  {
+    id: 'kot-1024',
+    kotNumber: 1024,
+    orderNumber: 'ORD-1024',
+    status: 'preparing',
+    orderType: 'dine_in',
+    tableName: 'T-02',
+    guests: 4,
+    createdAt: new Date(Date.now() - 8 * 60 * 1000).toISOString(),
+    startedAt: new Date(Date.now() - 6 * 60 * 1000).toISOString(),
+    kitchenNote: 'Less spicy, extra raita',
+    estMinutes: 20,
+    items: [
+      { name: 'Chicken Biryani', qty: 1 },
+      { name: 'Raita', qty: 1 },
+    ],
+  },
+  {
+    id: 'kot-1025',
+    kotNumber: 1025,
+    orderNumber: 'ORD-1025',
+    status: 'preparing',
+    orderType: 'takeaway',
+    tableName: '',
+    guests: 1,
+    createdAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
+    startedAt: new Date(Date.now() - 7 * 60 * 1000).toISOString(),
+    kitchenNote: 'Extra butter on roti',
+    estMinutes: 15,
+    items: [
+      { name: 'Paneer Butter Masala', qty: 2 },
+      { name: 'Tandoori Roti', qty: 2 },
+    ],
+  },
+  {
+    id: 'kot-1026',
+    kotNumber: 1026,
+    orderNumber: 'ORD-1026',
+    status: 'preparing',
+    orderType: 'delivery',
+    tableName: '',
+    guests: 1,
+    createdAt: new Date(Date.now() - 11 * 60 * 1000).toISOString(),
+    startedAt: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+    kitchenNote: 'Handle with care',
+    estMinutes: 18,
+    items: [
+      { name: 'Hyderabadi Dum Biryani', qty: 1 },
+      { name: 'Coke', qty: 1 },
+    ],
+  },
+  {
+    id: 'kot-1021',
+    kotNumber: 1021,
+    orderNumber: 'ORD-1021',
+    status: 'ready',
+    orderType: 'dine_in',
+    tableName: 'T-04',
+    guests: 2,
+    createdAt: new Date(Date.now() - 18 * 60 * 1000).toISOString(),
+    startedAt: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
+    readyAt: new Date(Date.now() - 3 * 60 * 1000).toISOString(),
+    kitchenNote: '',
+    estMinutes: 15,
+    items: [
+      { name: 'Crispy Corn', qty: 1 },
+      { name: 'Veg Manchurian', qty: 1 },
+    ],
+  },
+  {
+    id: 'kot-1022',
+    kotNumber: 1022,
+    orderNumber: 'ORD-1022',
+    status: 'ready',
+    orderType: 'dine_in',
+    tableName: 'T-01',
+    guests: 2,
+    createdAt: new Date(Date.now() - 20 * 60 * 1000).toISOString(),
+    startedAt: new Date(Date.now() - 17 * 60 * 1000).toISOString(),
+    readyAt: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+    kitchenNote: 'Cut naan in 4 pieces',
+    estMinutes: 15,
+    items: [
+      { name: 'Butter Chicken', qty: 1 },
+      { name: 'Garlic Naan', qty: 2 },
+    ],
+  },
+  {
+    id: 'kot-1023',
+    kotNumber: 1023,
+    orderNumber: 'ORD-1023',
+    status: 'ready',
+    orderType: 'takeaway',
+    tableName: '',
+    guests: 1,
+    createdAt: new Date(Date.now() - 22 * 60 * 1000).toISOString(),
+    startedAt: new Date(Date.now() - 18 * 60 * 1000).toISOString(),
+    readyAt: new Date(Date.now() - 4 * 60 * 1000).toISOString(),
+    kitchenNote: '',
+    estMinutes: 15,
+    items: [
+      { name: 'Paneer Tikka', qty: 1 },
+      { name: 'Lachha Paratha', qty: 1 },
+    ],
+  },
+  {
+    id: 'kot-1018',
+    kotNumber: 1018,
+    orderNumber: 'ORD-1018',
+    status: 'served',
+    orderType: 'dine_in',
+    tableName: 'T-08',
+    guests: 4,
+    createdAt: new Date(Date.now() - 28 * 60 * 1000).toISOString(),
+    startedAt: new Date(Date.now() - 24 * 60 * 1000).toISOString(),
+    readyAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
+    servedAt: new Date(Date.now() - 8 * 60 * 1000).toISOString(),
+    kitchenNote: '',
+    estMinutes: 20,
+    items: [
+      { name: 'Dal Makhani', qty: 1 },
+      { name: 'Garlic Naan', qty: 2 },
+    ],
+  },
+  {
+    id: 'kot-1019',
+    kotNumber: 1019,
+    orderNumber: 'ORD-1019',
+    status: 'served',
+    orderType: 'dine_in',
+    tableName: 'T-05',
+    guests: 2,
+    createdAt: new Date(Date.now() - 31 * 60 * 1000).toISOString(),
+    startedAt: new Date(Date.now() - 27 * 60 * 1000).toISOString(),
+    readyAt: new Date(Date.now() - 12 * 60 * 1000).toISOString(),
+    servedAt: new Date(Date.now() - 9 * 60 * 1000).toISOString(),
+    kitchenNote: '',
+    estMinutes: 18,
+    items: [
+      { name: 'Chicken Curry', qty: 1 },
+      { name: 'Jeera Rice', qty: 1 },
+    ],
+  },
+  {
+    id: 'kot-1020',
+    kotNumber: 1020,
+    orderNumber: 'ORD-1020',
+    status: 'served',
+    orderType: 'delivery',
+    tableName: '',
+    guests: 1,
+    createdAt: new Date(Date.now() - 34 * 60 * 1000).toISOString(),
+    startedAt: new Date(Date.now() - 29 * 60 * 1000).toISOString(),
+    readyAt: new Date(Date.now() - 14 * 60 * 1000).toISOString(),
+    servedAt: new Date(Date.now() - 10 * 60 * 1000).toISOString(),
+    kitchenNote: 'Cutlery included',
+    estMinutes: 20,
+    items: [
+      { name: 'Veg Biryani', qty: 1 },
+      { name: 'Raita', qty: 1 },
+    ],
+  },
 ];
 
-const STATUS_PILL: Record<KotStatus, { cls: string; label: string }> = {
-  pending: { cls: 'bg-rose-100 text-[#B0123F]', label: 'New Order' },
-  preparing: { cls: 'bg-orange-100 text-orange-700', label: 'Preparing' },
-  ready: { cls: 'bg-emerald-100 text-emerald-700', label: 'Ready' },
-  served: { cls: 'bg-indigo-100 text-indigo-700', label: 'Completed' },
-};
-
-const TYPE_META: Record<OrderTypeKey, { label: string; icon: React.ElementType }> = {
-  dine_in: { label: 'Dine In', icon: Utensils },
-  takeaway: { label: 'Takeaway', icon: ShoppingBag },
-  delivery: { label: 'Delivery', icon: Bike },
-};
-
-/* =====================================================================
-   HELPERS
-   ===================================================================== */
 const readQueue = (): KotEntry[] => {
   try {
-    return JSON.parse(localStorage.getItem(QUEUE_KEY) || '[]') as KotEntry[];
+    const raw = localStorage.getItem(QUEUE_KEY);
+    if (!raw) {
+      localStorage.setItem(QUEUE_KEY, JSON.stringify(SEED_KOTS));
+      return SEED_KOTS;
+    }
+    const parsed = JSON.parse(raw) as KotEntry[];
+    if (parsed.length === 0) {
+      localStorage.setItem(QUEUE_KEY, JSON.stringify(SEED_KOTS));
+      return SEED_KOTS;
+    }
+    return parsed;
   } catch {
-    return [];
+    return SEED_KOTS;
   }
 };
+
 const writeQueue = (q: KotEntry[]) => {
   try {
     localStorage.setItem(QUEUE_KEY, JSON.stringify(q));
@@ -103,214 +313,24 @@ const writeQueue = (q: KotEntry[]) => {
   }
 };
 
-const kotLabel = (n: number) => `#KOT${String(n).padStart(3, '0')}`;
-const minsSince = (iso: string | undefined, now: number) => (iso ? Math.max(0, Math.floor((now - new Date(iso).getTime()) / 60000)) : 0);
-const ago = (iso: string | undefined, now: number) => {
+const minsSince = (iso: string | undefined, now: number) =>
+  iso ? Math.max(0, Math.floor((now - new Date(iso).getTime()) / 60000)) : 0;
+
+const formatAgo = (iso: string | undefined, now: number) => {
   const m = minsSince(iso, now);
-  return m < 1 ? 'Just now' : m < 60 ? `${m} min ago` : `${Math.floor(m / 60)}h ${m % 60}m ago`;
-};
-const clock = (iso: string) => new Date(iso).toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' });
-const isToday = (iso: string) => new Date(iso).toDateString() === new Date().toDateString();
-
-const stationOf = (name: string): Station => {
-  const n = name.toLowerCase();
-  if (/coffee|tea|chai|mojito|mocktail|cocktail|shake|smoothie|juice|soda|cola|lassi|beer|wine|water|lemonade|latte|cappuccino/.test(n)) return 'Bar';
-  if (/ice ?cream|sundae|dessert|cake|brownie|pastry|kulfi|gulab|rasmalai|halwa|pudding|waffle/.test(n)) return 'Desserts';
-  return 'Main Kitchen';
-};
-const kotStations = (k: KotEntry) => new Set(k.items.map((i) => stationOf(i.name)));
-
-const emojiFor = (name: string) => {
-  const n = name.toLowerCase();
-  const map: [RegExp, string][] = [
-    [/burger/, '🍔'], [/pizza/, '🍕'], [/fries/, '🍟'], [/coffee|latte|cappuccino/, '☕'], [/ice ?cream|sundae|kulfi/, '🍨'],
-    [/mojito|mocktail|lemon|soda|cola/, '🍹'], [/shake|smoothie/, '🥤'], [/tea|chai/, '🍵'], [/biryani/, '🍛'], [/rice/, '🍚'],
-    [/noodle|chowmein|hakka/, '🍜'], [/manchurian/, '🥘'], [/dosa|idli|uttapam/, '🥞'], [/tikka|kebab|tandoor/, '🍢'],
-    [/chicken|wings/, '🍗'], [/paneer|curry|dal|masala/, '🍲'], [/sandwich|wrap|roll/, '🥪'], [/cake|pastry|brownie/, '🍰'],
-    [/salad/, '🥗'], [/soup/, '🥣'], [/pasta/, '🍝'], [/momo|dumpling/, '🥟'], [/naan|roti|paratha/, '🫓'],
-  ];
-  return map.find(([r]) => r.test(n))?.[1] ?? '🍽️';
+  if (m < 1) return 'Just now';
+  return `${m} min ago`;
 };
 
-/** Short beep via Web Audio — no audio file to load. */
-function beep() {
-  try {
-    const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-    const ctx = new Ctx();
-    [0, 0.22].forEach((t) => {
-      const o = ctx.createOscillator();
-      const g = ctx.createGain();
-      o.frequency.value = 880;
-      g.gain.setValueAtTime(0.0001, ctx.currentTime + t);
-      g.gain.exponentialRampToValueAtTime(0.25, ctx.currentTime + t + 0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + t + 0.18);
-      o.connect(g).connect(ctx.destination);
-      o.start(ctx.currentTime + t);
-      o.stop(ctx.currentTime + t + 0.2);
-    });
-    setTimeout(() => ctx.close(), 800);
-  } catch {
-    /* audio blocked until user interacts — ignore */
-  }
-}
-
-/* =====================================================================
-   SMALL UI
-   ===================================================================== */
-const Modal: React.FC<{ open: boolean; onClose: () => void; title: string; subtitle?: string; width?: string; footer?: React.ReactNode; children: React.ReactNode }> = ({
-  open,
-  onClose,
-  title,
-  subtitle,
-  width = 'max-w-md',
-  footer,
-  children,
-}) =>
-  open ? (
-    <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center sm:p-4 bg-black/40" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <div className={`bg-white w-full ${width} max-h-[90dvh] flex flex-col rounded-t-2xl sm:rounded-2xl shadow-2xl`}>
-        <div className="flex items-center gap-3 px-5 py-4 border-b border-gray-100">
-          <div className="flex-1 min-w-0">
-            <h3 className="text-base font-black text-[#191923] truncate">{title}</h3>
-            {subtitle && <p className="text-xs text-gray-500 truncate">{subtitle}</p>}
-          </div>
-          <button onClick={onClose} className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-500" aria-label="Close">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-        <div className="flex-1 overflow-y-auto px-5 py-4">{children}</div>
-        {footer && <div className="px-5 py-3.5 border-t border-gray-100 bg-[#FCF8F9] rounded-b-2xl">{footer}</div>}
-      </div>
-    </div>
-  ) : null;
-
-const StatCard = ({ icon, value, label, tint }: { icon: React.ReactNode; value: React.ReactNode; label: string; tint: string }) => (
-  <div className="shrink-0 flex items-center gap-3 bg-white rounded-2xl border border-gray-100 shadow-sm px-4 py-3 min-w-[148px]">
-    <div className={`w-11 h-11 rounded-xl flex items-center justify-center ${tint}`}>{icon}</div>
-    <div>
-      <p className="text-xl font-black text-[#191923] leading-none">{value}</p>
-      <p className="text-xs font-semibold text-gray-500 mt-1">{label}</p>
-    </div>
-  </div>
-);
-
-const TypeBadge = ({ type }: { type: OrderTypeKey }) => {
-  const m = TYPE_META[type] ?? TYPE_META.dine_in;
-  return (
-    <span className="inline-flex items-center gap-1 rounded-lg bg-[#FDEBF1] px-2 py-1 text-[11px] font-bold text-[#800D32] shrink-0">
-      <m.icon className="w-3.5 h-3.5" />
-      {m.label}
-    </span>
-  );
+const formatTimeOnly = (iso: string) => {
+  return new Date(iso).toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  });
 };
 
-const subtitleOf = (k: KotEntry) => `${k.orderType === 'dine_in' ? `Table ${k.tableName ?? '-'}` : TYPE_META[k.orderType]?.label ?? ''} • ${k.items.length} Item${k.items.length === 1 ? '' : 's'}`;
-
-/* =====================================================================
-   KOT CARD
-   ===================================================================== */
-type CardProps = {
-  k: KotEntry;
-  now: number;
-  target: number;
-  selected: boolean;
-  onSelect: (id: string) => void;
-  onAdvance: (id: string) => void;
-  onUpdate: (id: string) => void;
-};
-
-const KotCard = memo(({ k, now, target, selected, onSelect, onAdvance, onUpdate }: CardProps) => {
-  const prepMins = minsSince(k.startedAt ?? k.createdAt, now);
-  const overdue = k.status !== 'served' && minsSince(k.createdAt, now) >= target;
-  const done = k.doneItems?.length ?? 0;
-  return (
-    <div
-      onClick={() => onSelect(k.id)}
-      className={`bg-white rounded-2xl border p-3.5 cursor-pointer hover:shadow-md transition-shadow ${selected ? 'border-[#800D32] ring-1 ring-[#800D32]' : overdue ? 'border-rose-300' : 'border-gray-100 shadow-sm'
-        }`}
-    >
-      <div className="flex items-start justify-between gap-2">
-        <p className="text-base font-black text-[#191923]">{kotLabel(k.kotNumber)}</p>
-        <TypeBadge type={k.orderType} />
-      </div>
-      <div className="flex items-center justify-between gap-2 mt-0.5 mb-2.5">
-        <p className="text-xs font-semibold text-gray-500 truncate">{subtitleOf(k)}</p>
-        {k.status === 'pending' && <span className={`text-[11px] font-bold ${overdue ? 'text-rose-600' : 'text-[#B0123F]'}`}>{ago(k.createdAt, now)}</span>}
-        {k.status === 'preparing' && (
-          <span className={`inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[11px] font-black ${overdue ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'}`}>
-            <Clock className="w-3 h-3" /> {prepMins} min
-          </span>
-        )}
-        {k.status === 'ready' && (
-          <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700">
-            <CheckCircle2 className="w-3.5 h-3.5" /> Ready • {minsSince(k.readyAt, now)} min
-          </span>
-        )}
-        {k.status === 'served' && (
-          <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-gray-500">
-            <Check className="w-3.5 h-3.5 text-emerald-600" /> {ago(k.servedAt, now)}
-          </span>
-        )}
-      </div>
-
-      <ul className="space-y-1.5">
-        {k.items.map((it, i) => {
-          const isDone = k.doneItems?.includes(i);
-          return (
-            <li key={i} className="flex items-center gap-2.5 text-[13px]">
-              <span className="w-7 text-center text-lg leading-none shrink-0">{emojiFor(it.name)}</span>
-              <span className={`flex-1 min-w-0 font-semibold truncate ${isDone ? 'line-through text-gray-400' : 'text-[#191923]'}`}>
-                {it.name}
-                {it.notes && <span className="block text-[10px] italic font-medium text-[#800D32] truncate">{it.notes}</span>}
-              </span>
-              <span className="font-black text-[#191923]">×{it.qty}</span>
-            </li>
-          );
-        })}
-      </ul>
-
-      {k.status === 'preparing' && (
-        <div className="h-1.5 rounded-full bg-gray-100 mt-3 overflow-hidden">
-          <div className="h-full rounded-full bg-orange-500" style={{ width: `${Math.max(8, (done / k.items.length) * 100)}%` }} />
-        </div>
-      )}
-
-      <div className="mt-3" onClick={(e) => e.stopPropagation()}>
-        {k.status === 'pending' && (
-          <button onClick={() => onAdvance(k.id)} className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#800D32] text-white text-sm font-black hover:bg-[#6a0a29]">
-            <ChefHat className="w-4 h-4" /> Start Preparing
-          </button>
-        )}
-        {k.status === 'preparing' && (
-          <div className="grid grid-cols-2 gap-2">
-            <button onClick={() => onAdvance(k.id)} className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 text-sm font-black hover:bg-emerald-100">
-              <Check className="w-4 h-4" /> Mark Ready
-            </button>
-            <button onClick={() => onUpdate(k.id)} className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-xl border border-gray-200 text-sm font-bold text-[#191923] hover:border-[#F3C3D2]">
-              <PencilLine className="w-4 h-4" /> Update
-            </button>
-          </div>
-        )}
-        {k.status === 'ready' && (
-          <button onClick={() => onAdvance(k.id)} className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl bg-[#800D32] text-white text-sm font-black hover:bg-[#6a0a29]">
-            <BellRing className="w-4 h-4" /> Serve / Complete
-          </button>
-        )}
-        {k.status === 'served' && (
-          <button onClick={() => onSelect(k.id)} className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl border border-gray-200 text-sm font-bold text-[#191923] hover:border-[#F3C3D2]">
-            <Eye className="w-4 h-4" /> View
-          </button>
-        )}
-      </div>
-    </div>
-  );
-});
-
-/* =====================================================================
-   PAGE
-   ===================================================================== */
 export const KitchenKotPage: React.FC = () => {
-  const navigate = useNavigate();
   const [queue, setQueue] = useState<KotEntry[]>(readQueue);
   const [settings, setSettings] = useState<KotSettings>(() => {
     try {
@@ -319,49 +339,49 @@ export const KitchenKotPage: React.FC = () => {
       return DEFAULT_SETTINGS;
     }
   });
-  const [station, setStation] = useState<StationFilter>('all');
-  const [view, setView] = useState<'kanban' | 'list'>(() => (localStorage.getItem('kot.view') as 'kanban' | 'list') || 'kanban');
-  const [query, setQuery] = useState('');
-  const [selectedId, setSelectedId] = useState<string | undefined>();
-  const [modal, setModal] = useState<null | 'update' | 'order' | 'settings'>(null);
-  const [updateId, setUpdateId] = useState<string | undefined>();
-  const [mobileDetails, setMobileDetails] = useState(false);
+
+  const [orderFilter, setOrderFilter] = useState<OrderFilter>('all');
+  const [selectedId, setSelectedId] = useState<string | undefined>('kot-1024');
   const [now, setNow] = useState(Date.now());
-  const [toast, setToast] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [serverAlertKot, setServerAlertKot] = useState<string | null>(null);
+  const [actionModal, setActionModal] = useState<null | { type: 'addTime' | 'edit' | 'cancel'; kotId: string }>(null);
+  const [extraTime, setExtraTime] = useState(5);
+  const [editNote, setEditNote] = useState('');
+
   const seenIds = useRef<Set<string>>(new Set(queue.map((k) => k.id)));
 
-  useEffect(() => {
-    try {
-      localStorage.setItem(SETTINGS_KEY, JSON.stringify(settings));
-    } catch {
-      /* ignore */
+  // Fullscreen handler
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen().then(() => setIsFullscreen(true)).catch(() => {});
+    } else {
+      document.exitFullscreen().then(() => setIsFullscreen(false)).catch(() => {});
     }
-  }, [settings]);
-  useEffect(() => {
-    localStorage.setItem('kot.view', view);
-  }, [view]);
-  useEffect(() => {
-    if (!toast) return;
-    const t = setTimeout(() => setToast(null), 2600);
-    return () => clearTimeout(t);
-  }, [toast]);
+  };
 
-  /* ---------- live sync: other tabs (storage event) + light polling ---------- */
+  useEffect(() => {
+    const handleFsChange = () => setIsFullscreen(!!document.fullscreenElement);
+    document.addEventListener('fullscreenchange', handleFsChange);
+    return () => document.removeEventListener('fullscreenchange', handleFsChange);
+  }, []);
+
+  // Sync with localStorage
   const syncFromStorage = useCallback(() => {
+    if (!settings.autoRefresh) return;
     const q = readQueue();
     const fresh = q.filter((k) => !seenIds.current.has(k.id));
     if (fresh.length) {
       fresh.forEach((k) => seenIds.current.add(k.id));
-      if (settings.sound && fresh.some((k) => k.status === 'pending')) beep();
     }
     setQueue((cur) => (JSON.stringify(cur) === JSON.stringify(q) ? cur : q));
-  }, [settings.sound]);
+  }, [settings.autoRefresh]);
 
   useEffect(() => {
     const onStorage = (e: StorageEvent) => e.key === QUEUE_KEY && syncFromStorage();
     window.addEventListener('storage', onStorage);
-    const poll = setInterval(syncFromStorage, 5000);
-    const tick = setInterval(() => setNow(Date.now()), 30_000);
+    const poll = setInterval(syncFromStorage, 4000);
+    const tick = setInterval(() => setNow(Date.now()), 20000);
     return () => {
       window.removeEventListener('storage', onStorage);
       clearInterval(poll);
@@ -369,7 +389,6 @@ export const KitchenKotPage: React.FC = () => {
     };
   }, [syncFromStorage]);
 
-  /** Always mutate the latest stored queue so we never overwrite tickets POS just added. */
   const mutate = useCallback((fn: (q: KotEntry[]) => KotEntry[]) => {
     const next = fn(readQueue());
     writeQueue(next);
@@ -377,524 +396,885 @@ export const KitchenKotPage: React.FC = () => {
     setQueue(next);
   }, []);
 
-  /* ---------- derived ---------- */
-  const today = useMemo(() => queue.filter((k) => isToday(k.createdAt) || k.status !== 'served'), [queue]);
+  // Filtered by order type
+  const filteredQueue = useMemo(() => {
+    if (orderFilter === 'all') return queue;
+    return queue.filter((k) => k.orderType === orderFilter);
+  }, [queue, orderFilter]);
 
-  const stationCounts = useMemo(() => {
-    const c: Record<Station, number> = { 'Main Kitchen': 0, Bar: 0, Desserts: 0 };
-    today.forEach((k) => kotStations(k).forEach((s) => (c[s] += 1)));
-    return c;
-  }, [today]);
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase().replace('#', '');
-    return today.filter((k) => {
-      if (station !== 'all' && !kotStations(k).has(station)) return false;
-      if (!q) return true;
-      return [kotLabel(k.kotNumber).slice(1), String(k.kotNumber), k.orderNumber, k.tableName ?? '', ...k.items.map((i) => i.name)].some((x) => x.toLowerCase().includes(q));
-    });
-  }, [today, station, query]);
-
-  const byStatus = useMemo(() => {
-    const m: Record<KotStatus, KotEntry[]> = { pending: [], preparing: [], ready: [], served: [] };
-    filtered.forEach((k) => m[k.status]?.push(k));
-    m.pending.sort((a, b) => a.createdAt.localeCompare(b.createdAt)); // oldest first
-    m.preparing.sort((a, b) => (a.startedAt ?? a.createdAt).localeCompare(b.startedAt ?? b.createdAt));
-    m.ready.sort((a, b) => (a.readyAt ?? '').localeCompare(b.readyAt ?? ''));
-    m.served.sort((a, b) => (b.servedAt ?? b.createdAt).localeCompare(a.servedAt ?? a.createdAt));
-    m.served = m.served.slice(0, settings.showCompleted);
-    return m;
-  }, [filtered, settings.showCompleted]);
-
-  const stats = useMemo(() => {
-    const prep = today.filter((k) => k.readyAt).map((k) => (new Date(k.readyAt!).getTime() - new Date(k.createdAt).getTime()) / 60000);
+  // Breakdown by status
+  const columns = useMemo(() => {
     return {
-      total: today.length,
-      pending: today.filter((k) => k.status === 'pending').length,
-      preparing: today.filter((k) => k.status === 'preparing').length,
-      ready: today.filter((k) => k.status === 'ready').length,
-      avg: prep.length ? Math.round(prep.reduce((a, b) => a + b, 0) / prep.length) : 0,
+      pending: filteredQueue.filter((k) => k.status === 'pending'),
+      preparing: filteredQueue.filter((k) => k.status === 'preparing'),
+      ready: filteredQueue.filter((k) => k.status === 'ready'),
+      served: filteredQueue.filter((k) => k.status === 'served'),
     };
-  }, [today]);
+  }, [filteredQueue]);
 
-  useEffect(() => {
-    if (selectedId && queue.some((k) => k.id === selectedId)) return;
-    setSelectedId((byStatus.pending[0] ?? byStatus.preparing[0] ?? byStatus.ready[0])?.id);
-  }, [queue, selectedId, byStatus]);
+  // Counts for tabs
+  const typeCounts = useMemo(() => {
+    return {
+      all: queue.length,
+      dine_in: queue.filter((k) => k.orderType === 'dine_in').length,
+      takeaway: queue.filter((k) => k.orderType === 'takeaway').length,
+      delivery: queue.filter((k) => k.orderType === 'delivery').length,
+    };
+  }, [queue]);
 
-  const sel = queue.find((k) => k.id === selectedId);
-  const updating = queue.find((k) => k.id === updateId);
+  // Selected KOT object
+  const selectedKot = useMemo(() => {
+    return queue.find((k) => k.id === selectedId) || queue[0];
+  }, [queue, selectedId]);
 
-  /* ---------- actions ---------- */
-  const advance = useCallback(
-    (id: string) => {
-      const stamp = new Date().toISOString();
-      mutate((q) =>
-        q.map((k) => {
-          if (k.id !== id) return k;
-          if (k.status === 'pending') return { ...k, status: 'preparing', startedAt: stamp };
-          if (k.status === 'preparing') return { ...k, status: 'ready', readyAt: stamp, doneItems: k.items.map((_, i) => i) };
-          if (k.status === 'ready') return { ...k, status: 'served', servedAt: stamp };
-          return k;
-        })
-      );
-    },
-    [mutate]
-  );
-
-  const revert = (id: string) =>
+  // State transitions
+  const handleStart = (id: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
     mutate((q) =>
-      q.map((k) => {
-        if (k.id !== id) return k;
-        if (k.status === 'served') return { ...k, status: 'ready', servedAt: undefined };
-        if (k.status === 'ready') return { ...k, status: 'preparing', readyAt: undefined };
-        if (k.status === 'preparing') return { ...k, status: 'pending', startedAt: undefined, doneItems: [] };
-        return k;
-      })
+      q.map((k) => (k.id === id ? { ...k, status: 'preparing', startedAt: new Date().toISOString() } : k))
     );
-
-  const saveUpdate = (id: string, doneItems: number[], kitchenNote: string) => {
-    mutate((q) => q.map((k) => (k.id === id ? { ...k, doneItems, kitchenNote: kitchenNote || undefined } : k)));
-    setModal(null);
-    setToast({ type: 'success', text: 'KOT updated' });
-  };
-
-  const pdf = async (k: KotEntry, mode: PdfMode) => {
-    try {
-      const doc = await buildKotPdf(k);
-      outputPdf(doc, `KOT-${k.kotNumber}-${k.orderNumber}.pdf`, mode);
-    } catch (e) {
-      console.error(e);
-      setToast({ type: 'error', text: 'Could not generate PDF' });
-    }
-  };
-
-  const select = useCallback((id: string) => {
     setSelectedId(id);
-    if (window.matchMedia('(max-width: 1279px)').matches) setMobileDetails(true);
-  }, []);
-  const openUpdate = useCallback((id: string) => {
-    setUpdateId(id);
-    setModal('update');
-  }, []);
+  };
 
-  const toggleCollapse = (s: KotStatus) =>
-    setSettings((st) => ({ ...st, collapsed: st.collapsed.includes(s) ? st.collapsed.filter((x) => x !== s) : [...st.collapsed, s] }));
+  const handleMarkReady = (id: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    mutate((q) =>
+      q.map((k) => (k.id === id ? { ...k, status: 'ready', readyAt: new Date().toISOString() } : k))
+    );
+    setSelectedId(id);
+  };
 
-  const orderKots = sel ? queue.filter((k) => k.orderNumber === sel.orderNumber).sort((a, b) => a.kotNumber - b.kotNumber) : [];
+  const handleCallServer = (id: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    setServerAlertKot(id);
+    setTimeout(() => setServerAlertKot(null), 3000);
+  };
 
-  /* ---------- details panel ---------- */
-  const details = sel ? (
-    <div className="flex flex-col gap-3 h-full min-h-0">
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm flex-1 min-h-0 flex flex-col overflow-hidden">
-        <div className="bg-[#FFF5F8] px-4 pt-4 pb-3 border-b border-gray-100">
-          <div className="flex items-center gap-2">
-            <h2 className="text-2xl font-black text-[#191923] mr-auto">{kotLabel(sel.kotNumber)}</h2>
-            <span className={`px-3 py-1 rounded-full text-xs font-bold ${STATUS_PILL[sel.status].cls}`}>{STATUS_PILL[sel.status].label}</span>
-            <button onClick={() => (setSelectedId(undefined), setMobileDetails(false))} className="w-8 h-8 rounded-lg hover:bg-white flex items-center justify-center text-gray-600" aria-label="Close">
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-          <div className="flex items-center gap-4 flex-wrap mt-2 text-xs font-semibold text-gray-700">
-            <span className="flex items-center gap-1">
-              {React.createElement(TYPE_META[sel.orderType]?.icon ?? Utensils, { className: 'w-3.5 h-3.5' })} {TYPE_META[sel.orderType]?.label}
-            </span>
-            {sel.orderType === 'dine_in' && (
-              <span className="flex items-center gap-1">
-                <Armchair className="w-3.5 h-3.5" /> Table {sel.tableName ?? '-'}
-              </span>
-            )}
-            <span className="flex items-center gap-1">
-              <Users className="w-3.5 h-3.5" /> {sel.guests} Guests
-            </span>
-          </div>
-          <p className="flex items-center gap-1 mt-1.5 text-xs font-semibold text-gray-700">
-            <Clock className="w-3.5 h-3.5" /> Order Time: {clock(sel.createdAt)} ({ago(sel.createdAt, now)})
-          </p>
-        </div>
+  const handleServe = (id: string, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    mutate((q) =>
+      q.map((k) => (k.id === id ? { ...k, status: 'served', servedAt: new Date().toISOString() } : k))
+    );
+    setSelectedId(id);
+  };
 
-        <div className="flex-1 min-h-0 overflow-y-auto px-4 py-3">
-          <p className="text-sm font-black text-[#191923] mb-2">Order Items ({sel.items.length})</p>
-          <ul className="space-y-1.5">
-            {sel.items.map((it, i) => (
-              <li key={i} className="flex items-center gap-3 rounded-xl px-2 py-1.5 hover:bg-gray-50">
-                <span className="w-11 h-11 rounded-xl bg-[#FFF5F8] flex items-center justify-center text-2xl shrink-0">{emojiFor(it.name)}</span>
-                <span className={`flex-1 min-w-0 text-sm font-bold truncate ${sel.doneItems?.includes(i) ? 'line-through text-gray-400' : 'text-[#191923]'}`}>
-                  {it.name}
-                  <span className="block text-[10px] font-semibold text-gray-400">{stationOf(it.name)}</span>
-                </span>
-                <span className="text-sm font-black">× {it.qty}</span>
-              </li>
-            ))}
-          </ul>
+  const handleAddExtraTime = () => {
+    if (!actionModal) return;
+    mutate((q) =>
+      q.map((k) =>
+        k.id === actionModal.kotId
+          ? { ...k, estMinutes: (k.estMinutes || 15) + extraTime }
+          : k
+      )
+    );
+    setActionModal(null);
+  };
 
-          {(sel.items.some((i) => i.notes) || sel.orderNote || sel.kitchenNote) && (
-            <>
-              <p className="text-sm font-black text-[#191923] mt-4 mb-2">Remarks</p>
-              <div className="rounded-xl bg-[#FFF1F4] px-3 py-2.5 text-xs font-semibold text-[#191923] space-y-1">
-                {sel.items
-                  .filter((i) => i.notes)
-                  .map((i, n) => (
-                    <p key={n} className="flex items-start gap-1.5">
-                      <StickyNote className="w-3.5 h-3.5 text-[#800D32] shrink-0 mt-px" />
-                      {i.name} – {i.notes}
-                    </p>
-                  ))}
-                {sel.orderNote && <p>Order: {sel.orderNote}</p>}
-                {sel.kitchenNote && <p className="text-orange-700">Kitchen: {sel.kitchenNote}</p>}
-              </div>
-            </>
-          )}
-        </div>
-      </div>
+  const handleSaveEditNote = () => {
+    if (!actionModal) return;
+    mutate((q) =>
+      q.map((k) => (k.id === actionModal.kotId ? { ...k, kitchenNote: editNote } : k))
+    );
+    setActionModal(null);
+  };
 
-      <div className="space-y-2.5">
-        {sel.status !== 'served' ? (
-          <button onClick={() => advance(sel.id)} className="w-full inline-flex items-center justify-center gap-2 py-3.5 rounded-xl bg-[#800D32] text-white text-base font-black shadow-md hover:bg-[#6a0a29]">
-            {sel.status === 'pending' ? <ChefHat className="w-5 h-5" /> : sel.status === 'preparing' ? <Check className="w-5 h-5" /> : <BellRing className="w-5 h-5" />}
-            {sel.status === 'pending' ? 'Start Preparing' : sel.status === 'preparing' ? 'Mark Ready' : 'Serve / Complete'}
-          </button>
-        ) : (
-          <div className="w-full py-3 rounded-xl bg-indigo-50 text-indigo-700 text-sm font-black text-center">Served {ago(sel.servedAt, now)}</div>
-        )}
-        <div className="grid grid-cols-3 gap-2">
-          {[
-            { l: 'Print KOT', i: Printer, on: () => pdf(sel, 'print') },
-            { l: 'Download PDF', i: FileText, on: () => pdf(sel, 'download') },
-            { l: 'View Order', i: Eye, on: () => setModal('order') },
-          ].map((b) => (
-            <button key={b.l} onClick={b.on} className="flex flex-col items-center gap-1 py-2.5 rounded-xl border border-gray-100 bg-white shadow-sm text-xs font-bold text-[#191923] hover:border-[#F3C3D2]">
-              <b.i className="w-5 h-5 text-[#800D32]" />
-              {b.l}
-            </button>
-          ))}
-        </div>
-        {sel.status !== 'pending' && (
-          <button onClick={() => revert(sel.id)} className="w-full inline-flex items-center justify-center gap-1.5 py-2 rounded-xl text-xs font-bold text-gray-500 hover:text-[#800D32]">
-            <RotateCcw className="w-3.5 h-3.5" /> Move back a step
-          </button>
-        )}
-      </div>
-    </div>
-  ) : null;
-
-  /* ---------- render ---------- */
-  const stationTabs: { k: StationFilter; l: string; i: React.ElementType; n: number }[] = [
-    { k: 'all', l: 'All Orders', i: ClipboardList, n: today.length },
-    { k: 'Main Kitchen', l: 'Main Kitchen', i: ChefHat, n: stationCounts['Main Kitchen'] },
-    { k: 'Bar', l: 'Bar', i: Wine, n: stationCounts.Bar },
-    { k: 'Desserts', l: 'Desserts', i: CakeSlice, n: stationCounts.Desserts },
-  ];
-
-  const cardProps = { now, target: settings.targetMins, onSelect: select, onAdvance: advance, onUpdate: openUpdate };
+  const handleCancelKot = () => {
+    if (!actionModal) return;
+    mutate((q) => q.filter((k) => k.id !== actionModal.kotId));
+    setActionModal(null);
+    setSelectedId(queue.find((k) => k.id !== actionModal.kotId)?.id);
+  };
 
   return (
-    <div className="flex flex-col gap-3 overflow-hidden" style={{ height: `calc(100dvh - var(--pos-offset, ${PAGE_OFFSET}))` }}>
-      {toast && (
-        <div className={`fixed top-5 right-5 z-[80] px-4 py-3 rounded-xl shadow-2xl flex items-center gap-2.5 text-sm font-bold border ${toast.type === 'success' ? 'bg-[#800D32] text-white border-rose-400' : 'bg-white text-rose-700 border-rose-200'}`}>
-          {toast.type === 'success' ? <CheckCircle2 className="w-5 h-5 text-emerald-300" /> : <AlertCircle className="w-5 h-5 text-rose-500" />}
-          {toast.text}
-        </div>
-      )}
-
-      {/* ===== Header ===== */}
-      <div className="flex items-center gap-3 flex-wrap xl:flex-nowrap">
-        <div className="flex items-center gap-3 mr-auto">
-          <ChefHat className="w-11 h-11 text-[#800D32]" strokeWidth={1.8} />
-          <div>
-            <h1 className="text-2xl font-black text-[#191923] leading-tight">Kitchen KOT</h1>
-            <p className="text-xs text-gray-500 font-medium hidden sm:block">Manage and track kitchen orders in real-time</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-2.5 overflow-x-auto max-w-full pb-0.5">
-          <StatCard icon={<ClipboardList className="w-5 h-5 text-[#800D32]" />} value={stats.total} label="Total KOT" tint="bg-rose-50" />
-          <StatCard icon={<Clock className="w-5 h-5 text-violet-600" />} value={stats.pending} label="New Orders" tint="bg-violet-50" />
-          <StatCard icon={<ChefHat className="w-5 h-5 text-orange-600" />} value={stats.preparing} label="Preparing" tint="bg-orange-50" />
-          <StatCard icon={<BellRing className="w-5 h-5 text-amber-600" />} value={stats.ready} label="Ready" tint="bg-amber-50" />
-          <StatCard icon={<Hourglass className="w-5 h-5 text-[#800D32]" />} value={`${stats.avg} min`} label="Avg. Prep Time" tint="bg-rose-50" />
-        </div>
-        <div className="flex items-center gap-2 shrink-0">
-          <div className="relative">
-            <select
-              value={station}
-              onChange={(e) => setStation(e.target.value as StationFilter)}
-              className="appearance-none pl-4 pr-9 py-3 rounded-xl border border-gray-200 bg-white text-sm font-bold text-[#191923] focus:outline-none focus:ring-2 focus:ring-[#800D32]/30"
-            >
-              <option value="all">All Stations</option>
-              <option>Main Kitchen</option>
-              <option>Bar</option>
-              <option>Desserts</option>
-            </select>
-            <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500" />
-          </div>
-          <button onClick={() => setModal('settings')} className="w-12 h-12 rounded-xl border border-gray-200 bg-white flex items-center justify-center text-gray-600 hover:text-[#800D32]" aria-label="KOT settings">
-            <Settings className="w-5 h-5" />
-          </button>
-        </div>
-      </div>
-
-      {/* ===== Filters ===== */}
-      <div className="flex items-center gap-2 flex-wrap">
-        <div className="flex items-center gap-2 overflow-x-auto max-w-full">
-          {stationTabs.map((t) => (
+    <div className="flex gap-4 font-sans text-[#191923] select-none pb-2 h-full overflow-hidden">
+      {/* Left Main Section: Top Controls + Metrics + 4-Column Kanban */}
+      <div className="flex-1 min-w-0 flex flex-col gap-3.5 h-full overflow-hidden">
+        {/* Top Controls Row: Filter Pills + Auto Refresh + Fullscreen */}
+        <div className="flex items-center justify-between flex-wrap gap-2.5">
+          {/* Filter Pills */}
+          <div className="flex items-center gap-2">
             <button
-              key={t.k}
-              onClick={() => setStation(t.k)}
-              className={`shrink-0 inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm font-bold ${station === t.k ? 'bg-[#800D32] text-white border-[#800D32]' : 'bg-white text-[#191923] border-gray-200 hover:border-[#F3C3D2]'
-                }`}
+              onClick={() => setOrderFilter('all')}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
+                orderFilter === 'all'
+                  ? 'bg-[#00C060] text-white shadow-xs'
+                  : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
+              }`}
             >
-              <t.i className="w-4 h-4" /> {t.l} <span className={station === t.k ? 'text-rose-100' : 'text-gray-400'}>({t.n})</span>
+              All KOT ({typeCounts.all})
             </button>
-          ))}
-        </div>
-        <div className="inline-flex rounded-xl border border-gray-200 bg-white p-0.5 ml-auto">
-          {(['kanban', 'list'] as const).map((v) => (
-            <button key={v} onClick={() => setView(v)} className={`inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-sm font-bold capitalize ${view === v ? 'bg-[#800D32] text-white' : 'text-gray-600'}`}>
-              {v === 'kanban' ? <LayoutGrid className="w-4 h-4" /> : <List className="w-4 h-4" />} {v}
+            <button
+              onClick={() => setOrderFilter('dine_in')}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                orderFilter === 'dine_in'
+                  ? 'bg-[#00C060] text-white shadow-xs'
+                  : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              <Utensils className="w-3.5 h-3.5" />
+              Dine In ({typeCounts.dine_in})
             </button>
-          ))}
-        </div>
-        <div className="relative w-full sm:w-72">
-          <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search KOT (e.g. #KOT045)..."
-            className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-gray-200 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-[#800D32]/30"
-          />
-        </div>
-      </div>
+            <button
+              onClick={() => setOrderFilter('takeaway')}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                orderFilter === 'takeaway'
+                  ? 'bg-[#00C060] text-white shadow-xs'
+                  : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              <ShoppingBag className="w-3.5 h-3.5" />
+              Takeaway ({typeCounts.takeaway})
+            </button>
+            <button
+              onClick={() => setOrderFilter('delivery')}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                orderFilter === 'delivery'
+                  ? 'bg-[#00C060] text-white shadow-xs'
+                  : 'bg-white text-gray-600 border border-gray-200 hover:border-gray-300'
+              }`}
+            >
+              <Bike className="w-3.5 h-3.5" />
+              Delivery ({typeCounts.delivery})
+            </button>
+          </div>
 
-      {/* ===== Board + details ===== */}
-      <div className="flex-1 min-h-0 flex gap-3">
-        <div className="flex-1 min-w-0 min-h-0">
-          {view === 'kanban' ? (
-            <div className="h-full flex gap-3 overflow-x-auto">
-              {COLUMNS.map((c) => {
-                const list = byStatus[c.status];
-                const collapsed = settings.collapsed.includes(c.status);
-                if (collapsed)
-                  return (
-                    <button key={c.status} onClick={() => toggleCollapse(c.status)} className={`shrink-0 w-12 rounded-2xl ${c.head} flex flex-col items-center gap-3 py-4`} title={`Expand ${c.title}`}>
-                      <ChevronLeft className={`w-4 h-4 ${c.accent}`} />
-                      <c.icon className={`w-5 h-5 ${c.accent}`} />
-                      <span className="text-sm font-black text-[#191923] [writing-mode:vertical-rl] rotate-180">
-                        {c.title} ({list.length})
-                      </span>
-                    </button>
-                  );
+          {/* Auto Refresh Switch + Fullscreen */}
+          <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2 bg-white px-2.5 py-1.5 rounded-xl border border-gray-200 shadow-xs">
+              <span className="w-2 h-2 rounded-full bg-[#00C060] animate-pulse"></span>
+              <span className="text-xs font-bold text-gray-600">Auto Refresh</span>
+              <button
+                onClick={() =>
+                  setSettings((s) => ({
+                    ...s,
+                    autoRefresh: !s.autoRefresh,
+                  }))
+                }
+                className={`w-8 h-4.5 rounded-full p-0.5 transition-colors relative ${
+                  settings.autoRefresh ? 'bg-[#00C060]' : 'bg-gray-300'
+                }`}
+              >
+                <div
+                  className={`w-3.5 h-3.5 rounded-full bg-white transition-transform ${
+                    settings.autoRefresh ? 'translate-x-3.5' : 'translate-x-0'
+                  }`}
+                />
+              </button>
+            </div>
+
+            <button
+              onClick={toggleFullscreen}
+              className="w-8 h-8 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-600 hover:text-gray-900 hover:border-gray-300 shadow-xs transition-colors"
+              title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
+            >
+              {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+            </button>
+          </div>
+        </div>
+
+        {/* Metric Cards Row (To the left of the full-height right sidebar) */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5">
+          <div className="bg-white rounded-2xl border border-gray-100 p-2.5 shadow-xs flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-[#E7F9F0] text-[#00C060] flex items-center justify-center shrink-0">
+              <FileText className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-base font-black text-gray-900 leading-none">{queue.length}</p>
+              <p className="text-[10px] font-semibold text-gray-500 mt-1 truncate">Total KOT</p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-gray-100 p-2.5 shadow-xs flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-amber-50 text-amber-500 flex items-center justify-center shrink-0">
+              <Clock className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-base font-black text-gray-900 leading-none">{columns.pending.length}</p>
+              <p className="text-[10px] font-semibold text-gray-500 mt-1 truncate">New</p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-gray-100 p-2.5 shadow-xs flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-500 flex items-center justify-center shrink-0">
+              <ChefHat className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-base font-black text-gray-900 leading-none">{columns.preparing.length}</p>
+              <p className="text-[10px] font-semibold text-gray-500 mt-1 truncate">Preparing</p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-gray-100 p-2.5 shadow-xs flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-500 flex items-center justify-center shrink-0">
+              <BellRing className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-base font-black text-gray-900 leading-none">{columns.ready.length}</p>
+              <p className="text-[10px] font-semibold text-gray-500 mt-1 truncate">Ready</p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-gray-100 p-2.5 shadow-xs flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-purple-50 text-purple-500 flex items-center justify-center shrink-0">
+              <CheckCircle2 className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-base font-black text-gray-900 leading-none">{columns.served.length}</p>
+              <p className="text-[10px] font-semibold text-gray-500 mt-1 truncate">Served</p>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-2xl border border-gray-100 p-2.5 shadow-xs flex items-center gap-2.5">
+            <div className="w-9 h-9 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center shrink-0">
+              <Clock className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-base font-black text-gray-900 leading-none">32 min</p>
+              <p className="text-[10px] font-semibold text-gray-500 mt-1 truncate">Avg. Prep</p>
+            </div>
+          </div>
+        </div>
+
+        {/* 4-Column Kanban Board */}
+        <div className="flex-1 min-h-0 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 overflow-y-auto pr-1">
+          {/* Column 1: New */}
+          <div className="flex flex-col bg-[#FFF9F3] border border-amber-100 rounded-2xl p-2.5 min-h-[460px]">
+            <div className="flex items-center gap-2 px-2 py-1.5 mb-1.5">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+              <h2 className="text-xs font-black text-amber-900">New ({columns.pending.length})</h2>
+            </div>
+            <div className="flex-1 space-y-2 overflow-y-auto">
+              {columns.pending.map((k) => {
+                const isSelected = selectedKot?.id === k.id;
                 return (
-                  <div key={c.status} className={`flex-1 min-w-[260px] min-h-0 flex flex-col rounded-2xl ${c.head} p-2`}>
-                    <div className="flex items-center gap-2 px-2 py-2">
-                      <c.icon className={`w-5 h-5 ${c.accent}`} />
-                      <h3 className="text-base font-black text-[#191923]">
-                        {c.title} <span className={`font-bold ${c.accent}`}>({list.length})</span>
-                      </h3>
-                      <button onClick={() => toggleCollapse(c.status)} className="ml-auto w-7 h-7 rounded-lg hover:bg-white/70 flex items-center justify-center text-gray-400" aria-label={`Collapse ${c.title}`}>
-                        <ChevronRight className="w-4 h-4" />
-                      </button>
+                  <div
+                    key={k.id}
+                    onClick={() => setSelectedId(k.id)}
+                    className={`bg-white rounded-xl p-2.5 border transition-all cursor-pointer relative shadow-xs ${
+                      isSelected
+                        ? 'border-[#00C060] ring-2 ring-[#00C060]/20'
+                        : 'border-gray-100 hover:border-gray-200'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-1.5">
+                        {k.orderType === 'takeaway' ? (
+                          <ShoppingBag className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                        ) : k.orderType === 'delivery' ? (
+                          <Bike className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                        ) : (
+                          <Utensils className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                        )}
+                        <span className="text-xs font-black text-gray-900">KOT #{k.kotNumber}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-[10px] font-semibold text-gray-400">{formatAgo(k.createdAt, now)}</span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActionModal({ type: 'edit', kotId: k.id });
+                            setEditNote(k.kitchenNote || '');
+                          }}
+                          className="w-5 h-5 rounded flex items-center justify-center text-gray-400 hover:text-gray-600"
+                        >
+                          <MoreHorizontal className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
                     </div>
-                    <div className="flex-1 min-h-0 overflow-y-auto space-y-2.5 px-0.5 pb-1">
-                      {list.length === 0 ? (
-                        <p className="text-center text-xs font-semibold text-gray-400 py-8">No tickets</p>
-                      ) : (
-                        list.map((k) => <KotCard key={k.id} k={k} selected={k.id === selectedId} {...cardProps} />)
+
+                    <div className="flex items-center gap-1.5 mt-1 mb-1.5">
+                      {k.tableName && (
+                        <span className="text-xs font-bold text-gray-700">{k.tableName}</span>
                       )}
+                      <span
+                        className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                          k.orderType === 'takeaway'
+                            ? 'bg-amber-100 text-amber-800'
+                            : k.orderType === 'delivery'
+                            ? 'bg-rose-100 text-rose-800'
+                            : 'bg-emerald-100 text-emerald-800'
+                        }`}
+                      >
+                        {k.orderType === 'dine_in' ? 'Dine In' : k.orderType === 'takeaway' ? 'Takeaway' : 'Delivery'}
+                      </span>
+                    </div>
+
+                    <div className="space-y-0.5 my-1.5">
+                      {k.items.map((it, idx) => (
+                        <div key={idx} className="flex items-center justify-between text-xs">
+                          <span className="text-gray-700 font-medium truncate">
+                            {it.qty} × {it.name}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mt-2 pt-1.5 border-t border-gray-50 flex items-center justify-end">
+                      <button
+                        onClick={(e) => handleStart(k.id, e)}
+                        className="px-3 py-1 bg-[#00C060] text-white rounded-lg text-xs font-bold hover:bg-[#00a854] shadow-xs flex items-center gap-1 transition-all"
+                      >
+                        <ChefHat className="w-3 h-3" />
+                        Start
+                      </button>
                     </div>
                   </div>
                 );
               })}
             </div>
-          ) : (
-            <ListView rows={[...byStatus.pending, ...byStatus.preparing, ...byStatus.ready, ...byStatus.served]} now={now} selectedId={selectedId} onSelect={select} onAdvance={advance} />
-          )}
-        </div>
+          </div>
 
-        <aside className="hidden xl:flex w-[370px] 2xl:w-[400px] shrink-0 min-h-0 flex-col">
-          {details ?? (
-            <div className="h-full bg-white rounded-2xl border border-gray-100 flex flex-col items-center justify-center text-center p-6">
-              <ChefHat className="w-10 h-10 text-rose-200 mb-2" />
-              <p className="text-sm font-bold text-gray-600">Kitchen is all clear</p>
-              <p className="text-xs text-gray-400">New KOTs from POS appear here automatically</p>
+          {/* Column 2: Preparing */}
+          <div className="flex flex-col bg-[#F3F8FF] border border-blue-100 rounded-2xl p-2.5 min-h-[460px]">
+            <div className="flex items-center gap-2 px-2 py-1.5 mb-1.5">
+              <ChefHat className="w-4 h-4 text-blue-600" />
+              <h2 className="text-xs font-black text-blue-900">Preparing ({columns.preparing.length})</h2>
             </div>
-          )}
-        </aside>
+            <div className="flex-1 space-y-2 overflow-y-auto">
+              {columns.preparing.map((k) => {
+                const isSelected = selectedKot?.id === k.id;
+                const elapsedMins = minsSince(k.startedAt || k.createdAt, now);
+                const totalTarget = k.estMinutes || 20;
+                const leftMins = Math.max(1, totalTarget - elapsedMins);
+                const progressPct = Math.min(95, Math.round((elapsedMins / totalTarget) * 100));
+
+                return (
+                  <div
+                    key={k.id}
+                    onClick={() => setSelectedId(k.id)}
+                    className={`bg-white rounded-xl p-2.5 border transition-all cursor-pointer relative shadow-xs ${
+                      isSelected
+                        ? 'border-[#00C060] ring-2 ring-[#00C060]/20'
+                        : 'border-gray-100 hover:border-gray-200'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-1.5">
+                        {k.orderType === 'takeaway' ? (
+                          <ShoppingBag className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                        ) : k.orderType === 'delivery' ? (
+                          <Bike className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                        ) : (
+                          <ChefHat className="w-3.5 h-3.5 text-blue-500 shrink-0" />
+                        )}
+                        <span className="text-xs font-black text-gray-900">KOT #{k.kotNumber}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-[10px] font-semibold text-gray-400">{formatAgo(k.startedAt || k.createdAt, now)}</span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActionModal({ type: 'edit', kotId: k.id });
+                            setEditNote(k.kitchenNote || '');
+                          }}
+                          className="w-5 h-5 rounded flex items-center justify-center text-gray-400 hover:text-gray-600"
+                        >
+                          <MoreHorizontal className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 mt-1 mb-1.5">
+                      {k.tableName && (
+                        <span className="text-xs font-bold text-gray-700">{k.tableName}</span>
+                      )}
+                      <span
+                        className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                          k.orderType === 'takeaway'
+                            ? 'bg-amber-100 text-amber-800'
+                            : k.orderType === 'delivery'
+                            ? 'bg-rose-100 text-rose-800'
+                            : 'bg-emerald-100 text-emerald-800'
+                        }`}
+                      >
+                        {k.orderType === 'dine_in' ? 'Dine In' : k.orderType === 'takeaway' ? 'Takeaway' : 'Delivery'}
+                      </span>
+                    </div>
+
+                    <div className="space-y-0.5 my-1.5">
+                      {k.items.map((it, idx) => (
+                        <div key={idx} className="flex items-center justify-between text-xs">
+                          <span className="text-gray-700 font-medium truncate">
+                            {it.qty} × {it.name}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Progress Bar + Left time */}
+                    <div className="mt-2 pt-1.5">
+                      <div className="w-full bg-blue-100 h-1.5 rounded-full overflow-hidden">
+                        <div
+                          className="bg-blue-500 h-full rounded-full transition-all duration-500"
+                          style={{ width: `${progressPct}%` }}
+                        />
+                      </div>
+                      <div className="flex items-center justify-between mt-1 text-[10px] font-semibold text-gray-500">
+                        <span>{elapsedMins} min in prep</span>
+                        <span className="font-bold text-blue-600">{leftMins} min left</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Column 3: Ready */}
+          <div className="flex flex-col bg-[#F0FAF4] border border-emerald-100 rounded-2xl p-2.5 min-h-[460px]">
+            <div className="flex items-center gap-2 px-2 py-1.5 mb-1.5">
+              <Check className="w-4 h-4 text-emerald-600" />
+              <h2 className="text-xs font-black text-emerald-900">Ready ({columns.ready.length})</h2>
+            </div>
+            <div className="flex-1 space-y-2 overflow-y-auto">
+              {columns.ready.map((k) => {
+                const isSelected = selectedKot?.id === k.id;
+                const isAlerting = serverAlertKot === k.id;
+                return (
+                  <div
+                    key={k.id}
+                    onClick={() => setSelectedId(k.id)}
+                    className={`bg-white rounded-xl p-2.5 border transition-all cursor-pointer relative shadow-xs ${
+                      isSelected
+                        ? 'border-[#00C060] ring-2 ring-[#00C060]/20'
+                        : 'border-gray-100 hover:border-gray-200'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+                        <span className="text-xs font-black text-gray-900">KOT #{k.kotNumber}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-[10px] font-semibold text-gray-400">{formatAgo(k.readyAt || k.createdAt, now)}</span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActionModal({ type: 'edit', kotId: k.id });
+                            setEditNote(k.kitchenNote || '');
+                          }}
+                          className="w-5 h-5 rounded flex items-center justify-center text-gray-400 hover:text-gray-600"
+                        >
+                          <MoreHorizontal className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 mt-1 mb-1.5">
+                      {k.tableName && (
+                        <span className="text-xs font-bold text-gray-700">{k.tableName}</span>
+                      )}
+                      <span
+                        className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                          k.orderType === 'takeaway'
+                            ? 'bg-amber-100 text-amber-800'
+                            : k.orderType === 'delivery'
+                            ? 'bg-rose-100 text-rose-800'
+                            : 'bg-emerald-100 text-emerald-800'
+                        }`}
+                      >
+                        {k.orderType === 'dine_in' ? 'Dine In' : k.orderType === 'takeaway' ? 'Takeaway' : 'Delivery'}
+                      </span>
+                    </div>
+
+                    <div className="space-y-0.5 my-1.5">
+                      {k.items.map((it, idx) => (
+                        <div key={idx} className="flex items-center justify-between text-xs">
+                          <span className="text-gray-700 font-medium truncate">
+                            {it.qty} × {it.name}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mt-2 pt-1.5 border-t border-gray-50 flex items-center justify-between">
+                      <button
+                        onClick={(e) => handleServe(k.id, e)}
+                        className="text-[11px] font-bold text-gray-500 hover:text-gray-800"
+                      >
+                        Serve
+                      </button>
+                      <button
+                        onClick={(e) => handleCallServer(k.id, e)}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-bold border flex items-center gap-1 transition-all ${
+                          isAlerting
+                            ? 'bg-emerald-600 text-white border-emerald-600 animate-bounce'
+                            : 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
+                        }`}
+                      >
+                        <BellRing className="w-3 h-3" />
+                        {isAlerting ? 'Calling...' : 'Call Server'}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Column 4: Served */}
+          <div className="flex flex-col bg-[#F7F4FD] border border-purple-100 rounded-2xl p-2.5 min-h-[460px]">
+            <div className="flex items-center gap-2 px-2 py-1.5 mb-1.5">
+              <CheckCircle2 className="w-4 h-4 text-purple-600" />
+              <h2 className="text-xs font-black text-purple-900">Served ({columns.served.length})</h2>
+            </div>
+            <div className="flex-1 space-y-2 overflow-y-auto">
+              {columns.served.map((k) => {
+                const isSelected = selectedKot?.id === k.id;
+                return (
+                  <div
+                    key={k.id}
+                    onClick={() => setSelectedId(k.id)}
+                    className={`bg-white rounded-xl p-2.5 border transition-all cursor-pointer relative shadow-xs opacity-90 hover:opacity-100 ${
+                      isSelected
+                        ? 'border-[#00C060] ring-2 ring-[#00C060]/20'
+                        : 'border-gray-100 hover:border-gray-200'
+                    }`}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center gap-1.5">
+                        <CheckCircle2 className="w-4 h-4 text-purple-500 shrink-0" />
+                        <span className="text-xs font-black text-gray-900">KOT #{k.kotNumber}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-[10px] font-semibold text-gray-400">{formatAgo(k.servedAt || k.createdAt, now)}</span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActionModal({ type: 'edit', kotId: k.id });
+                            setEditNote(k.kitchenNote || '');
+                          }}
+                          className="w-5 h-5 rounded flex items-center justify-center text-gray-400 hover:text-gray-600"
+                        >
+                          <MoreHorizontal className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 mt-1 mb-1.5">
+                      {k.tableName && (
+                        <span className="text-xs font-bold text-gray-700">{k.tableName}</span>
+                      )}
+                      <span
+                        className={`text-[9px] font-bold px-1.5 py-0.5 rounded ${
+                          k.orderType === 'takeaway'
+                            ? 'bg-amber-100 text-amber-800'
+                            : k.orderType === 'delivery'
+                            ? 'bg-rose-100 text-rose-800'
+                            : 'bg-emerald-100 text-emerald-800'
+                        }`}
+                      >
+                        {k.orderType === 'dine_in' ? 'Dine In' : k.orderType === 'takeaway' ? 'Takeaway' : 'Delivery'}
+                      </span>
+                    </div>
+
+                    <div className="space-y-0.5 my-1.5">
+                      {k.items.map((it, idx) => (
+                        <div key={idx} className="flex items-center justify-between text-xs">
+                          <span className="text-gray-700 font-medium truncate">
+                            {it.qty} × {it.name}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="mt-2 pt-1.5 border-t border-gray-50 flex items-center justify-end">
+                      <span className="inline-flex items-center gap-1 text-[10px] font-bold text-purple-700 bg-purple-50 px-2 py-0.5 rounded-full">
+                        <Check className="w-3 h-3" /> Served
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
       </div>
 
-      {/* ===== Modals ===== */}
-      <Modal open={mobileDetails && !!sel && modal === null} onClose={() => setMobileDetails(false)} title={sel ? kotLabel(sel.kotNumber) : ''} width="max-w-lg">
-        <div className="h-[70dvh]">{details}</div>
-      </Modal>
+      {/* Right Detail Sidebar: Extended Full to Top */}
+      <div className="w-[320px] xl:w-[350px] bg-white rounded-2xl border border-gray-200 shadow-sm flex flex-col p-3.5 shrink-0 h-full overflow-hidden">
+        {selectedKot ? (
+          <div className="flex flex-col h-full min-h-0">
+            {/* Header: Badge, KOT #, Status */}
+            <div className="flex items-start justify-between pb-2.5 border-b border-gray-100">
+              <div className="flex items-center gap-2">
+                <div className="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                  <ChefHat className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-black text-gray-900 leading-tight">
+                    KOT #{selectedKot.kotNumber}
+                  </h3>
+                  <div className="flex items-center gap-2 text-[11px] font-semibold text-gray-500 mt-0.5">
+                    {selectedKot.tableName && (
+                      <span className="flex items-center gap-0.5">
+                        <Armchair className="w-3 h-3 text-gray-400" />
+                        {selectedKot.tableName}
+                      </span>
+                    )}
+                    <span className="flex items-center gap-0.5">
+                      <Users className="w-3 h-3 text-gray-400" />
+                      {selectedKot.guests || 2} Guests
+                    </span>
+                    <span className="flex items-center gap-0.5">
+                      <Utensils className="w-3 h-3 text-gray-400" />
+                      {selectedKot.orderType === 'dine_in'
+                        ? 'Dine In'
+                        : selectedKot.orderType === 'takeaway'
+                        ? 'Takeaway'
+                        : 'Delivery'}
+                    </span>
+                  </div>
+                </div>
+              </div>
 
-      <Modal open={modal === 'update' && !!updating} onClose={() => setModal(null)} title={`Update ${updating ? kotLabel(updating.kotNumber) : ''}`} subtitle="Tick items as they're done, add a kitchen remark">
-        {updating && <UpdateForm k={updating} onSave={(d, n) => saveUpdate(updating.id, d, n)} onReady={() => (advance(updating.id), setModal(null))} />}
-      </Modal>
+              <span
+                className={`text-[11px] font-bold px-2 py-0.5 rounded-full capitalize ${
+                  selectedKot.status === 'preparing'
+                    ? 'bg-blue-100 text-blue-700'
+                    : selectedKot.status === 'ready'
+                    ? 'bg-emerald-100 text-emerald-700'
+                    : selectedKot.status === 'served'
+                    ? 'bg-purple-100 text-purple-700'
+                    : 'bg-amber-100 text-amber-700'
+                }`}
+              >
+                {selectedKot.status === 'preparing' ? '✓ Preparing' : selectedKot.status}
+              </span>
+            </div>
 
-      <Modal
-        open={modal === 'order' && !!sel}
-        onClose={() => setModal(null)}
-        title={`Order ${sel?.orderNumber ?? ''}`}
-        subtitle={sel ? `${TYPE_META[sel.orderType]?.label}${sel.tableName ? ` · Table ${sel.tableName}` : ''} · ${orderKots.length} KOT(s)` : ''}
-        width="max-w-lg"
-        footer={
-          sel?.orderType === 'dine_in' ? (
-            <button onClick={() => navigate('/tables')} className="w-full py-2.5 rounded-xl bg-[#800D32] text-white text-sm font-black">
-              Open in Tables
-            </button>
-          ) : undefined
-        }
-      >
-        <div className="space-y-3">
-          {orderKots.map((k) => (
-            <div key={k.id} className="rounded-xl border border-gray-100 p-3">
-              <div className="flex items-center gap-2 mb-2">
-                <p className="text-sm font-black text-[#191923]">{kotLabel(k.kotNumber)}</p>
-                <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${STATUS_PILL[k.status].cls}`}>{STATUS_PILL[k.status].label}</span>
-                <span className="ml-auto text-[11px] font-semibold text-gray-400">{clock(k.createdAt)}</span>
-                <button onClick={() => pdf(k, 'download')} className="text-gray-500 hover:text-[#800D32]" aria-label="Download KOT">
-                  <Download className="w-4 h-4" />
+            {/* Order Timers */}
+            <div className="py-2 border-b border-gray-100 space-y-1.5 text-xs">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1 text-gray-500 font-semibold">
+                  <Clock className="w-3 h-3 text-gray-400" />
+                  <span className="text-[11px]">Order Time</span>
+                </div>
+                <span className="font-bold text-gray-900 text-[11px]">
+                  {formatTimeOnly(selectedKot.createdAt)} ({formatAgo(selectedKot.createdAt, now)})
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-1 text-gray-500 font-semibold">
+                  <Clock className="w-3 h-3 text-emerald-500" />
+                  <span className="text-[11px]">Est. Ready</span>
+                </div>
+                <span className="font-bold text-[#00C060] text-[11px]">
+                  {formatTimeOnly(
+                    new Date(new Date(selectedKot.createdAt).getTime() + (selectedKot.estMinutes || 20) * 60000).toISOString()
+                  )}{' '}
+                  ({Math.max(1, (selectedKot.estMinutes || 20) - minsSince(selectedKot.createdAt, now))} min left)
+                </span>
+              </div>
+            </div>
+
+            {/* Order Items List (compacted, clean spacing) */}
+            <div className="py-2 flex-1 min-h-0 overflow-y-auto space-y-1.5">
+              <h4 className="text-[11px] font-black text-gray-900 mb-1">
+                Order Items ({selectedKot.items.length})
+              </h4>
+              <div className="space-y-1.5">
+                {selectedKot.items.map((it, i) => (
+                  <div
+                    key={i}
+                    className="flex items-center justify-between p-1.5 rounded-xl bg-gray-50/80 border border-gray-100"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <img
+                        src={getItemThumbnail(it.name)}
+                        alt={it.name}
+                        className="w-8 h-8 rounded-lg object-cover bg-white p-0.5 border border-gray-200 shrink-0"
+                      />
+                      <span className="text-xs font-bold text-gray-900 truncate">{it.name}</span>
+                    </div>
+                    <span className="text-xs font-black text-gray-700 ml-1.5 shrink-0">×{it.qty}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Kitchen Note */}
+              <div className="mt-2.5 p-2 rounded-xl bg-amber-50/80 border border-amber-200">
+                <div className="flex items-center gap-1 text-amber-800 text-[11px] font-bold mb-0.5">
+                  <FileText className="w-3 h-3" />
+                  <span>Kitchen Note</span>
+                </div>
+                <p className="text-[11px] text-amber-900/90 font-medium">
+                  {selectedKot.kitchenNote || 'Less spicy, extra raita'}
+                </p>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="pt-2 border-t border-gray-100 space-y-2 mt-auto">
+              {selectedKot.status === 'pending' ? (
+                <button
+                  onClick={() => handleStart(selectedKot.id)}
+                  className="w-full py-2.5 bg-[#00C060] text-white rounded-xl text-xs font-black hover:bg-[#00a854] shadow-xs flex items-center justify-center gap-1.5 transition-all"
+                >
+                  <ChefHat className="w-4 h-4" />
+                  Start Preparing
+                </button>
+              ) : selectedKot.status === 'preparing' ? (
+                <button
+                  onClick={() => handleMarkReady(selectedKot.id)}
+                  className="w-full py-2.5 bg-[#00C060] text-white rounded-xl text-xs font-black hover:bg-[#00a854] shadow-xs flex items-center justify-center gap-1.5 transition-all"
+                >
+                  <Check className="w-4 h-4 stroke-[3]" />
+                  Mark Ready
+                </button>
+              ) : selectedKot.status === 'ready' ? (
+                <button
+                  onClick={() => handleServe(selectedKot.id)}
+                  className="w-full py-2.5 bg-purple-600 text-white rounded-xl text-xs font-black hover:bg-purple-700 shadow-xs flex items-center justify-center gap-1.5 transition-all"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  Serve Order
+                </button>
+              ) : (
+                <div className="w-full py-2 text-center bg-purple-50 text-purple-700 text-xs font-black rounded-xl">
+                  Order Completed
+                </div>
+              )}
+
+              {/* Bottom Secondary Actions */}
+              <div className="grid grid-cols-3 gap-1.5">
+                <button
+                  onClick={() => {
+                    setActionModal({ type: 'addTime', kotId: selectedKot.id });
+                    setExtraTime(5);
+                  }}
+                  className="py-1.5 px-1 rounded-xl border border-gray-200 text-[11px] font-bold text-gray-700 hover:bg-gray-50 flex items-center justify-center gap-1 transition-colors"
+                >
+                  <Clock className="w-3 h-3 text-gray-400" />
+                  Add Time
+                </button>
+                <button
+                  onClick={() => {
+                    setActionModal({ type: 'edit', kotId: selectedKot.id });
+                    setEditNote(selectedKot.kitchenNote || '');
+                  }}
+                  className="py-1.5 px-1 rounded-xl border border-gray-200 text-[11px] font-bold text-gray-700 hover:bg-gray-50 flex items-center justify-center gap-1 transition-colors"
+                >
+                  <Edit2 className="w-3 h-3 text-gray-400" />
+                  Edit
+                </button>
+                <button
+                  onClick={() => setActionModal({ type: 'cancel', kotId: selectedKot.id })}
+                  className="py-1.5 px-1 rounded-xl border border-rose-200 text-[11px] font-bold text-rose-600 hover:bg-rose-50 flex items-center justify-center gap-1 transition-colors"
+                >
+                  <X className="w-3 h-3 text-rose-500" />
+                  Cancel
                 </button>
               </div>
-              {k.items.map((it, i) => (
-                <div key={i} className="flex justify-between text-sm">
-                  <span className="font-semibold text-[#191923]">
-                    {emojiFor(it.name)} {it.name}
-                  </span>
-                  <span className="font-black">×{it.qty}</span>
-                </div>
-              ))}
-            </div>
-          ))}
-        </div>
-      </Modal>
-
-      <Modal open={modal === 'settings'} onClose={() => setModal(null)} title="Kitchen Settings">
-        <div className="space-y-4">
-          <label className="flex items-center justify-between gap-3">
-            <span className="text-sm font-bold text-[#191923]">Sound alert for new KOT</span>
-            <input type="checkbox" checked={settings.sound} onChange={(e) => (setSettings((s) => ({ ...s, sound: e.target.checked })), e.target.checked && beep())} className="w-5 h-5 accent-[#800D32]" />
-          </label>
-          <div>
-            <p className="text-sm font-bold text-[#191923] mb-1.5">Mark late after (minutes)</p>
-            <div className="flex gap-1.5">
-              {[10, 15, 20, 25, 30, 45].map((m) => (
-                <button key={m} onClick={() => setSettings((s) => ({ ...s, targetMins: m }))} className={`flex-1 py-2 rounded-lg border text-sm font-black ${settings.targetMins === m ? 'bg-[#800D32] text-white border-[#800D32]' : 'border-gray-200'}`}>
-                  {m}
-                </button>
-              ))}
             </div>
           </div>
-          <div>
-            <p className="text-sm font-bold text-[#191923] mb-1.5">Completed tickets to show</p>
-            <div className="flex gap-1.5">
-              {[10, 20, 50].map((n) => (
-                <button key={n} onClick={() => setSettings((s) => ({ ...s, showCompleted: n }))} className={`flex-1 py-2 rounded-lg border text-sm font-black ${settings.showCompleted === n ? 'bg-[#800D32] text-white border-[#800D32]' : 'border-gray-200'}`}>
-                  {n}
-                </button>
-              ))}
-            </div>
+        ) : (
+          <div className="h-full flex flex-col items-center justify-center text-center p-4 text-gray-400">
+            <ChefHat className="w-8 h-8 text-gray-300 mb-1" />
+            <p className="text-xs font-bold text-gray-600">No KOT selected</p>
+            <p className="text-[10px] text-gray-400">Select any ticket from the columns</p>
           </div>
-          <button
-            onClick={() => {
-              mutate((q) => q.filter((k) => k.status !== 'served'));
-              setModal(null);
-              setToast({ type: 'success', text: 'Completed tickets cleared' });
-            }}
-            className="w-full inline-flex items-center justify-center gap-2 py-2.5 rounded-xl border border-rose-200 text-rose-600 text-sm font-black hover:bg-rose-50"
-          >
-            <Trash2 className="w-4 h-4" /> Clear all completed tickets
-          </button>
-          <p className="text-[11px] text-gray-400">Stations are assigned automatically from item names (drinks → Bar, sweets & ice cream → Desserts, rest → Main Kitchen).</p>
-        </div>
-      </Modal>
-    </div>
-  );
-};
-
-/* =====================================================================
-   SUB-COMPONENTS
-   ===================================================================== */
-const UpdateForm = ({ k, onSave, onReady }: { k: KotEntry; onSave: (done: number[], note: string) => void; onReady: () => void }) => {
-  const [done, setDone] = useState<number[]>(k.doneItems ?? []);
-  const [note, setNote] = useState(k.kitchenNote ?? '');
-  const toggle = (i: number) => setDone((d) => (d.includes(i) ? d.filter((x) => x !== i) : [...d, i]));
-  return (
-    <div className="space-y-3">
-      <div className="space-y-1.5">
-        {k.items.map((it, i) => {
-          const on = done.includes(i);
-          return (
-            <button key={i} onClick={() => toggle(i)} className={`w-full flex items-center gap-3 rounded-xl border px-3 py-2.5 text-left ${on ? 'border-emerald-300 bg-emerald-50' : 'border-gray-200'}`}>
-              <span className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 ${on ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-gray-300'}`}>{on && <Check className="w-3.5 h-3.5" />}</span>
-              <span className="text-lg">{emojiFor(it.name)}</span>
-              <span className={`flex-1 text-sm font-bold ${on ? 'line-through text-gray-400' : 'text-[#191923]'}`}>{it.name}</span>
-              <span className="text-sm font-black">×{it.qty}</span>
-            </button>
-          );
-        })}
+        )}
       </div>
-      <textarea
-        value={note}
-        onChange={(e) => setNote(e.target.value.slice(0, 160))}
-        rows={2}
-        placeholder="Kitchen remark (e.g. Paneer out of stock, 5 min delay)"
-        className="w-full px-3 py-2.5 rounded-xl border border-gray-200 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-[#800D32]/30"
-      />
-      <div className="grid grid-cols-2 gap-2">
-        <button onClick={() => onSave(done, note.trim())} className="py-2.5 rounded-xl border border-gray-200 text-sm font-black text-[#191923]">
-          Save progress
-        </button>
-        <button onClick={onReady} className="py-2.5 rounded-xl bg-emerald-600 text-white text-sm font-black inline-flex items-center justify-center gap-1.5">
-          <Check className="w-4 h-4" /> Mark Ready
-        </button>
-      </div>
-    </div>
-  );
-};
 
-const ListView = memo(
-  ({ rows, now, selectedId, onSelect, onAdvance }: { rows: KotEntry[]; now: number; selectedId?: string; onSelect: (id: string) => void; onAdvance: (id: string) => void }) =>
-    rows.length === 0 ? (
-      <div className="h-full bg-white rounded-2xl border border-gray-100 flex items-center justify-center text-sm font-bold text-gray-500">No tickets</div>
-    ) : (
-      <div className="h-full overflow-y-auto bg-white rounded-2xl border border-gray-100">
-        <table className="w-full text-sm">
-          <thead className="sticky top-0 bg-[#FFF5F8] text-left text-xs font-black text-[#800D32]">
-            <tr>
-              <th className="px-4 py-3">KOT</th>
-              <th className="px-3 py-3">Type / Table</th>
-              <th className="px-3 py-3">Items</th>
-              <th className="px-3 py-3">Time</th>
-              <th className="px-3 py-3">Status</th>
-              <th className="px-4 py-3 text-right">Action</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {rows.map((k) => (
-              <tr key={k.id} onClick={() => onSelect(k.id)} className={`cursor-pointer hover:bg-gray-50 ${k.id === selectedId ? 'bg-[#FFF7FA]' : ''}`}>
-                <td className="px-4 py-3 font-black text-[#191923] whitespace-nowrap">{kotLabel(k.kotNumber)}</td>
-                <td className="px-3 py-3 font-semibold text-gray-600 whitespace-nowrap">
-                  {TYPE_META[k.orderType]?.label}
-                  {k.tableName ? ` · ${k.tableName}` : ''}
-                </td>
-                <td className="px-3 py-3 text-gray-700 max-w-[320px] truncate">{k.items.map((i) => `${i.qty}× ${i.name}`).join(', ')}</td>
-                <td className="px-3 py-3 font-semibold text-gray-500 whitespace-nowrap">{ago(k.createdAt, now)}</td>
-                <td className="px-3 py-3">
-                  <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold whitespace-nowrap ${STATUS_PILL[k.status].cls}`}>{STATUS_PILL[k.status].label}</span>
-                </td>
-                <td className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
-                  {k.status !== 'served' && (
-                    <button onClick={() => onAdvance(k.id)} className="px-3 py-1.5 rounded-lg bg-[#800D32] text-white text-xs font-black whitespace-nowrap">
-                      {k.status === 'pending' ? 'Start' : k.status === 'preparing' ? 'Ready' : 'Serve'}
+      {/* Action Modals */}
+      {actionModal && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-sm p-5 shadow-2xl border border-gray-100">
+            {actionModal.type === 'addTime' && (
+              <div className="space-y-4">
+                <h3 className="text-base font-black text-gray-900">Add Extra Preparation Time</h3>
+                <p className="text-xs text-gray-500">
+                  Notify waiters & display additional preparation minutes on this ticket.
+                </p>
+                <div className="flex gap-2">
+                  {[5, 10, 15, 20].map((m) => (
+                    <button
+                      key={m}
+                      onClick={() => setExtraTime(m)}
+                      className={`flex-1 py-2 rounded-xl text-xs font-black border transition-all ${
+                        extraTime === m
+                          ? 'bg-[#00C060] text-white border-[#00C060]'
+                          : 'border-gray-200 hover:bg-gray-50 text-gray-700'
+                      }`}
+                    >
+                      +{m}m
                     </button>
-                  )}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    )
-);
+                  ))}
+                </div>
+                <div className="flex justify-end gap-2 pt-2">
+                  <button
+                    onClick={() => setActionModal(null)}
+                    className="px-4 py-2 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-100"
+                  >
+                    Close
+                  </button>
+                  <button
+                    onClick={handleAddExtraTime}
+                    className="px-4 py-2 rounded-xl text-xs font-black bg-[#00C060] text-white hover:bg-[#00a854]"
+                  >
+                    Confirm +{extraTime} min
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {actionModal.type === 'edit' && (
+              <div className="space-y-4">
+                <h3 className="text-base font-black text-gray-900">Edit Kitchen Note</h3>
+                <p className="text-xs text-gray-500">Update instructions for cooks & kitchen staff.</p>
+                <textarea
+                  value={editNote}
+                  onChange={(e) => setEditNote(e.target.value)}
+                  placeholder="e.g. Less spicy, pack extra dips..."
+                  rows={3}
+                  className="w-full text-xs p-3 rounded-xl border border-gray-200 focus:outline-none focus:border-[#00C060] resize-none"
+                />
+                <div className="flex justify-end gap-2">
+                  <button
+                    onClick={() => setActionModal(null)}
+                    className="px-4 py-2 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-100"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleSaveEditNote}
+                    className="px-4 py-2 rounded-xl text-xs font-black bg-[#00C060] text-white hover:bg-[#00a854]"
+                  >
+                    Save Note
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {actionModal.type === 'cancel' && (
+              <div className="space-y-4">
+                <h3 className="text-base font-black text-rose-600">Cancel KOT Ticket</h3>
+                <p className="text-xs text-gray-500">
+                  Are you sure you want to cancel this KOT ticket? This will remove it from the kitchen queue.
+                </p>
+                <div className="flex justify-end gap-2 pt-2">
+                  <button
+                    onClick={() => setActionModal(null)}
+                    className="px-4 py-2 rounded-xl text-xs font-bold text-gray-600 hover:bg-gray-100"
+                  >
+                    No, keep
+                  </button>
+                  <button
+                    onClick={handleCancelKot}
+                    className="px-4 py-2 rounded-xl text-xs font-black bg-rose-600 text-white hover:bg-rose-700"
+                  >
+                    Yes, Cancel KOT
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
 
 export default KitchenKotPage;

@@ -17,14 +17,10 @@ import {
   WifiOff,
   Maximize,
   Minimize,
-  ConciergeBell,
-  BellRing,
   UserRound,
   Settings,
-  LifeBuoy,
   LogOut,
   Check,
-  CornerDownLeft,
   Receipt,
   Armchair,
 } from 'lucide-react';
@@ -259,153 +255,85 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ userName = 'Rohit Sengar
   };
 
   /* ---------- render ---------- */
-  const iconBtn = 'relative w-10 h-10 rounded-xl flex items-center justify-center text-white/90 hover:bg-white/10 transition-colors';
+  const isDashboard = location.pathname === '/' || location.pathname === '';
+  const isPos = location.pathname.startsWith('/pos');
+  const showEmeraldHeader = isDashboard;
 
   return (
-    <div ref={rootRef} className="flex flex-col h-[100dvh] w-full bg-[#FAF8F9] text-[#191923] overflow-hidden">
-      {/* ================= HEADER ================= */}
-      <header ref={headerRef} className="h-[68px] shrink-0 z-40 bg-gradient-to-r from-[#5E0721] via-[#6E0A28] to-[#5E0721] px-3 sm:px-5 flex items-center gap-3 sm:gap-5 shadow-md">
-        {/* Logo */}
-        <button onClick={() => navigate('/')} className="flex items-center gap-2.5 shrink-0" aria-label="CyberLim POS home">
-          <div className="w-8 h-8 rounded-full border-2 border-white flex items-center justify-center bg-white/10">
-            <Check className="w-4 h-4 text-white" strokeWidth={3} />
-          </div>
-          <span className="text-xl sm:text-2xl font-black tracking-tight text-white flex items-center gap-1.5">
-            CyberLim <span className="font-extrabold">POS</span>
-          </span>
-        </button>
-
-        <span className="hidden lg:block w-px h-8 bg-white/20" />
-
-        {/* Outlet switcher */}
-        <div ref={outletPop.ref} className="relative shrink-0">
-          <button onClick={() => outletPop.setOpen((o) => !o)} className="flex items-center gap-3 rounded-2xl pl-1 pr-2 py-1 hover:bg-white/5 transition-colors" aria-haspopup="menu" aria-expanded={outletPop.open}>
-            <span className="w-11 h-11 rounded-xl bg-[#8E1A3D] flex items-center justify-center text-white">
-              <Store className="w-5 h-5" />
-            </span>
-            <span className="hidden sm:block text-left">
-              <span className="block text-[15px] font-bold text-white leading-tight">{outlet.name}</span>
-              <span className="block text-xs text-rose-200/90 font-medium leading-tight">{outlet.branch}</span>
-            </span>
-            <span className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
-              <ChevronDown className={`w-4 h-4 text-white transition-transform ${outletPop.open ? 'rotate-180' : ''}`} />
-            </span>
-          </button>
-          {outletPop.open && (
-            <div className="absolute left-0 top-full mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-gray-100 p-2 z-50">
-              <p className="px-2.5 pt-1 pb-2 text-[10px] font-black uppercase tracking-wider text-gray-400">Outlets</p>
-              <div className="flex items-center gap-3 px-2.5 py-2.5 rounded-xl bg-[#FFF5F8]">
-                <Store className="w-5 h-5 text-[#800D32]" />
-                <span className="flex-1 min-w-0">
-                  <span className="block text-sm font-black truncate">{outlet.name}</span>
-                  <span className="block text-xs text-gray-500 truncate">{outlet.branch}</span>
-                </span>
-                <Check className="w-4 h-4 text-[#800D32]" />
+    <div ref={rootRef} className={`flex flex-col h-[100dvh] w-full text-[#191923] overflow-hidden ${showEmeraldHeader ? 'bg-[#F4F7F6]' : 'bg-[#FAF8F9]'}`}>
+      {/* ================= HEADER (Clean White & Emerald style) ================= */}
+      {showEmeraldHeader && (
+        <header ref={headerRef} className="h-14 shrink-0 z-40 bg-white border-b border-emerald-100/80 px-4 sm:px-6 flex items-center justify-between shadow-[0_2px_12px_rgba(16,185,129,0.04)]">
+          {/* Logo & Outlet */}
+          <div className="flex items-center gap-6">
+            <button onClick={() => navigate('/')} className="flex items-center gap-2 shrink-0 group" aria-label="CyberLim POS home">
+              <div className="w-8 h-8 rounded-xl bg-[#00C060] flex items-center justify-center text-white shadow-md shadow-emerald-500/20 group-hover:scale-105 transition-transform">
+                <Check className="w-5 h-5" strokeWidth={3.2} />
               </div>
-              <button onClick={() => (outletPop.setOpen(false), navigate('/tools'))} className="w-full mt-1 px-2.5 py-2 rounded-xl text-left text-xs font-bold text-[#800D32] hover:bg-gray-50">
-                Edit outlet info
+              <span className="text-xl font-extrabold tracking-tight text-[#162720] flex items-center gap-1.5">
+                CyberLim <span className="bg-[#E7F9F0] text-[#00B859] px-1.5 py-0.5 rounded text-[10px] font-black tracking-wider uppercase">POS</span>
+              </span>
+            </button>
+
+            <span className="hidden lg:block w-px h-5 bg-gray-200" />
+
+            {/* Outlet */}
+            <div ref={outletPop.ref} className="relative hidden sm:block shrink-0">
+              <button onClick={() => outletPop.setOpen((o) => !o)} className="flex items-center gap-2.5 rounded-xl px-2 py-1 hover:bg-emerald-50/60 transition-colors" aria-haspopup="menu" aria-expanded={outletPop.open}>
+                <span className="w-7 h-7 rounded-lg bg-emerald-50 text-[#00B859] flex items-center justify-center">
+                  <Store className="w-4 h-4" />
+                </span>
+                <span className="text-left">
+                  <span className="block text-xs font-bold text-[#162720] leading-tight">{outlet.name}</span>
+                  <span className="block text-[10px] text-gray-400 font-semibold leading-tight">{outlet.branch}</span>
+                </span>
+                <ChevronDown className={`w-3.5 h-3.5 text-gray-400 transition-transform ${outletPop.open ? 'rotate-180' : ''}`} />
               </button>
             </div>
-          )}
-        </div>
-
-        {/* Search */}
-        <div ref={searchPop.ref} className="relative flex-1 min-w-0 max-w-2xl mx-auto">
-          <div className="flex items-center gap-3 h-11 rounded-2xl bg-white/10 border border-white/10 px-4 focus-within:bg-white/15 focus-within:border-white/30 transition-colors">
-            <Search className="w-5 h-5 text-white/90 shrink-0" />
-            <input
-              ref={inputRef}
-              value={query}
-              onChange={(e) => (setQuery(e.target.value), searchPop.setOpen(true))}
-              onFocus={() => searchPop.setOpen(true)}
-              onKeyDown={(e) => {
-                if (e.key === 'ArrowDown') (e.preventDefault(), setActive((a) => Math.min(a + 1, hits.length - 1)));
-                if (e.key === 'ArrowUp') (e.preventDefault(), setActive((a) => Math.max(a - 1, 0)));
-                if (e.key === 'Enter') go(hits[active]);
-              }}
-              placeholder="Search orders, tables, customers, items..."
-              className="flex-1 min-w-0 bg-transparent text-[15px] text-white placeholder-white/80 outline-none"
-              aria-label="Search"
-            />
-            <span className="hidden sm:flex items-center gap-1 shrink-0">
-              <kbd className="px-2 py-0.5 rounded-md bg-white/15 text-xs font-bold text-white">Ctrl</kbd>
-              <kbd className="px-2 py-0.5 rounded-md bg-white/15 text-xs font-bold text-white">K</kbd>
-            </span>
           </div>
-          {searchPop.open && (
-            <div className="absolute left-0 right-0 top-full mt-2 max-h-[60dvh] overflow-y-auto bg-white rounded-2xl shadow-2xl border border-gray-100 p-2 z-50">
-              {hits.length === 0 ? (
-                <p className="px-3 py-6 text-center text-sm font-semibold text-gray-500">No matches for “{query}”</p>
-              ) : (
-                hits.map((h, i) => (
-                  <React.Fragment key={h.id}>
-                    {(i === 0 || hits[i - 1].group !== h.group) && <p className="px-2.5 pt-2 pb-1 text-[10px] font-black uppercase tracking-wider text-gray-400">{h.group}</p>}
+
+          {/* Search Bar - Soft Pill */}
+          <div ref={searchPop.ref} className="relative flex-1 min-w-0 max-w-md mx-4">
+            <div className="flex items-center gap-2 h-9 rounded-full bg-[#F4F7F6] border border-gray-200/60 px-4 focus-within:bg-white focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-400/20 transition-all">
+              <Search className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+              <input
+                ref={inputRef}
+                value={query}
+                onChange={(e) => (setQuery(e.target.value), searchPop.setOpen(true))}
+                onFocus={() => searchPop.setOpen(true)}
+                onKeyDown={(e) => {
+                  if (e.key === 'ArrowDown') (e.preventDefault(), setActive((a) => Math.min(a + 1, hits.length - 1)));
+                  if (e.key === 'ArrowUp') (e.preventDefault(), setActive((a) => Math.max(a - 1, 0)));
+                  if (e.key === 'Enter') go(hits[active]);
+                }}
+                placeholder="Search orders, items, customers..."
+                className="flex-1 min-w-0 bg-transparent text-xs text-gray-800 placeholder-gray-400 outline-none"
+                aria-label="Search"
+              />
+              <span className="hidden sm:flex items-center gap-1 shrink-0">
+                <kbd className="px-1.5 py-0.5 rounded bg-white shadow-sm border border-gray-200 text-[9px] font-bold text-gray-500">Ctrl</kbd>
+                <kbd className="px-1.5 py-0.5 rounded bg-white shadow-sm border border-gray-200 text-[9px] font-bold text-gray-500">K</kbd>
+              </span>
+            </div>
+            {searchPop.open && (
+              <div className="absolute left-0 right-0 top-full mt-2 max-h-[60dvh] overflow-y-auto bg-white rounded-2xl shadow-2xl border border-gray-100 p-2 z-50">
+                {hits.length === 0 ? (
+                  <p className="px-3 py-6 text-center text-sm font-semibold text-gray-500">No matches for “{query}”</p>
+                ) : (
+                  hits.map((h, i) => (
                     <button
+                      key={h.id}
                       onMouseEnter={() => setActive(i)}
                       onClick={() => go(h)}
-                      className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left ${i === active ? 'bg-[#FFF0F4]' : ''}`}
+                      className={`w-full flex items-center gap-3 px-2.5 py-2 rounded-xl text-left ${i === active ? 'bg-[#F4F7F6]' : ''}`}
                     >
-                      <span className="w-8 h-8 rounded-lg bg-[#FDEBF1] text-[#800D32] flex items-center justify-center shrink-0">
+                      <span className="w-8 h-8 rounded-lg bg-emerald-50 text-[#00C060] flex items-center justify-center shrink-0">
                         <h.icon className="w-4 h-4" />
                       </span>
                       <span className="flex-1 min-w-0">
                         <span className="block text-sm font-bold text-[#191923] truncate">{h.title}</span>
                         {h.sub && <span className="block text-xs text-gray-500 truncate">{h.sub}</span>}
                       </span>
-                      {i === active && <CornerDownLeft className="w-4 h-4 text-gray-400" />}
-                    </button>
-                  </React.Fragment>
-                ))
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Right controls */}
-        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
-          <span className={iconBtn} title={online ? 'Online' : 'Offline — changes are saved on this device'} aria-label={online ? 'Online' : 'Offline'}>
-            {online ? <Wifi className="w-6 h-6 text-[#4ADE80]" strokeWidth={2.5} /> : <WifiOff className="w-6 h-6 text-rose-300" strokeWidth={2.5} />}
-          </span>
-
-          {/* Notifications */}
-          <div ref={bellPop.ref} className="relative">
-            <button
-              onClick={() => {
-                bellPop.setOpen((o) => !o);
-                const latest = notes[0]?.at ?? new Date().toISOString();
-                setSeenAt(latest);
-                localStorage.setItem('layout.notifSeen', latest);
-              }}
-              className={iconBtn}
-              aria-label={`Notifications${unread ? ` (${unread} new)` : ''}`}
-            >
-              <Bell className="w-6 h-6" />
-              {notes.length > 0 && (
-                <span className={`absolute top-1 right-1 min-w-[16px] h-4 px-1 rounded-full text-[9px] font-black flex items-center justify-center ring-2 ring-[#6E0A28] ${unread ? 'bg-[#FF3B5C] text-white' : 'bg-white/30 text-white'}`}>
-                  {notes.length > 9 ? '9+' : notes.length}
-                </span>
-              )}
-            </button>
-            {bellPop.open && (
-              <div className="absolute right-0 top-full mt-2 w-80 max-h-[60dvh] overflow-y-auto bg-white rounded-2xl shadow-2xl border border-gray-100 p-2 z-50">
-                <p className="px-2.5 pt-1 pb-2 text-sm font-black text-[#191923]">Notifications</p>
-                {notes.length === 0 ? (
-                  <p className="px-3 py-6 text-center text-sm font-semibold text-gray-500">You're all caught up</p>
-                ) : (
-                  notes.slice(0, 12).map((n) => (
-                    <button
-                      key={n.id}
-                      onClick={() => (bellPop.setOpen(false), navigate(n.kind === 'request' ? '/requests' : '/kitchen'))}
-                      className="w-full flex items-start gap-3 px-2.5 py-2.5 rounded-xl text-left hover:bg-gray-50"
-                    >
-                      <span className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${n.kind === 'request' ? 'bg-rose-50 text-[#800D32]' : 'bg-emerald-50 text-emerald-600'}`}>
-                        {n.kind === 'request' ? <ConciergeBell className="w-4 h-4" /> : <BellRing className="w-4 h-4" />}
-                      </span>
-                      <span className="flex-1 min-w-0">
-                        <span className="block text-sm font-bold text-[#191923] truncate">{n.title}</span>
-                        <span className="block text-xs text-gray-500">{n.sub}</span>
-                      </span>
-                      <span className="text-[10px] font-semibold text-gray-400 whitespace-nowrap">{new Date(n.at).toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' })}</span>
                     </button>
                   ))
                 )}
@@ -413,53 +341,88 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ userName = 'Rohit Sengar
             )}
           </div>
 
-          <button onClick={toggleFull} className={`${iconBtn} hidden sm:flex`} aria-label={full ? 'Exit full screen' : 'Full screen'} title={full ? 'Exit full screen' : 'Full screen'}>
-            {full ? <Minimize className="w-6 h-6" /> : <Maximize className="w-6 h-6" />}
-          </button>
+          {/* Right controls */}
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="relative w-8 h-8 rounded-full flex items-center justify-center text-gray-500" title={online ? 'Online' : 'Offline'}>
+              {online ? <Wifi className="w-4 h-4 text-[#00C060]" /> : <WifiOff className="w-4 h-4 text-rose-500" />}
+            </span>
 
-          <span className="hidden lg:block w-px h-8 bg-white/20 mx-1" />
-
-          {/* User */}
-          <div ref={userPop.ref} className="relative">
-            <button onClick={() => userPop.setOpen((o) => !o)} className="flex items-center gap-2.5 rounded-2xl pl-1 pr-2 py-1 hover:bg-white/5" aria-haspopup="menu" aria-expanded={userPop.open}>
-              <span className="w-11 h-11 rounded-full ring-2 ring-white/80 overflow-hidden bg-white flex items-center justify-center">
-                {avatarUrl ? <img src={avatarUrl} alt={userName} className="w-full h-full object-cover" /> : <span className="text-sm font-black text-[#800D32]">{initials(userName)}</span>}
-              </span>
-              <span className="hidden lg:block text-left">
-                <span className="block text-[15px] font-bold text-white leading-tight">{userName}</span>
-                <span className="block text-xs text-rose-200/90 font-medium leading-tight">{userRole}</span>
-              </span>
-              <ChevronDown className={`w-5 h-5 text-white transition-transform ${userPop.open ? 'rotate-180' : ''}`} />
-            </button>
-            {userPop.open && (
-              <div className="absolute right-0 top-full mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-gray-100 p-2 z-50">
-                <div className="px-2.5 py-2 border-b border-gray-100 mb-1">
-                  <p className="text-sm font-black text-[#191923]">{userName}</p>
-                  <p className="text-xs text-gray-500">{userRole}</p>
+            <div ref={bellPop.ref} className="relative">
+              <button
+                onClick={() => {
+                  bellPop.setOpen((o) => !o);
+                  const latest = notes[0]?.at ?? new Date().toISOString();
+                  setSeenAt(latest);
+                  localStorage.setItem('layout.notifSeen', latest);
+                }}
+                className="w-8 h-8 rounded-full flex items-center justify-center text-gray-500 hover:bg-emerald-50 hover:text-emerald-600 transition-colors relative"
+                aria-label={`Notifications${unread ? ` (${unread} new)` : ''}`}
+              >
+                <Bell className="w-4 h-4" />
+                {unread > 0 && <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-emerald-500 ring-2 ring-white" />}
+              </button>
+              {bellPop.open && (
+                <div className="absolute right-0 top-full mt-2 w-72 bg-white rounded-xl shadow-xl border border-gray-100 p-2 z-50">
+                  <p className="px-2.5 py-1 text-xs font-black text-gray-800">Notifications</p>
+                  {notes.length === 0 ? (
+                    <p className="px-2.5 py-4 text-center text-xs text-gray-400">All caught up</p>
+                  ) : (
+                    notes.slice(0, 5).map((n) => (
+                      <div key={n.id} className="p-2 text-xs border-b border-gray-50 last:border-0">
+                        <p className="font-bold text-gray-800 truncate">{n.title}</p>
+                        <p className="text-[10px] text-gray-400">{n.sub}</p>
+                      </div>
+                    ))
+                  )}
                 </div>
-                {[
-                  { l: 'Customers', I: UserRound, on: () => navigate('/customers') },
-                  { l: 'POS Settings', I: Settings, on: () => navigate('/printers') },
-                  { l: 'Help & Support', I: LifeBuoy, on: () => navigate('/tools') },
-                ].map((m) => (
-                  <button key={m.l} onClick={() => (userPop.setOpen(false), m.on())} className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-sm font-semibold text-gray-700 hover:bg-[#FFF5F8] hover:text-[#800D32]">
-                    <m.I className="w-4 h-4" /> {m.l}
+              )}
+            </div>
+
+            <button onClick={toggleFull} className="w-8 h-8 rounded-full hidden sm:flex items-center justify-center text-gray-500 hover:bg-emerald-50 hover:text-emerald-600 transition-colors" title="Full screen">
+              {full ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+            </button>
+
+            <span className="w-px h-5 bg-gray-200 mx-1" />
+
+            {/* User */}
+            <div ref={userPop.ref} className="relative">
+              <button onClick={() => userPop.setOpen((o) => !o)} className="flex items-center gap-2.5 pl-1" aria-haspopup="menu">
+                <div className="w-8 h-8 rounded-full ring-2 ring-emerald-500/20 overflow-hidden bg-emerald-100 flex items-center justify-center">
+                  {avatarUrl ? (
+                    <img src={avatarUrl} alt={userName} className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-xs font-black text-emerald-700">{initials(userName)}</span>
+                  )}
+                </div>
+                <div className="hidden lg:block text-left leading-none">
+                  <span className="block text-xs font-bold text-[#162720]">{userName}</span>
+                  <span className="block text-[10px] text-gray-400 font-semibold mt-0.5">{userRole}</span>
+                </div>
+                <ChevronDown className="w-3.5 h-3.5 text-gray-400" />
+              </button>
+              {userPop.open && (
+                <div className="absolute right-0 top-full mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 p-1.5 z-50">
+                  <button onClick={() => (userPop.setOpen(false), navigate('/customers'))} className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-gray-700 hover:bg-emerald-50 hover:text-emerald-700">
+                    <UserRound className="w-3.5 h-3.5" /> Customers
                   </button>
-                ))}
-                {onLogout && (
-                  <button onClick={() => (userPop.setOpen(false), onLogout())} className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl text-sm font-semibold text-rose-600 hover:bg-rose-50 mt-1 border-t border-gray-100 pt-2.5">
-                    <LogOut className="w-4 h-4" /> Log out
+                  <button onClick={() => (userPop.setOpen(false), navigate('/printers'))} className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-gray-700 hover:bg-emerald-50 hover:text-emerald-700">
+                    <Settings className="w-3.5 h-3.5" /> Settings
                   </button>
-                )}
-              </div>
-            )}
+                  {onLogout && (
+                    <button onClick={() => (userPop.setOpen(false), onLogout())} className="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 hover:bg-rose-50 border-t border-gray-100 mt-1">
+                      <LogOut className="w-3.5 h-3.5" /> Log out
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
+      )}
 
       {/* ================= NAV TABS ================= */}
-      <div ref={navRef} className="shrink-0 bg-white border-b border-gray-200/70 shadow-[0_1px_2px_rgba(16,24,40,0.04)] px-2 sm:px-4 py-1.5">
-        <nav className="flex items-center justify-between gap-1 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" aria-label="Main">
+      <div ref={navRef} className="shrink-0 border-b px-2 sm:px-6 py-2 bg-white border-slate-100 shadow-xs">
+        <nav className="flex items-center gap-1.5 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" aria-label="Main">
           {NAV_TABS.map((tab) => {
             const Icon = tab.icon;
             return (
@@ -468,13 +431,16 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ userName = 'Rohit Sengar
                 to={tab.path}
                 end={tab.end}
                 className={({ isActive }) =>
-                  `shrink-0 flex items-center gap-2 px-4 xl:px-7 py-2.5 rounded-xl text-sm xl:text-[15px] font-bold whitespace-nowrap transition-colors ${isActive ? 'bg-gradient-to-b from-[#8E1239] to-[#6E0A28] text-white shadow-md shadow-[#800D32]/25' : 'text-[#191923] hover:bg-[#FFF5F8] hover:text-[#800D32]'
+                  `shrink-0 flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all ${
+                    isActive
+                      ? 'bg-[#00C060] text-white shadow-md shadow-emerald-500/25 scale-[1.02]'
+                      : 'text-slate-600 hover:bg-emerald-50/60 hover:text-[#00C060]'
                   }`
                 }
               >
                 {({ isActive }) => (
                   <>
-                    <Icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-white' : 'text-[#800D32]'}`} />
+                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-slate-500 group-hover:text-[#00C060]'}`} />
                     <span>{tab.label}</span>
                   </>
                 )}
@@ -485,7 +451,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ userName = 'Rohit Sengar
       </div>
 
       {/* ================= CONTENT ================= */}
-      <main className="flex-1 min-h-0 overflow-y-auto px-2 sm:px-3 py-2.5 bg-[#FAF8F9] flex flex-col">
+      <main className={`flex-1 min-h-0 flex flex-col ${isDashboard ? 'bg-[#F4F7F6] overflow-y-auto px-4 sm:px-6 py-4' : isPos ? 'bg-[#F4F7F6] p-3 overflow-hidden' : 'bg-[#FAF8F9] overflow-y-auto px-2 sm:px-3 py-2.5'}`}>
         <Outlet />
       </main>
     </div>

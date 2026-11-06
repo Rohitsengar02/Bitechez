@@ -11,6 +11,21 @@ import { ItemMenuPage } from '../pages/ItemMenuPage';
 import { PrintersPage } from '../pages/PrintersPage';
 import { MoreToolsPage } from '../pages/MoreToolsPage';
 import { OrdersPage } from '../pages/orderpage';
+import { ShiftManagementPage } from '../pages/ShiftManagementPage';
+import { StaffRolesPage } from '../pages/StaffRolesPage';
+import { CashDrawerPage } from '../pages/CashDrawerPage';
+import { AttendancePage } from '../pages/AttendancePage';
+import { DayClosePage } from '../pages/DayClosePage';
+import { SettingsPage } from '../pages/SettingsPage';
+import { StockManagementPage } from '../pages/StockManagementPage';
+import { PurchaseSuppliersPage } from '../pages/PurchaseSuppliersPage';
+import { StockAdjustmentPage } from '../pages/StockAdjustmentPage';
+import { SalesReportsPage } from '../pages/SalesReportsPage';
+import { ItemReportsPage } from '../pages/ItemReportsPage';
+import { ProfitExpensePage } from '../pages/ProfitExpensePage';
+import { OffersDiscountsPage } from '../pages/OffersDiscountsPage';
+import { LoyaltyRewardsPage } from '../pages/LoyaltyRewardsPage';
+import { IntegrationsPage } from '../pages/IntegrationsPage';
 
 const router = createHashRouter([
   {
@@ -26,6 +41,21 @@ const router = createHashRouter([
       { path: 'menu', element: <ItemMenuPage /> },
       { path: 'printers', element: <PrintersPage /> },
       { path: 'tools', element: <MoreToolsPage /> },
+      { path: 'shifts', element: <ShiftManagementPage /> },
+      { path: 'staff', element: <StaffRolesPage /> },
+      { path: 'attendance', element: <AttendancePage /> },
+      { path: 'cashdrawer', element: <CashDrawerPage /> },
+      { path: 'dayclose', element: <DayClosePage /> },
+      { path: 'settings', element: <SettingsPage /> },
+      { path: 'inventory/stock', element: <StockManagementPage /> },
+      { path: 'inventory/purchase', element: <PurchaseSuppliersPage /> },
+      { path: 'inventory/adjustments', element: <StockAdjustmentPage /> },
+      { path: 'reports/sales', element: <SalesReportsPage /> },
+      { path: 'reports/items', element: <ItemReportsPage /> },
+      { path: 'reports/profit', element: <ProfitExpensePage /> },
+      { path: 'marketing/offers', element: <OffersDiscountsPage /> },
+      { path: 'marketing/loyalty', element: <LoyaltyRewardsPage /> },
+      { path: 'integrations', element: <IntegrationsPage /> },
       { path: 'orders', element: <OrdersPage /> },
     ],
   },

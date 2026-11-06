@@ -1,0 +1,12 @@
+{
+  "buildCommand": "pnpm --filter @bitechez/desktop run build:web",
+  "outputDirectory": "apps/desktop/dist",
+  "framework": "vite",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
+
