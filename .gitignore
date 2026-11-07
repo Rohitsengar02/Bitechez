@@ -9,6 +9,7 @@ build/
 out/
 release/
 .turbo/
+*.apk
 
 # Environment files
 .env
@@ -50,6 +51,15 @@ desktop.ini
 # Coverage directory used by tools like vitest
 coverage/
 .nyc_output/
+
+# Mobile & Capacitor builds
+.gradle/
+**/android/.gradle/
+**/android/build/
+**/android/app/build/
+**/android/.idea/
+**/ios/DerivedData/
+**/ios/App/build/
 
 # Cache
 .eslintcache

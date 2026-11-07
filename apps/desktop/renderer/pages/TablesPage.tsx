@@ -17,7 +17,14 @@ import {
   Armchair,
   Check,
   Plus,
+  QrCode,
 } from 'lucide-react';
+import { TableQrModal } from '../components/TableQrModal';
+import {
+  TableScanRecord,
+  SCAN_EVENT_KEY,
+  getAllTableScanRecords,
+} from '../utils/deviceDetector';
 import type { MenuItem, RestaurantTable } from '@bitechez/shared-types';
 import { formatINR } from '@bitechez/business-logic';
 import { useCartStore } from '../stores/cartStore';
@@ -272,11 +279,13 @@ const TableCard = memo(
     selected,
     now,
     onSelect,
+    onOpenQr,
   }: {
     t: TableView;
     selected: boolean;
     now: number;
     onSelect: (id: string) => void;
+    onOpenQr: (t: TableView) => void;
   }) => {
     const cfg = STATUS_CONFIG[t.status];
     const img = TABLE_IMAGES[t.status];
@@ -308,6 +317,17 @@ const TableCard = memo(
           {/* Table Info & Status Tag */}
           <div className="flex-1 min-w-0 text-right">
             <div className="flex items-center justify-end gap-1.5">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onOpenQr(t);
+                }}
+                className="w-6 h-6 rounded-lg bg-emerald-50 hover:bg-[#00C060] text-[#00C060] hover:text-white transition flex items-center justify-center shrink-0 shadow-2xs"
+                title={`Table ${t.name} QR Code`}
+              >
+                <QrCode className="w-3.5 h-3.5" />
+              </button>
               <span className="text-sm font-black text-slate-900 tracking-tight">{t.name}</span>
             </div>
             <p className="text-[10px] font-bold text-slate-400 mt-0.5 flex items-center justify-end gap-1">
@@ -398,6 +418,9 @@ export const TablesPage: React.FC = () => {
   };
 
   const [selectedId, setSelectedId] = useState<string | undefined>();
+  const [qrTable, setQrTable] = useState<TableView | null>(null);
+  const [scanNotification, setScanNotification] = useState<TableScanRecord | null>(null);
+  const [viewScannerDetails, setViewScannerDetails] = useState<TableScanRecord | null>(null);
   const [modal, setModal] = useState<null | 'add' | 'transfer' | 'merge' | 'clear'>(null);
   const [toast, setToast] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [now, setNow] = useState(Date.now());
@@ -406,6 +429,52 @@ export const TablesPage: React.FC = () => {
   useEffect(() => {
     const id = setInterval(() => setNow(Date.now()), 20_000);
     return () => clearInterval(id);
+  }, []);
+
+  // Listen for real-time QR scans from any phone or browser
+  useEffect(() => {
+    const handleScanRecord = (rec: TableScanRecord) => {
+      setScanNotification(rec);
+    };
+
+    let bc: BroadcastChannel | null = null;
+    try {
+      bc = new BroadcastChannel('bitechez_scan_channel');
+      bc.onmessage = (event) => {
+        if (event.data?.type === 'TABLE_SCANNED' && event.data.record) {
+          handleScanRecord(event.data.record);
+        }
+      };
+    } catch {
+      /* ignore */
+    }
+
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === SCAN_EVENT_KEY && e.newValue) {
+        try {
+          const parsed = JSON.parse(e.newValue);
+          if (parsed.record) handleScanRecord(parsed.record);
+        } catch {
+          /* ignore */
+        }
+      }
+    };
+    window.addEventListener('storage', onStorage);
+
+    let lastCheckedTime = Date.now();
+    const pollId = setInterval(() => {
+      const scans = getAllTableScanRecords();
+      if (scans.length > 0 && scans[0].timestamp > lastCheckedTime) {
+        lastCheckedTime = scans[0].timestamp;
+        handleScanRecord(scans[0]);
+      }
+    }, 2000);
+
+    return () => {
+      bc?.close();
+      window.removeEventListener('storage', onStorage);
+      clearInterval(pollId);
+    };
   }, []);
 
   const notify = (type: 'success' | 'error', text: string) => setToast({ type, text });
@@ -527,6 +596,47 @@ export const TablesPage: React.FC = () => {
     <div className="flex-1 min-h-0 flex flex-col gap-3 overflow-hidden bg-[#F4F7F6]">
       <style>{TABLES_CSS}</style>
 
+      {/* Real-time QR Code Scanned Top Notification Banner */}
+      {scanNotification && (
+        <div className="fixed top-3 left-1/2 -translate-x-1/2 z-[90] w-[92%] sm:w-[480px] bg-slate-900 text-white rounded-2xl shadow-2xl p-3 border-2 border-[#00C060] animate-in slide-in-from-top duration-300">
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-10 h-10 rounded-xl bg-[#00C060] text-white flex items-center justify-center shrink-0 shadow-md shadow-emerald-500/20">
+                <QrCode className="w-5 h-5 stroke-[2.5]" />
+              </div>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-xs font-black uppercase text-emerald-400">QR Code Scanned!</span>
+                  <span className="text-[9px] font-black px-1.5 py-0.2 bg-white/20 rounded">
+                    Table {scanNotification.tableName}
+                  </span>
+                </div>
+                <p className="text-[11px] font-bold text-slate-300 truncate">
+                  📱 {scanNotification.device.brandModel} • {scanNotification.scannerMobile}
+                </p>
+              </div>
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                onClick={() => {
+                  setViewScannerDetails(scanNotification);
+                  setScanNotification(null);
+                }}
+                className="px-3 py-1.5 rounded-xl bg-[#00C060] text-white text-xs font-black hover:bg-[#00A850] shadow-sm transition"
+              >
+                Details
+              </button>
+              <button
+                onClick={() => setScanNotification(null)}
+                className="text-slate-400 hover:text-white px-1 text-sm font-bold"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Toast */}
       {toast && (
         <div
@@ -574,6 +684,13 @@ export const TablesPage: React.FC = () => {
 
             {/* Quick Actions / Add table */}
             <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                onClick={() => setQrTable(sel || tables[0] || null)}
+                className="w-8 h-8 rounded-xl bg-white border border-slate-200/90 text-slate-700 flex items-center justify-center hover:border-emerald-300 hover:text-[#00C060] transition shadow-xs"
+                title="Table QR Code"
+              >
+                <QrCode className="w-4 h-4" />
+              </button>
               <button
                 onClick={() => setModal('add')}
                 className="w-8 h-8 rounded-xl bg-white border border-slate-200/90 text-slate-700 flex items-center justify-center hover:border-emerald-300 hover:text-[#00C060] transition shadow-xs"
@@ -704,6 +821,7 @@ export const TablesPage: React.FC = () => {
                       setSelectedId(id);
                       setMobileDrawerOpen(true);
                     }}
+                    onOpenQr={(table) => setQrTable(table)}
                   />
                 ))}
               </div>
@@ -854,20 +972,28 @@ export const TablesPage: React.FC = () => {
                 </div>
 
                 {/* Secondary Actions Row */}
-                <div className="grid grid-cols-3 gap-1.5">
+                <div className="grid grid-cols-4 gap-1.5">
+                  <button
+                    onClick={() => setQrTable(sel)}
+                    className="py-1.5 px-1.5 rounded-lg border border-emerald-200 bg-emerald-50/70 text-[#00C060] hover:bg-emerald-100 text-[10px] font-black flex items-center justify-center gap-1 transition"
+                    title="View Table QR Code"
+                  >
+                    <QrCode className="w-3 h-3 text-[#00C060]" />
+                    <span>QR</span>
+                  </button>
                   <button
                     onClick={() => setModal('transfer')}
-                    className="py-1.5 px-2 rounded-lg border border-slate-200 text-slate-700 hover:border-slate-300 text-[10px] font-bold flex items-center justify-center gap-1 transition"
+                    className="py-1.5 px-1.5 rounded-lg border border-slate-200 text-slate-700 hover:border-slate-300 text-[10px] font-bold flex items-center justify-center gap-1 transition"
                   >
                     <ArrowLeftRight className="w-3 h-3 text-slate-500" />
-                    <span>Move Table</span>
+                    <span>Move</span>
                   </button>
                   <button
                     onClick={() => setModal('merge')}
-                    className="py-1.5 px-2 rounded-lg border border-slate-200 text-slate-700 hover:border-slate-300 text-[10px] font-bold flex items-center justify-center gap-1 transition"
+                    className="py-1.5 px-1.5 rounded-lg border border-slate-200 text-slate-700 hover:border-slate-300 text-[10px] font-bold flex items-center justify-center gap-1 transition"
                   >
                     <Combine className="w-3 h-3 text-slate-500" />
-                    <span>Merge Table</span>
+                    <span>Merge</span>
                   </button>
                   {sel.status === 'cleaning' ? (
                     <button
@@ -875,9 +1001,9 @@ export const TablesPage: React.FC = () => {
                         setStatus(sel.id, 'available');
                         notify('success', `${sel.name} is now Cleaned & Available`);
                       }}
-                      className="py-1.5 px-2 rounded-lg border border-emerald-300 bg-emerald-50 text-[#00C060] hover:bg-emerald-100 text-[10px] font-black flex items-center justify-center gap-1 transition shadow-xs"
+                      className="py-1.5 px-1 rounded-lg border border-emerald-300 bg-emerald-50 text-[#00C060] hover:bg-emerald-100 text-[10px] font-black flex items-center justify-center gap-0.5 transition shadow-xs"
                     >
-                      <Check className="w-3.5 h-3.5 stroke-[3] text-[#00C060]" />
+                      <Check className="w-3 h-3 stroke-[3] text-[#00C060]" />
                       <span>Cleaned</span>
                     </button>
                   ) : (
@@ -886,10 +1012,10 @@ export const TablesPage: React.FC = () => {
                         setStatus(sel.id, 'cleaning');
                         notify('success', `${sel.name} sent for cleaning`);
                       }}
-                      className="py-1.5 px-2 rounded-lg border border-rose-100 text-rose-500 hover:bg-rose-50 text-[10px] font-bold flex items-center justify-center gap-1 transition"
+                      className="py-1.5 px-1 rounded-lg border border-rose-100 text-rose-500 hover:bg-rose-50 text-[10px] font-bold flex items-center justify-center gap-0.5 transition"
                     >
                       <Trash2 className="w-3 h-3 text-rose-500" />
-                      <span>Clear Table</span>
+                      <span>Clear</span>
                     </button>
                   )}
                 </div>
@@ -929,6 +1055,13 @@ export const TablesPage: React.FC = () => {
             </button>
 
             <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                onClick={() => setQrTable(sel)}
+                className="w-8 h-8 rounded-xl bg-emerald-50 hover:bg-[#00C060] text-[#00C060] hover:text-white transition flex items-center justify-center border border-emerald-200"
+                title="Table QR Code"
+              >
+                <QrCode className="w-4 h-4" />
+              </button>
               <button
                 onClick={() => setMobileDrawerOpen(true)}
                 className="px-2.5 py-1.5 rounded-xl border border-slate-200 text-slate-700 text-xs font-bold bg-white"
@@ -1102,13 +1235,23 @@ export const TablesPage: React.FC = () => {
                   </div>
 
                   {/* Secondary Actions */}
-                  <div className="grid grid-cols-3 gap-1.5 pt-1">
+                  <div className="grid grid-cols-4 gap-1.5 pt-1">
+                    <button
+                      onClick={() => {
+                        setMobileDrawerOpen(false);
+                        setQrTable(sel);
+                      }}
+                      className="py-1.5 px-1.5 rounded-lg border border-emerald-200 bg-emerald-50/70 text-[#00C060] text-[10px] font-black flex items-center justify-center gap-1"
+                    >
+                      <QrCode className="w-3 h-3 text-[#00C060]" />
+                      <span>QR</span>
+                    </button>
                     <button
                       onClick={() => {
                         setMobileDrawerOpen(false);
                         setModal('transfer');
                       }}
-                      className="py-1.5 px-2 rounded-lg border border-slate-200 text-slate-700 text-[10px] font-bold flex items-center justify-center gap-1"
+                      className="py-1.5 px-1.5 rounded-lg border border-slate-200 text-slate-700 text-[10px] font-bold flex items-center justify-center gap-1"
                     >
                       <ArrowLeftRight className="w-3 h-3 text-slate-500" />
                       <span>Move</span>
@@ -1118,7 +1261,7 @@ export const TablesPage: React.FC = () => {
                         setMobileDrawerOpen(false);
                         setModal('merge');
                       }}
-                      className="py-1.5 px-2 rounded-lg border border-slate-200 text-slate-700 text-[10px] font-bold flex items-center justify-center gap-1"
+                      className="py-1.5 px-1.5 rounded-lg border border-slate-200 text-slate-700 text-[10px] font-bold flex items-center justify-center gap-1"
                     >
                       <Combine className="w-3 h-3 text-slate-500" />
                       <span>Merge</span>
@@ -1129,9 +1272,9 @@ export const TablesPage: React.FC = () => {
                           setStatus(sel.id, 'available');
                           notify('success', `${sel.name} is now Cleaned & Available`);
                         }}
-                        className="py-1.5 px-2 rounded-lg border border-emerald-300 bg-emerald-50 text-[#00C060] text-[10px] font-black flex items-center justify-center gap-1"
+                        className="py-1.5 px-1 rounded-lg border border-emerald-300 bg-emerald-50 text-[#00C060] text-[10px] font-black flex items-center justify-center gap-0.5"
                       >
-                        <Check className="w-3.5 h-3.5 stroke-[3]" />
+                        <Check className="w-3 h-3 stroke-[3]" />
                         <span>Cleaned</span>
                       </button>
                     ) : (
@@ -1140,7 +1283,7 @@ export const TablesPage: React.FC = () => {
                           setStatus(sel.id, 'cleaning');
                           notify('success', `${sel.name} sent for cleaning`);
                         }}
-                        className="py-1.5 px-2 rounded-lg border border-rose-100 text-rose-500 hover:bg-rose-50 text-[10px] font-bold flex items-center justify-center gap-1"
+                        className="py-1.5 px-1 rounded-lg border border-rose-100 text-rose-500 hover:bg-rose-50 text-[10px] font-bold flex items-center justify-center gap-0.5"
                       >
                         <Trash2 className="w-3 h-3 text-rose-500" />
                         <span>Clear</span>
@@ -1261,6 +1404,83 @@ export const TablesPage: React.FC = () => {
             Create Table
           </button>
         </form>
+      </Modal>
+
+      {/* Table QR Code Modal */}
+      <TableQrModal
+        open={!!qrTable}
+        table={qrTable}
+        onClose={() => setQrTable(null)}
+      />
+
+      {/* Scanner Details Modal */}
+      <Modal
+        open={!!viewScannerDetails}
+        onClose={() => setViewScannerDetails(null)}
+        title={`Scanner Details — Table ${viewScannerDetails?.tableName}`}
+        subtitle="Live device & mobile number captured from QR scan"
+      >
+        {viewScannerDetails && (
+          <div className="space-y-3.5">
+            {/* Table & Mobile Identity Card */}
+            <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between">
+              <div>
+                <span className="text-[10px] font-black uppercase text-emerald-600 block">Verified Scanner</span>
+                <p className="text-base font-black text-slate-900 mt-0.5">{viewScannerDetails.scannerMobile}</p>
+                <p className="text-[11px] font-bold text-slate-500">
+                  Linked to Table {viewScannerDetails.tableName}
+                </p>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-[#00C060] text-white flex items-center justify-center font-bold">
+                <Check className="w-5 h-5 stroke-[3]" />
+              </div>
+            </div>
+
+            {/* Hardware & OS Telemetry Grid */}
+            <div className="grid grid-cols-2 gap-2 text-xs font-bold">
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <span className="text-[10px] text-slate-400 uppercase block">Device Model</span>
+                <p className="text-slate-900 font-black mt-0.5 truncate">{viewScannerDetails.device.brandModel}</p>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <span className="text-[10px] text-slate-400 uppercase block">Operating System</span>
+                <p className="text-slate-900 font-black mt-0.5 truncate">
+                  {viewScannerDetails.device.osName} {viewScannerDetails.device.osVersion}
+                </p>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <span className="text-[10px] text-slate-400 uppercase block">Browser</span>
+                <p className="text-slate-900 font-black mt-0.5 truncate">
+                  {viewScannerDetails.device.browserName} {viewScannerDetails.device.browserVersion}
+                </p>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <span className="text-[10px] text-slate-400 uppercase block">Screen Resolution</span>
+                <p className="text-slate-900 font-black mt-0.5 truncate">
+                  {viewScannerDetails.device.screenWidth} × {viewScannerDetails.device.screenHeight} ({viewScannerDetails.device.pixelRatio}x)
+                </p>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <span className="text-[10px] text-slate-400 uppercase block">Connection</span>
+                <p className="text-slate-900 font-black mt-0.5 truncate">{viewScannerDetails.device.connectionType || 'High-Speed'}</p>
+              </div>
+              <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
+                <span className="text-[10px] text-slate-400 uppercase block">Scan Timestamp</span>
+                <p className="text-slate-900 font-black mt-0.5 truncate">
+                  {new Date(viewScannerDetails.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
+                </p>
+              </div>
+            </div>
+
+            {/* User Agent String */}
+            <div>
+              <span className="text-[10px] font-bold text-slate-400 uppercase block mb-1">Raw User Agent</span>
+              <p className="text-[10px] font-mono bg-slate-50 p-2.5 rounded-xl border border-slate-100 text-slate-600 break-all max-h-16 overflow-y-auto">
+                {viewScannerDetails.device.userAgent}
+              </p>
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   );

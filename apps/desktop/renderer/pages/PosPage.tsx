@@ -241,11 +241,8 @@ const itemImage = (item: MenuItem): string | undefined => {
    CSS
    ===================================================================== */
 const CSS = `
-.pos-scroll{scrollbar-width:thin;scrollbar-color:#A7F3D0 transparent}
-.pos-scroll::-webkit-scrollbar{width:5px;height:5px}
-.pos-scroll::-webkit-scrollbar-thumb{background:#A7F3D0;border-radius:9999px}
-.pos-scroll::-webkit-scrollbar-track{background:transparent}
-.pos-noscroll{scrollbar-width:none}.pos-noscroll::-webkit-scrollbar{display:none}
+.pos-scroll, .pos-noscroll{scrollbar-width:none!important;-ms-overflow-style:none!important}
+.pos-scroll::-webkit-scrollbar, .pos-noscroll::-webkit-scrollbar{display:none!important;width:0!important;height:0!important}
 @keyframes pos-bump{35%{transform:scale(1.15)}}.pos-bump{animation:pos-bump .22s ease}
 @keyframes pos-toast{from{opacity:0;transform:translateY(-8px)}}.pos-toast{animation:pos-toast .25s ease both}
 @keyframes floatSlow{0%,100%{transform:translateY(0px)}50%{transform:translateY(-3px)}}

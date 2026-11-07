@@ -26,8 +26,30 @@ import { ProfitExpensePage } from '../pages/ProfitExpensePage';
 import { OffersDiscountsPage } from '../pages/OffersDiscountsPage';
 import { LoyaltyRewardsPage } from '../pages/LoyaltyRewardsPage';
 import { IntegrationsPage } from '../pages/IntegrationsPage';
+import { TableScanPage } from '../pages/TableScanPage';
+import { WebsiteMenuPage } from '../website/WebsiteMenuPage';
 
 const router = createHashRouter([
+  {
+    path: '/website/:shopName',
+    element: <WebsiteMenuPage />,
+  },
+  {
+    path: '/website',
+    element: <WebsiteMenuPage />,
+  },
+  {
+    path: '/webiste/:shopName',
+    element: <WebsiteMenuPage />,
+  },
+  {
+    path: '/webiste',
+    element: <WebsiteMenuPage />,
+  },
+  {
+    path: '/table-scan',
+    element: <TableScanPage />,
+  },
   {
     path: '/',
     element: <MainLayout />,
@@ -35,6 +57,7 @@ const router = createHashRouter([
       { index: true, element: <DashboardPage /> },
       { path: 'pos', element: <PosPage /> },
       { path: 'tables', element: <TablesPage /> },
+      { path: 'table-scan', element: <TableScanPage /> },
       { path: 'kitchen', element: <KitchenKotPage /> },
       { path: 'requests', element: <RequestsPage /> },
       { path: 'customers', element: <CustomersPage /> },
@@ -58,6 +81,10 @@ const router = createHashRouter([
       { path: 'integrations', element: <IntegrationsPage /> },
       { path: 'orders', element: <OrdersPage /> },
     ],
+  },
+  {
+    path: '/:shopName',
+    element: <WebsiteMenuPage />,
   },
 ]);
 
